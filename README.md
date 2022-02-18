@@ -39,7 +39,7 @@ pip install -r requirements.txt
 Lancer le script :
 
 ```
-python p4_chess.py
+python main.py
 ```
 
 ## Voir Aussi
