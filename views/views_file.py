@@ -1,13 +1,17 @@
-from typing import Dict
-from dataclasses import dataclass, asdict
+from typing import Dict  # , List
+from dataclasses import dataclass, asdict  # , field
 
 from models.models_file import Player
-# from controllers.controllers_file import Controller
 
 
 @dataclass
 class InfoPlayers:
-    info_players: Dict = ""
+    info_players = {}  # : Dict = field(init=False)
+    players_list = []  # : List = field(init=False)
+
+    # def __post_init__(self):
+    #     self.info_players = {}
+    #     self.players_list = []
 
     def get_players_info(self) -> Dict:
         print("Merci de taper les coordonnées des joueurs : ")
@@ -20,3 +24,8 @@ class InfoPlayers:
                                    )
 
         return self.info_players
+
+    def show_players(self, players_list):
+        self.players_list = players_list
+        print("---- Info des joueurs (dans le view) ----")
+        print(self.players_list)

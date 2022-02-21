@@ -2,7 +2,8 @@ from typing import List, Dict
 from dataclasses import dataclass
 
 from views.views_file import InfoPlayers
-# from models.models_file import Player
+
+PLAYERS_NUMBER = 2
 
 
 @dataclass
@@ -11,17 +12,11 @@ class Controller:
     list_players = []
 
     def add_players(self) -> List[Dict]:
-        for nb in range(2):
+        for players_number in range(PLAYERS_NUMBER):
             player_added = self.players_to_add.get_players_info()
             self.list_players.append(player_added)
 
         return self.list_players
 
-
-@dataclass
-class Test:
-    z: int = 0
-
-    def somme(self, x, y):
-        self.z = x + y
-        return self.z
+    def sent_players_to_screen(self):
+        self.players_to_add.show_players(self.list_players)
