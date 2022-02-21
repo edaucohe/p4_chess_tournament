@@ -35,13 +35,13 @@ pip install -r requirements.txt
 
 
 
-## Usage
+## Use
 Lancer le script :
 
 ```
 python main.py
 ```
 
-## Voir Aussi
+## Helpful links
 
-
+https://www.invivoo.com/dataclasses-python/
