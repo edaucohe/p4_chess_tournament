@@ -40,3 +40,16 @@ class Round:
 class Match:
     players: Dict
     score: int
+
+
+@dataclass
+class Points:
+    points: int = field(init=False)
+
+    def __post_init__(self):
+        self.points = 0
+
+
+@dataclass
+class Score:
+    score: float
