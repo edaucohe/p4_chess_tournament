@@ -1,55 +1,66 @@
-from typing import List, Dict
+from datetime import date, datetime
+from enum import Enum
+from typing import Any, List, Dict, Optional, Tuple
 from dataclasses import dataclass, field
+
+DEFAULT_TURNS_COUNT = 4
+
+DEFAULT_PLAYERS_NUMBER = 4
+
+
+class Sex(Enum):
+    Male = 'm'
+    Female = 'f'
 
 
 @dataclass
 class Player:
     first_name: str
     last_name: str
-    day_of_birth: str
-    sex: str
+    date_of_birth: date
+    sex: Sex
     ranking: int
+
+
+class MatchResult(Enum):
+    Win = 1
+    Loss = 0
+    Draw = 0.5
+
+
+Match = Tuple[Tuple[Player, Optional[MatchResult]], Tuple[Player, Optional[MatchResult]]]
+
+
+# Elle doit également contenir un champ Date et heure de fin,
+@dataclass
+class Round:
+    matches: List[Match]
+    name: str
+
+    start: datetime = field(default_factory=datetime.now)
+
+    # Elle doit également contenir un champ Date et heure de fin,
+    end: Optional[datetime] = None
+
+    def close(self):
+        # qui doit être automatiquement rempli lorsque l'utilisateur le marque comme terminé
+        self.end = datetime.now()
+
+
+class TimeControlKind(Enum):
+    Bullet = 'bullet'
+    Blitz = 'blitz'
+    QuickPlay = 'quick_play'
 
 
 @dataclass
 class Tournament:
-    tournament_name: str
+    name: str
     place: str
-    date: str
-    turn: int = field(init=False)
-    round: List
-    players: List
-    match_time: int
+    start: date
+    time_control: TimeControlKind
+    players: List[Player]
+    round: List[Round]
     description: str
+    turn_count: int = DEFAULT_TURNS_COUNT
 
-    def __post_init__(self):
-        self.turn = 4
-
-
-@dataclass
-class Round:
-    round_name: str
-    match: List
-    start_date: str
-    start_hour: int
-    end_date: str
-    end_hour: int
-
-
-@dataclass
-class Match:
-    players: Dict
-    score: int
-
-
-@dataclass
-class Points:
-    points: int = field(init=False)
-
-    def __post_init__(self):
-        self.points = 0
-
-
-@dataclass
-class Score:
-    score: float
