@@ -1,17 +1,19 @@
-from controllers.controllers_file import Controller
+from chess.controller import Controller
 
 
 def main():
-    players_added = Controller()
+    controller = Controller()
 
-    """Récupérer info des joueurs"""
-    players_added.add_players()
+    controller.display_main_menu()
 
-    """Trier les joueurs selon leurs classements"""
-    players_added.classify_by_ranking()
-
-    """Afficher les joueurs"""
-    players_added.send_players_to_screen()
+    # """Récupérer info des joueurs"""
+    # players_added.add_players()
+    #
+    # """Trier les joueurs selon leurs classements"""
+    # players_added.classify_by_ranking()
+    #
+    # """Afficher les joueurs"""
+    # players_added.send_players_to_screen()
 
     # players_added.assign_points()
     # players_added.groups_number()
