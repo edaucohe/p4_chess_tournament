@@ -1,16 +1,16 @@
 from datetime import date, datetime
 from enum import Enum
-from typing import Any, List, Dict, Optional, Tuple
+from typing import List, Optional, Tuple
 from dataclasses import dataclass, field
 
+DEFAULT_PLAYERS_NUMBER = 2
 DEFAULT_TURNS_COUNT = 4
-
-DEFAULT_PLAYERS_NUMBER = 4
+MENU_OPTION = ""
 
 
 class Sex(Enum):
-    Male = 'm'
-    Female = 'f'
+    MALE = 'h'
+    FEMALE = 'f'
 
 
 @dataclass
@@ -23,15 +23,16 @@ class Player:
 
 
 class MatchResult(Enum):
-    Win = 1
-    Loss = 0
-    Draw = 0.5
+    WIN = 1
+    LOSS = 0
+    DRAW = 0.5
 
 
-Match = Tuple[Tuple[Player, Optional[MatchResult]], Tuple[Player, Optional[MatchResult]]]
+# Match = Tuple[List[Player, Optional[MatchResult]], List[Player, Optional[MatchResult]]]
+class Match:
+    match: Tuple[List[Player, Optional[MatchResult]], List[Player, Optional[MatchResult]]]
 
 
-# Elle doit également contenir un champ Date et heure de fin,
 @dataclass
 class Round:
     matches: List[Match]
@@ -48,9 +49,9 @@ class Round:
 
 
 class TimeControlKind(Enum):
-    Bullet = 'bullet'
-    Blitz = 'blitz'
-    QuickPlay = 'quick_play'
+    BULLET = 'bullet'
+    BLITZ = 'blitz'
+    QUICK_PLAY = 'quick_play'
 
 
 @dataclass
@@ -64,3 +65,57 @@ class Tournament:
     description: str
     turn_count: int = DEFAULT_TURNS_COUNT
 
+
+class MainMenu(Enum):
+    MAKE_TOURNAMENT = 1
+    MODIFY_TOURNAMENT = 2
+    START_TOURNAMENT = 3
+    ADD_PLAYERS = 4
+    UPDATE_PLAYERS = 5
+    MAKE_REPORT = 6
+    CLOSE_APPLI = 7
+
+
+class NewTournamentMenu(Enum):
+    ENTER_NEW_TOURNAMENT = 1
+    PREVIOUS_MENU = 2
+
+
+class ModifyTournamentMenu(Enum):
+    MODIFY_TOURNAMENT = 1
+    PREVIOUS_MENU = 2
+
+
+class StartTournamentMenu(Enum):
+    START_TOURNAMENT = 1
+    PREVIOUS_MENU = 2
+
+
+class NewPlayerMenu(Enum):
+    ENTER_NEW_PLAYER = 1
+    PREVIOUS_MENU = 2
+
+
+class ModifyPlayerInfoMenu(Enum):
+    MODIFY_PLAYER_INFO = 1
+    PREVIOUS_MENU = 2
+
+
+class ReportMenu(Enum):
+    PLAYERS_LIST = 1
+    PLAYERS_TOURNAMENT_LIST = 2
+    TOURNAMENT_LIST = 3
+    ROUNDS_LIST = 4
+    MATCHS_LIST = 5
+    PREVIOUS_MENU = 6
+
+
+# @dataclass
+# class MainMenu:
+#     1: "Créer un tournoi"
+#     2: "Modifier les coordonnées d'un tournoi",
+#     3: "Initier un tournoi",
+#     4: "Ajouter un joueur",
+#     5: "Mettre à jour les coordonnées d'un joueur",
+#     6: "Créer un rapport",
+#     7: "Fermer l'application"

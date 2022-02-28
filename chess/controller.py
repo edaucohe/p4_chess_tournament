@@ -3,30 +3,51 @@ from typing import List, Dict, Optional
 from dataclasses import dataclass
 
 from chess.views import TerminalView
-from chess.models import *
+from chess.models import Player, Tournament, DEFAULT_PLAYERS_NUMBER
 
 
-@dataclass
-class State:
-    players: List[Player]
-    tournaments: List[Tournament]
-    current_tournament: Optional[Tournament]
+# @dataclass
+# class State:
+#     players: List[Player]
+#     tournaments: List[Tournament]
+#     current_tournament: Optional[Tournament]
+#
+#
+# class Controller:
+#     def __init__(self, state: Optional[State] = None, view: Optional[TerminalView] = None):
+#         self.state = state or State
+#         self.view = view or TerminalView()
 
 
 class Controller:
-    def __init__(self, state: Optional[State] = None, view: Optional[TerminalView] = None):
-        self.state = state or State()
+    def __init__(
+            self,
+            players: Optional[List[Player]] = None,
+            tournaments: Optional[List[Tournament]] = None,
+            current_tournament: Optional[List[Tournament]] = None,
+            view: Optional[TerminalView] = None
+    ):
+        self.players = players or Player
+        self.tournaments = tournaments or Tournament
+        self.current_tournament = current_tournament or Tournament
         self.view = view or TerminalView()
 
+    # def __add__(self, other):
+
     def display_main_menu(self):
-        # TODO
-        pass
+        n = self.view.display_main_menu()
+        if n == "add_players":
+            print("valeur de n (add player) egal a : ", n)
+            self.add_players()
 
     def add_players(self) -> (List[Dict], List):
         """Joueurs ajoutés + points de départ égal à 0 """
+        self.player_list = []
         for players_number in range(DEFAULT_PLAYERS_NUMBER):
             player = self.view.enter_new_player()
-            self.state.players.append(player)
+            self.player_list.append(player)
+            print("Valeur de player : ", self.player_list)
+            # self.players.append(player)
 
             # player_added = self.players_to_add.get_players_info()
             # # self.list_players.append(player_added)
@@ -36,15 +57,15 @@ class Controller:
             # print("starting points : ", self.list_starting_points)
             # self.list_players.append((player_added, starting_points))
 
-        groupes = self.groups_number(self.list_starting_points)
-        print("nb. de groupes : ", groupes)
+        # groupes = self.groups_number(self.list_starting_points)
+        # print("nb. de groupes : ", groupes)
 
-        return self.list_players
+        return self.players
 
     def print_all_players(self):
         self.view.print_players_report(self.state.players)
 
-    def print_tournment_players(self):
+    def print_tournament_players(self):
         self.view.print_players_report(self.state.current_tournament.players)
 
     def classify_by_ranking(self):
