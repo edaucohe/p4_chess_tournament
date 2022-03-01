@@ -29,10 +29,14 @@ class MatchResult(Enum):
     DRAW = 0.5
 
 
+class PlayerScore:
+    player_score: Tuple[Player, Optional[MatchResult]] = (Player, MatchResult.LOSS)
+
+
 # Match = Tuple[List[Player, Optional[MatchResult]], List[Player, Optional[MatchResult]]]
 # Match = Tuple[List[Union[Player, Optional[MatchResult]]], List[Union[Player, Optional[MatchResult]]]]
 class Match:
-    match: Tuple[Tuple[Player, Optional[MatchResult]], Tuple[Player, Optional[MatchResult]]]
+    match: Tuple[Tuple[PlayerScore], Tuple[PlayerScore]]
 
 
 @dataclass

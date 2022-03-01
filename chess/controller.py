@@ -1,9 +1,9 @@
 from collections import Counter
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass
 
 from chess.views import TerminalView
-from chess.models import Player, Tournament, DEFAULT_PLAYERS_NUMBER
+from chess.models import Player, Tournament, DEFAULT_PLAYERS_NUMBER, PlayerScore, MatchResult
 
 
 # @dataclass
@@ -25,13 +25,16 @@ class Controller:
             players: Optional[List[Player]] = None,
             tournaments: Optional[List[Tournament]] = None,
             current_tournament: Optional[List[Tournament]] = None,
-            view: Optional[TerminalView] = None
+            view: Optional[TerminalView] = None,
+            player_score: PlayerScore = ()
     ):
         self.players = players or Player
         self.tournaments = tournaments or Tournament
         self.current_tournament = current_tournament or Tournament
         self.view = view or TerminalView()
         self.tournaments = []
+        self.player_score = player_score
+        # self.tournament_selected = []
 
     # def __add__(self, other):
 
@@ -96,9 +99,18 @@ class Controller:
 
         return self.number_of_groups
 
-    def classify_by_points(self):
+    def classify_by_points(self, tournament_selected):
+        tournament = tournament_selected
         # sorted_players_by_ranking = sorted(self.players, key=lambda p: p.ranking, reverse=True)
-        sorted(self.player_list, key=lambda p: p.points, reverse=True)
+        print("valeur de l'élément du tournoi ", tournament.players)
+        print("Valeur du player avec score vide : ", self.player_score)
+        self.player_score = (tournament.players, 0)
+        print("valeur du player avec score rempli : ", self.player_score)
+        # sorted_players_by_points = sorted(tournament.players, key=lambda p: p.points, reverse=True)
+        # return sorted_players_by_points
+
+        # sorted(self.player_list, key=lambda p: p.points, reverse=True)
+
         # """Classification par la méthode de tri à bulles - ordre descendant des Points"""
         #
         # for iteration_one in range(len(self.list_players)-1):
@@ -126,8 +138,18 @@ class Controller:
         self.tournaments.append(tournament)
         return self.tournaments
 
+    def modify_tournament(self):
+        # self.view.display_modify_tournament_menu()
+        self.view.display_tournaments_list(self.tournaments)
+        # pass
+
     def start_tournament(self):
-        pass
+        self.tournament_selected = self.view.display_tournaments_list(self.tournaments)
+        print("tournoi choisi : ", self.tournament_selected)
+        # round = self.tournament_selected[ROUND_NUMBER_POSITION]
+        # print("valeur de round : ", round)
+        players_ordered_by_points = self.classify_by_points(self.tournament_selected)
+        print("en ordre selon points : ", players_ordered_by_points)
 
     def run_chess_script(self):
         run = True
@@ -142,7 +164,11 @@ class Controller:
                 self.tournaments = self.make_tournament()
                 print("Tournois : ", self.tournaments)
                 run = True
+            elif option_selected == "modify_tournament":
+                self.modify_tournament()
+                run = True
             elif option_selected == "start_tournament":
                 self.start_tournament()
+                run = True
             elif option_selected == "close_script":
                 run = False

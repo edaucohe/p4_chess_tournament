@@ -148,6 +148,7 @@ class TerminalView:
         print("valeur de menu_option du star tournament: ", self.option_selected)
 
     def display_modify_tournament_menu(self):
+        # tournaments = tournaments_list
         modify_tournament_menu = ModifyTournamentMenu
         modify_tournament_menu_options = {
             1: "Choisir un tournoi existant",
@@ -161,7 +162,9 @@ class TerminalView:
         while option:
             selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
             if selection_menu == modify_tournament_menu.MODIFY_TOURNAMENT.value:
-                self.modify_tournament()
+                # self.modify_tournament()
+                self.option_selected = "modify_tournament"
+                # self.display_tournaments_list()
                 option = False
             elif selection_menu == modify_tournament_menu.PREVIOUS_MENU.value:
                 self.display_main_menu()
@@ -169,6 +172,16 @@ class TerminalView:
             else:
                 print("-- Choisissez une option parmi les proposées --")
                 option = True
+
+    def display_tournaments_list(self, tournaments_list):
+        tournaments = tournaments_list
+        print("\n** Choisissez un tournoi **")
+        for index, tournament in enumerate(tournaments, start=1):
+            print(f'{index}) {tournament.name}')
+
+        selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
+        tournament_selected = tournaments[selection_menu-1]
+        return tournament_selected
 
     def display_start_tournament_menu(self):
         start_tournament_menu = StartTournamentMenu
