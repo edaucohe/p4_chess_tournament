@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 DEFAULT_PLAYERS_NUMBER = 2
 DEFAULT_TURNS_COUNT = 4
 MENU_OPTION = ""
+DEFAULT_ROUND_VALUE = []
 
 
 class Sex(Enum):
@@ -29,8 +30,9 @@ class MatchResult(Enum):
 
 
 # Match = Tuple[List[Player, Optional[MatchResult]], List[Player, Optional[MatchResult]]]
+# Match = Tuple[List[Union[Player, Optional[MatchResult]]], List[Union[Player, Optional[MatchResult]]]]
 class Match:
-    match: Tuple[List[Player, Optional[MatchResult]], List[Player, Optional[MatchResult]]]
+    match: Tuple[Tuple[Player, Optional[MatchResult]], Tuple[Player, Optional[MatchResult]]]
 
 
 @dataclass
@@ -51,19 +53,21 @@ class Round:
 class TimeControlKind(Enum):
     BULLET = 'bullet'
     BLITZ = 'blitz'
-    QUICK_PLAY = 'quick_play'
+    QUICK_PLAY = 'quick play'
 
 
 @dataclass
 class Tournament:
     name: str
     place: str
-    start: date
+    # start: date
     time_control: TimeControlKind
-    players: List[Player]
-    round: List[Round]
     description: str
+    players: List[Player]
+    # round: List[Round]
+    start: date = field(default_factory=date.today)
     turn_count: int = DEFAULT_TURNS_COUNT
+    round: List[Round] = field(default_factory=lambda: [])
 
 
 class MainMenu(Enum):
@@ -116,6 +120,6 @@ class ReportMenu(Enum):
 #     2: "Modifier les coordonnées d'un tournoi",
 #     3: "Initier un tournoi",
 #     4: "Ajouter un joueur",
-#     5: "Mettre à jour les coordonnées d'un joueur",
+#     5 : "Mettre à jour les coordonnées d'un joueur",
 #     6: "Créer un rapport",
 #     7: "Fermer l'application"

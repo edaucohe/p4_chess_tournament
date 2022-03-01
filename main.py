@@ -4,7 +4,7 @@ from chess.controller import Controller
 def main():
     controller = Controller()
 
-    controller.display_main_menu()
+    controller.run_chess_script()
 
     # """Récupérer info des joueurs"""
     # players_added.add_players()

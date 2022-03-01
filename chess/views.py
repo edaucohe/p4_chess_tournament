@@ -1,9 +1,9 @@
 from datetime import date
-from typing import Any, Callable, Dict, List  # , List
-from dataclasses import dataclass, asdict  # , field
+from typing import Any, Callable, List
+# from dataclasses import dataclass, asdict  # , field
 
 from chess.models import Player, Sex, MainMenu, ReportMenu, NewPlayerMenu, NewTournamentMenu, ModifyTournamentMenu, \
-    ModifyPlayerInfoMenu, StartTournamentMenu, MENU_OPTION
+    ModifyPlayerInfoMenu, StartTournamentMenu, MENU_OPTION, Tournament, TimeControlKind, DEFAULT_PLAYERS_NUMBER
 
 
 # @dataclass
@@ -50,9 +50,16 @@ def input_with_constraint(desc: str, parse_fn: Callable[[str], Any]):
         try:
             input_value = input(desc)
             return parse_fn(input_value)
-        except:
-            # print error message?
-            pass
+        # except Exception as error:
+        #     print("Merci de respecter le bon format : ", type(error))
+        #     if error == ValueError:
+        #         print("Merci de respecter le bon format")
+        #     elif error == AssertionError:
+        #         print("La valeur doit être un numéro positif")
+        except ValueError:
+            print("Merci de respecter le bon format")
+        except AssertionError:
+            print("La valeur doit être un numéro positif")
 
 
 def parse_positive_int(input_as_str: str) -> int:
@@ -95,7 +102,7 @@ class TerminalView:
                 self.display_start_tournament_menu()
                 option = False
             elif selection_menu == main_menu.ADD_PLAYERS.value:
-                self.option_selected = self.display_new_player_menu()
+                self.display_new_player_menu()
                 option = False
             elif selection_menu == main_menu.UPDATE_PLAYERS.value:
                 self.display_update_players_info()
@@ -105,6 +112,7 @@ class TerminalView:
                 option = False
             elif selection_menu == main_menu.CLOSE_APPLI.value:
                 print("** Fermeture de l'application **")
+                self.option_selected = "close_script"
                 option = False
             else:
                 print("-- Choisissez une option parmi les proposées ! --")
@@ -128,7 +136,8 @@ class TerminalView:
         while option:
             selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
             if selection_menu == new_tournament_menu.ENTER_NEW_TOURNAMENT.value:
-                self.enter_new_tournament()
+                # self.enter_new_tournament()
+                self.option_selected = "make_tournament"
                 option = False
             elif selection_menu == new_tournament_menu.PREVIOUS_MENU.value:
                 self.display_main_menu()
@@ -136,6 +145,7 @@ class TerminalView:
             else:
                 print("-- Choisissez une option parmi les proposées --")
                 option = True
+        print("valeur de menu_option du star tournament: ", self.option_selected)
 
     def display_modify_tournament_menu(self):
         modify_tournament_menu = ModifyTournamentMenu
@@ -174,7 +184,8 @@ class TerminalView:
         while option:
             selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
             if selection_menu == start_tournament_menu.START_TOURNAMENT.value:
-                self.start_tournament()
+                # self.start_tournament()
+                self.option_selected = "start_tournament"
                 option = False
             elif selection_menu == start_tournament_menu.PREVIOUS_MENU.value:
                 self.display_main_menu()
@@ -207,7 +218,7 @@ class TerminalView:
                 print("-- Choisissez une option parmi les proposées --")
                 option = True
         print("valeur de menu_option du ADD PLAYERS: ", self.option_selected)
-        return self.option_selected
+        # return self.option_selected
 
     def display_update_players_info(self):
         update_player_info_menu = ModifyPlayerInfoMenu
@@ -272,16 +283,30 @@ class TerminalView:
                 option = True
 
     def enter_new_tournament(self):
-        pass
+        tournament = Tournament(
+            name=input('Nom du tournoi : '),
+            place=input('Lieu du tournoi : '),
+            time_control=input_with_constraint('Contrôle du temps (bullet/blitz/quick play) : ',
+                                               parse_fn=TimeControlKind),
+            description=input('Description : '),
+            players=self.add_players()
+        )
+        return tournament
 
     def modify_tournament(self):
         pass
 
-    def start_tournament(self):
-        pass
-
     def update_player_info(self):
         pass
+
+    def add_players(self) -> List[Player]:
+        """Joueurs ajoutés + points de départ égal à 0 """
+        player_list = []
+        for players_number in range(DEFAULT_PLAYERS_NUMBER):
+            player = self.enter_new_player()
+            player_list.append(player)
+            print("Valeur de player : ", player_list)
+        return player_list
 
     def enter_new_player(self) -> Player:
         # How to parse/validate?
@@ -299,13 +324,13 @@ class TerminalView:
         for idx, player in enumerate(players, start=1):
             print(f'{idx} -- {player}')
 
-    def format_players_json(self, players: List[Player]) -> str:
-        json_str = "["
-        for player in players:
-            json_str += player.as_json()
-            json_str += ","
-        json_str += "]"
-        return json_str
+    # def format_players_json(self, players: List[Player]) -> str:
+    #     json_str = "["
+    #     for player in players:
+    #         json_str += player.as_json()
+    #         json_str += ","
+    #     json_str += "]"
+    #     return json_str
 
     def print_players_report(self, players: List[Player]):
         # in controller.print_all_players():
@@ -329,4 +354,3 @@ class TerminalView:
 
     def make_matchs_report(self):
         pass
-
