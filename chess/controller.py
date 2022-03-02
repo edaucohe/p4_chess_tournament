@@ -26,14 +26,14 @@ class Controller:
             tournaments: Optional[List[Tournament]] = None,
             current_tournament: Optional[List[Tournament]] = None,
             view: Optional[TerminalView] = None,
-            player_score: PlayerScore = ()
+            player_score: Optional[PlayerScore] = None
     ):
         self.players = players or Player
         self.tournaments = tournaments or Tournament
         self.current_tournament = current_tournament or Tournament
         self.view = view or TerminalView()
         self.tournaments = []
-        self.player_score = player_score
+        self.player_score = player_score or PlayerScore
         # self.tournament_selected = []
 
     # def __add__(self, other):
@@ -70,27 +70,9 @@ class Controller:
     def print_tournament_players(self):
         self.view.print_players_report(self.state.current_tournament.players)
 
-    def classify_by_ranking(self):
-        # Tri croissant
-        # p1 rank=1 en premier, p2 rank=2 en 2e
-        # sorted_players_by_ranking = sorted(self.state.players, key=lambda p: p.ranking)
-
-        # Tri décroissant
-        # p1 score=5000 en premier, p2 score=4000 en deuxième
-        # sorted_players_by_points = sorted(self.state.players, key=lambda p: p.points, reverse=True)
-        # sorted_players_by_points = sorted(self.players, key=lambda p: p.points, reverse=True)
-        sorted_players_by_ranking = sorted(self.player_list, key=lambda p: p.ranking, reverse=True)
-        print(sorted_players_by_ranking)
-
-        """Classification par la méthode de tri à bulles - ordre descendant"""
-        # for iteration_one in range(len(self.list_players) - 1):
-        #     for iteration_two in range(len(self.list_players) - 1):
-        #         if self.list_players[iteration_two + 1][0]["ranking"] > self.list_players[iteration_two][0]["ranking"]:
-        #             self.list_players[iteration_two + 1], self.list_players[iteration_two] = \
-        #                 self.list_players[iteration_two], self.list_players[iteration_two + 1]
-        #             self.players_ranking_order = self.list_players
-        #             print("Valeur de players_ranking : ", self.players_ranking_order)
-        # return sorted_players_by_points
+    def classify_by_ranking(self, players_list):
+        sorted_players_by_ranking = sorted(players_list, key=lambda r: r[0].ranking, reverse=True)
+        return sorted_players_by_ranking
 
     def groups_number(self, list_points):
         self.groups = Counter(list_points)
@@ -99,28 +81,9 @@ class Controller:
 
         return self.number_of_groups
 
-    def classify_by_points(self, tournament_selected):
-        tournament = tournament_selected
-        # sorted_players_by_ranking = sorted(self.players, key=lambda p: p.ranking, reverse=True)
-        print("valeur de l'élément du tournoi ", tournament.players)
-        print("Valeur du player avec score vide : ", self.player_score)
-        self.player_score = (tournament.players, 0)
-        print("valeur du player avec score rempli : ", self.player_score)
-        # sorted_players_by_points = sorted(tournament.players, key=lambda p: p.points, reverse=True)
-        # return sorted_players_by_points
-
-        # sorted(self.player_list, key=lambda p: p.points, reverse=True)
-
-        # """Classification par la méthode de tri à bulles - ordre descendant des Points"""
-        #
-        # for iteration_one in range(len(self.list_players)-1):
-        #     for iteration_two in range(len(self.list_players) - 1):
-        #         if self.list_players[iteration_two+1]["ranking"] > self.list_players[iteration_two]["ranking"]:
-        #             self.list_players[iteration_two+1], self.list_players[iteration_two] = \
-        #                 self.list_players[iteration_two], self.list_players[iteration_two+1]
-        #             self.players_ranking_order = self.list_players
-        #             print("Valeur de players_ranking : ", self.players_ranking_order)
-        # return sorted_players_by_ranking
+    def classify_by_score(self, tournament_selected):
+        sorted_players_by_score = sorted(tournament_selected.players, key=lambda score: score[1], reverse=True)
+        return sorted_players_by_score
 
     # def assign_points(self):
     #     for players_number in range(PLAYERS_NUMBER):
@@ -148,8 +111,10 @@ class Controller:
         print("tournoi choisi : ", self.tournament_selected)
         # round = self.tournament_selected[ROUND_NUMBER_POSITION]
         # print("valeur de round : ", round)
-        players_ordered_by_points = self.classify_by_points(self.tournament_selected)
-        print("en ordre selon points : ", players_ordered_by_points)
+        players_ordered_by_score = self.classify_by_score(self.tournament_selected)
+        print("en ordre selon points : ", players_ordered_by_score)
+        players_ordered_by_ranking = self.classify_by_ranking(players_ordered_by_score)
+        print("en ordre selon classement : ", players_ordered_by_ranking)
 
     def run_chess_script(self):
         run = True

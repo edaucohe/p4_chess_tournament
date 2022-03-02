@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 
 DEFAULT_PLAYERS_NUMBER = 2
 DEFAULT_TURNS_COUNT = 4
+SCORE_INIT = 0
 MENU_OPTION = ""
 DEFAULT_ROUND_VALUE = []
 
@@ -30,7 +31,7 @@ class MatchResult(Enum):
 
 
 class PlayerScore:
-    player_score: Tuple[Player, Optional[MatchResult]] = (Player, MatchResult.LOSS)
+    player_score: Tuple[Player, Optional[MatchResult]] = (Player, field(default=SCORE_INIT))
 
 
 # Match = Tuple[List[Player, Optional[MatchResult]], List[Player, Optional[MatchResult]]]

@@ -3,7 +3,8 @@ from typing import Any, Callable, List
 # from dataclasses import dataclass, asdict  # , field
 
 from chess.models import Player, Sex, MainMenu, ReportMenu, NewPlayerMenu, NewTournamentMenu, ModifyTournamentMenu, \
-    ModifyPlayerInfoMenu, StartTournamentMenu, MENU_OPTION, Tournament, TimeControlKind, DEFAULT_PLAYERS_NUMBER
+    ModifyPlayerInfoMenu, StartTournamentMenu, MENU_OPTION, Tournament, TimeControlKind, DEFAULT_PLAYERS_NUMBER, \
+    PlayerScore, SCORE_INIT
 
 
 # @dataclass
@@ -314,12 +315,17 @@ class TerminalView:
 
     def add_players(self) -> List[Player]:
         """Joueurs ajoutés + points de départ égal à 0 """
+        player_with_score = PlayerScore
         player_list = []
+        players_with_score = []
         for players_number in range(DEFAULT_PLAYERS_NUMBER):
             player = self.enter_new_player()
             player_list.append(player)
+            player_with_score = (player, SCORE_INIT)
+            players_with_score.append(player_with_score)
             print("Valeur de player : ", player_list)
-        return player_list
+            print("Valeur de player avec score : ", players_with_score)
+        return players_with_score
 
     def enter_new_player(self) -> Player:
         # How to parse/validate?
