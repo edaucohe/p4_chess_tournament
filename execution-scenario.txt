@@ -1,0 +1,53 @@
+# Menu Principal
+1) Tournoi en cours
+2) Gestion des joueurs
+3) Rapports
+4) Sauvegarder/Charger les donneées
+5) Quitter
+
+
+# Tournoi en cours
+<afficher le tournoi en cours s'il y en a un>
+Pas de tournoi en cours
+1) Créer un tournoi  -> entrer les données du tournoi et tournoi_en_cours = tournoi
+2) Revenir au menu principal
+
+OU
+Tournoi en cours: <nom>, tour: <numero du tour>
+1) Passer au tour suivant -> rentrer les résultats des matchs, mettre à jour les scores des joueurs, automatiquement -> générer les paires du prochain tour
+2) Finir le tournoi -> mettre à jour les scores des joueurs en base de donnée -> revenir au menu principal
+3) Revenir au menu principal
+
+
+# Gestion des joueurs
+players = {1: <joueur1>, 2: <joueur2>}
+1) Ajouter un joueur -> players[3] = <joueur3>
+2) Lister les joueurs -> print(players)
+3) Mettre à jour un joueur existant -> rentrer l'identifiant du joueur 1 ou 2 ou 3
+4) Revenir au menu principal
+
+## Mettre à jour un joueur
+<Affiche le joueur>
+1) Profil
+2) Classement
+3) Revenir en arrière
+
+player = players[1]
+player.name = 'new_name' -> player mais est-ce que ca modifie players[1]?
+players[1] = player
+
+players[player_id].name = 'new_name' -> tu es sûr de modifier la bonne donnée
+
+
+# Rapports
+1) Liste de tous les joueurs (a/s)
+2) Joueurs du tournoi en cours (a/s)
+3)...
+4) Revenir au menu principal
+
+
+# Sauvegarder/Charger les donneées
+1) Sauvegarder l'état actuel -> sauvegarder dans le fichier `db.json`
+2) Charger l'existant  -> charger depuis le fichier `db.json`
+
+
