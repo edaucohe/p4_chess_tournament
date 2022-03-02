@@ -22,18 +22,16 @@ from chess.models import Player, Tournament, DEFAULT_PLAYERS_NUMBER, PlayerScore
 class Controller:
     def __init__(
             self,
-            players: Optional[List[Player]] = None,
+            players: Optional[Dict[int, Player]] = None,
             tournaments: Optional[List[Tournament]] = None,
             current_tournament: Optional[List[Tournament]] = None,
             view: Optional[TerminalView] = None,
-            player_score: Optional[PlayerScore] = None
     ):
-        self.players = players or Player
-        self.tournaments = tournaments or Tournament
-        self.current_tournament = current_tournament or Tournament
+        self.players = players or dict()
+        self.tournaments = tournaments or []
+        self.current_tournament = current_tournament or None
         self.view = view or TerminalView()
-        self.tournaments = []
-        self.player_score = player_score or PlayerScore
+        # self.player_score = player_score or PlayerScore
         # self.tournament_selected = []
 
     # def __add__(self, other):

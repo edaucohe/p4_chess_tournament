@@ -1,9 +1,17 @@
 from chess.controller import Controller
+from chess.models import Player
 
+
+def new_player(idx: int) -> Player:
+    return Player(...)
 
 def main():
-    controller = Controller()
+    # TODO delete me once the database is implemented
+    players = {idx+1: new_player(idx+1) for idx in range(8)}
+    # delete up to here
+    # players = db.load_players()
 
+    controller = Controller(players=players)
     controller.run_chess_script()
 
     # """Récupérer info des joueurs"""
@@ -21,3 +29,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
