@@ -43,15 +43,19 @@ class Controller:
     def display_players_list(self):
         self.view.display_players_list(self.players)
 
-    def enter_new_player(self) -> (List[Dict], List):
+    def enter_new_player(self, index):  # -> (List[Dict], List):
         """Joueurs ajoutés + points de départ égal à 0 """
-        self.player_list = []
-        for players_number in range(DEFAULT_PLAYERS_NUMBER):
-            player = self.view.enter_new_player()
-            self.player_list.append(player)
-            print("Valeur de player : ", self.player_list)
-            # self.players.append(player)
+        player = self.view.enter_new_player()
+        self.players.update({index: player})
 
+
+        # self.player_list = []
+        # for players_number in range(DEFAULT_PLAYERS_NUMBER):
+        #     player = self.view.enter_new_player()
+        #     self.player_list.append(player)
+        #     print("Valeur de player : ", self.player_list)
+
+            # self.players.append(player)
             # player_added = self.players_to_add.get_players_info()
             # # self.list_players.append(player_added)
             # # starting_points = self.points.points
@@ -59,7 +63,6 @@ class Controller:
             # self.list_starting_points.append(starting_points)
             # print("starting points : ", self.list_starting_points)
             # self.list_players.append((player_added, starting_points))
-
         # groupes = self.groups_number(self.list_starting_points)
         # print("nb. de groupes : ", groupes)
 
@@ -123,9 +126,11 @@ class Controller:
             option_selected = self.display_menus()
             if option_selected == "ENTER_NEW_PLAYER":
                 print("valeur de l'option selected : ", option_selected)
-                self.enter_new_player()
+                index = len(self.players) + 1
+                self.enter_new_player(index)
+                print("liste de joueurs avec identifiant", self.players)
                 # self.classify_by_points()
-                self.classify_by_ranking()
+                # self.classify_by_ranking()
             elif option_selected == "PLAYERS_LIST":
                 print("valeur de l'option selected : ", option_selected)
                 self.display_players_list()

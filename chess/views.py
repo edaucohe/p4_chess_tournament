@@ -4,7 +4,7 @@ from typing import Any, Callable, List
 
 from chess.models import Player, Sex, MainMenu, ReportMenu, NewPlayerMenu, NewTournamentMenu, ModifyTournamentMenu, \
     ModifyPlayerInfoMenu, StartTournamentMenu, MENU_OPTION, Tournament, TimeControlKind, DEFAULT_PLAYERS_NUMBER, \
-    PlayerScore, SCORE_INIT, PlayerManagementMenu, TournamentManagementMenu, SaveData
+    PlayerScore, SCORE_INIT, PlayerManagementMenu, TournamentManagementMenu, SaveData, MatchResult
 
 
 # @dataclass
@@ -174,7 +174,6 @@ class TerminalView:
                 self.option_selected = "PLAYERS_LIST"
                 option = False
             elif selection_menu == player_management_menu.ENTER_NEW_PLAYER.value:
-                self.enter_new_player()
                 self.option_selected = "ENTER_NEW_PLAYER"
                 option = False
             elif selection_menu == player_management_menu.PLAYER_DATA_UPDATE.value:
@@ -416,21 +415,21 @@ class TerminalView:
     def update_player_info(self):
         pass
 
-    def add_players(self) -> List[Player]:
-        """Joueurs ajoutés + points de départ égal à 0 """
-        player_with_score = PlayerScore
-        player_list = []
-        players_with_score = []
-        for players_number in range(DEFAULT_PLAYERS_NUMBER):
-            player = self.enter_new_player()
-            player_list.append(player)
-            player_with_score = (player, SCORE_INIT)
-            players_with_score.append(player_with_score)
-            print("Valeur de player : ", player_list)
-            print("Valeur de player avec score : ", players_with_score)
-        return players_with_score
+    # def add_players(self) -> List[Player]:
+    #     """Joueurs ajoutés + points de départ égal à 0 """
+    #     player_with_score = PlayerScore
+    #     player_list = []
+    #     players_with_score = []
+    #     for players_number in range(DEFAULT_PLAYERS_NUMBER):
+    #         player = self.enter_new_player()
+    #         player_list.append(player)
+    #         player_with_score = (player, SCORE_INIT)
+    #         players_with_score.append(player_with_score)
+    #         print("Valeur de player : ", player_list)
+    #         print("Valeur de player avec score : ", players_with_score)
+    #     return players_with_score
 
-    def enter_new_player(self) -> Player:
+    def enter_new_player(self):  # -> Player:
         # How to parse/validate?
         player = Player(
             first_name=input('Prénom : '),
@@ -439,8 +438,10 @@ class TerminalView:
             sex=input_with_constraint('Genre (h/f) : ', parse_fn=Sex),
             ranking=input_with_constraint('Classement : ', parse_fn=parse_positive_int)
         )
-
-        return player
+        score = MatchResult
+        player_with_score = [player, score.LOSS]
+        print("nouveau joueur : ", player_with_score)
+        return player_with_score
 
     def display_players(self, players: List[Player]):
         for idx, player in enumerate(players, start=1):
