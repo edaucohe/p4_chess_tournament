@@ -4,7 +4,7 @@ from typing import Any, Callable, List
 
 from chess.models import Player, Sex, MainMenu, ReportMenu, NewPlayerMenu, NewTournamentMenu, ModifyTournamentMenu, \
     ModifyPlayerInfoMenu, StartTournamentMenu, MENU_OPTION, Tournament, TimeControlKind, DEFAULT_PLAYERS_NUMBER, \
-    PlayerScore, SCORE_INIT
+    PlayerScore, SCORE_INIT, PlayerManagementMenu, TournamentManagementMenu, SaveData
 
 
 # @dataclass
@@ -70,20 +70,16 @@ def parse_positive_int(input_as_str: str) -> int:
 
 
 class TerminalView:
-    # def __init__(self):
-    #     self.menu_option = MENU_OPTION
     option_selected = MENU_OPTION
 
     def display_main_menu(self):
         main_menu = MainMenu
         main_menu_options = {
-            1: "Créer un tournoi",
-            2: "Modifier les coordonnées d'un tournoi",
-            3: "Initier un tournoi",
-            4: "Ajouter un joueur",
-            5: "Mettre à jour les coordonnées d'un joueur",
-            6: "Créer un rapport",
-            7: "Fermer l'application"
+            1: "Gestion de tournois",
+            2: "Gestion de joueurs",
+            3: "Création de rapports",
+            4: "Sauvegarder/Charger les données",
+            5: "Fermer l'application"
         }
         # print("Valeur de main_menu : ", main_menu)
         print("\n**** MENU PRINCIPAL ****")
@@ -93,23 +89,17 @@ class TerminalView:
         option = True
         while option:
             selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
-            if selection_menu == main_menu.MAKE_TOURNAMENT.value:
-                self.display_make_tournament_menu()
+            if selection_menu == main_menu.TOURNAMENT_MANAGEMENT.value:
+                self.display_tournament_management_menu()
                 option = False
-            elif selection_menu == main_menu.MODIFY_TOURNAMENT.value:
-                self.display_modify_tournament_menu()
+            elif selection_menu == main_menu.PLAYERS_MANAGEMENT.value:
+                self.display_players_management_menu()
                 option = False
-            elif selection_menu == main_menu.START_TOURNAMENT.value:
-                self.display_start_tournament_menu()
+            elif selection_menu == main_menu.MAKE_REPORTS.value:
+                self.display_make_reports_menu()
                 option = False
-            elif selection_menu == main_menu.ADD_PLAYERS.value:
-                self.display_new_player_menu()
-                option = False
-            elif selection_menu == main_menu.UPDATE_PLAYERS.value:
-                self.display_update_players_info()
-                option = False
-            elif selection_menu == main_menu.MAKE_REPORT.value:
-                self.display_make_report_menu()
+            elif selection_menu == main_menu.SAVE_DATA.value:
+                self.display_save_data_menu()
                 option = False
             elif selection_menu == main_menu.CLOSE_APPLI.value:
                 print("** Fermeture de l'application **")
@@ -122,6 +112,112 @@ class TerminalView:
             print("valeur de menu_option du MAIN WHILE : ", self.option_selected)
         print("valeur de menu_option du MAIN HORS WHILE : ", self.option_selected)
         return self.option_selected
+
+    def display_tournament_management_menu(self):
+        print("display_tournament_management_menu")
+        tournament_management_menu = TournamentManagementMenu
+        tournament_management_options = {
+            1: "Liste de tournois",
+            2: "Créer un tournoi",
+            3: "Initier un tournoi",
+            4: "Mettre à jour les données d'un tournoi",
+            5: "Revenir au menu précédent"
+        }
+        print("\n**** GESTION DE TOURNOIS ****")
+        for key in tournament_management_options.keys():
+            print(f'{key}) {tournament_management_options[key]}')
+
+        option = True
+        while option:
+            selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
+            if selection_menu == tournament_management_menu.TOURNAMENTS_LIST.value:
+                self.display_tournaments_list()
+                option = False
+            elif selection_menu == tournament_management_menu.MAKE_NEW_TOURNAMENT.value:
+                self.make_new_tournament()
+                self.option_selected = ""
+                option = False
+            elif selection_menu == tournament_management_menu.START_TOURNAMENT.value:
+                self.start_tournament()
+                self.option_selected = ""
+                option = False
+            elif selection_menu == tournament_management_menu.TOURNAMENT_DATA_UPDATE.value:
+                self.tournament_data_update()
+                self.option_selected = ""
+                option = False
+            elif selection_menu == tournament_management_menu.PREVIOUS_MENU.value:
+                self.display_main_menu()
+                option = False
+            else:
+                print("-- Choisissez une option parmi les proposées --")
+                option = True
+        print("valeur de menu_option du ADD PLAYERS: ", self.option_selected)
+        # return self.option_selected
+
+    def display_players_management_menu(self):
+        player_management_menu = PlayerManagementMenu
+        player_management_options = {
+            1: "Liste de joueurs",
+            2: "Ajouter un joueur",
+            3: "Mettre à jour les données d'un joueur",
+            4: "Revenir au menu précédent"
+        }
+        print("\n**** GESTION DE JOUEURS ****")
+        for key in player_management_options.keys():
+            print(f'{key}) {player_management_options[key]}')
+
+        option = True
+        while option:
+            selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
+            if selection_menu == player_management_menu.PLAYERS_LIST.value:
+                # self.display_players_list()
+                self.option_selected = "PLAYERS_LIST"
+                option = False
+            elif selection_menu == player_management_menu.ENTER_NEW_PLAYER.value:
+                self.enter_new_player()
+                self.option_selected = "ENTER_NEW_PLAYER"
+                option = False
+            elif selection_menu == player_management_menu.PLAYER_DATA_UPDATE.value:
+                self.player_data_menu()
+                option = False
+            elif selection_menu == player_management_menu.PREVIOUS_MENU.value:
+                self.display_main_menu()
+                option = False
+            else:
+                print("-- Choisissez une option parmi les proposées --")
+                option = True
+        print("valeur de menu_option du ADD PLAYERS: ", self.option_selected)
+        # return self.option_selected
+
+    def display_save_data_menu(self):
+        print("display_save_data_menu")
+        save_data_menu = SaveData
+        save_data_menu_options = {
+            1: "Sauvegarder les données",
+            2: "Charger les données",
+            3: "Revenir au menu précédent"
+        }
+        print("\n**** SAUVEGARDER/CHARGER LES DONNÉES ****")
+        for key in save_data_menu_options.keys():
+            print(f'{key}) {save_data_menu_options[key]}')
+
+        option = True
+        while option:
+            selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
+            if selection_menu == save_data_menu.SAVE_DATA.value:
+                # self.start_tournament()
+                self.option_selected = "SAVE_DATA"
+                option = False
+            elif selection_menu == save_data_menu.LOAD_DATA.value:
+                # self.display_main_menu()
+                self.option_selected = "LOAD_DATA"
+                option = False
+            elif selection_menu == save_data_menu.PREVIOUS_MENU.value:
+                self.display_main_menu()
+                option = False
+            else:
+                print("-- Choisissez une option parmi les proposées --")
+                option = True
 
     def display_make_tournament_menu(self):
         new_tournament_menu = NewTournamentMenu
@@ -257,17 +353,17 @@ class TerminalView:
                 print("-- Choisissez une option parmi les proposées --")
                 option = True
 
-    def display_make_report_menu(self):
+    def display_make_reports_menu(self):
         report_menu = ReportMenu
         report_menu_options = {
-            1: "Liste de tous les joueurs",
-            2: "Liste des joueurs d'un tournoi",
-            3: "Liste de tous les tournoi",
+            1: "Liste de tous les joueurs (a/c)",
+            2: "Liste des joueurs d'un tournoi (a/c)",
+            3: "Liste de tous les tournois",
             4: "Liste de tous les tours d'un tournoi",
             5: "Liste de tous les matchs d'un tournoi",
             6: "Revenir au menu précédent"
         }
-        print("\n**** CRÉER UN RAPPORT ****")
+        print("\n**** CRÉATION DE RAPPORTS ****")
         for key in report_menu_options.keys():
             print(f'{key}) {report_menu_options[key]}')
 
@@ -296,6 +392,10 @@ class TerminalView:
                 print("-- Choisissez une option parmi les proposées --")
                 option = True
 
+    def display_players_list(self, list_of_players):
+        print("display_players_list")
+        print(list_of_players)
+
     def enter_new_tournament(self):
         tournament = Tournament(
             name=input('Nom du tournoi : '),
@@ -306,6 +406,9 @@ class TerminalView:
             players=self.add_players()
         )
         return tournament
+
+    def player_data_menu(self):
+        print("player_data_menu")
 
     def modify_tournament(self):
         pass

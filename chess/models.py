@@ -76,13 +76,32 @@ class Tournament:
 
 
 class MainMenu(Enum):
-    MAKE_TOURNAMENT = 1
-    MODIFY_TOURNAMENT = 2
+    TOURNAMENT_MANAGEMENT = 1
+    PLAYERS_MANAGEMENT = 2
+    MAKE_REPORTS = 3
+    SAVE_DATA = 4
+    CLOSE_APPLI = 5
+
+
+class PlayerManagementMenu(Enum):
+    PLAYERS_LIST = 1
+    ENTER_NEW_PLAYER = 2
+    PLAYER_DATA_UPDATE = 3
+    PREVIOUS_MENU = 4
+
+
+class TournamentManagementMenu(Enum):
+    TOURNAMENTS_LIST = 1
+    MAKE_NEW_TOURNAMENT = 2
     START_TOURNAMENT = 3
-    ADD_PLAYERS = 4
-    UPDATE_PLAYERS = 5
-    MAKE_REPORT = 6
-    CLOSE_APPLI = 7
+    TOURNAMENT_DATA_UPDATE = 4
+    PREVIOUS_MENU = 5
+
+
+class SaveData(Enum):
+    SAVE_DATA = 1
+    LOAD_DATA = 2
+    PREVIOUS_MENU = 3
 
 
 class NewTournamentMenu(Enum):

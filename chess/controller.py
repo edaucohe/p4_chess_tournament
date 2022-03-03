@@ -22,7 +22,7 @@ from chess.models import Player, Tournament, DEFAULT_PLAYERS_NUMBER, PlayerScore
 class Controller:
     def __init__(
             self,
-            players: Optional[Dict[int, Player]] = None,
+            players: Optional[Dict[int, List]] = None,
             tournaments: Optional[List[Tournament]] = None,
             current_tournament: Optional[List[Tournament]] = None,
             view: Optional[TerminalView] = None,
@@ -40,7 +40,10 @@ class Controller:
         option_selected = self.view.display_main_menu()
         return option_selected
 
-    def add_players(self) -> (List[Dict], List):
+    def display_players_list(self):
+        self.view.display_players_list(self.players)
+
+    def enter_new_player(self) -> (List[Dict], List):
         """Joueurs ajoutés + points de départ égal à 0 """
         self.player_list = []
         for players_number in range(DEFAULT_PLAYERS_NUMBER):
@@ -118,11 +121,15 @@ class Controller:
         run = True
         while run:
             option_selected = self.display_menus()
-            if option_selected == "add_players":
+            if option_selected == "ENTER_NEW_PLAYER":
                 print("valeur de l'option selected : ", option_selected)
-                self.add_players()
+                self.enter_new_player()
                 # self.classify_by_points()
                 self.classify_by_ranking()
+            elif option_selected == "PLAYERS_LIST":
+                print("valeur de l'option selected : ", option_selected)
+                self.display_players_list()
+                run = True
             elif option_selected == "make_tournament":
                 self.tournaments = self.make_tournament()
                 print("Tournois : ", self.tournaments)
