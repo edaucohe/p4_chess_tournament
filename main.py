@@ -1,7 +1,8 @@
+from datetime import date
 from typing import Dict, List
 
 from chess.controller import Controller
-from chess.models import Player, MatchResult
+from chess.models import Player, MatchResult, DEFAULT_TURNS_COUNT, Tournament
 
 
 def players_added_for_test() -> Dict[int, List]:
@@ -73,15 +74,49 @@ def players_added_for_test() -> Dict[int, List]:
     return players_with_index
 
 
+def tournaments_added_for_test(players):
+    tournaments_list = []
+    tournaments = [
+        {
+            "name": "Master chess tournament Dubai 2022",
+            "place": "Dubai",
+            "time_control": "bullet",
+            "description": "Tous les meilleurs joueurs du monde",
+            "players": players,
+            "start": date.today,
+            "turn_count": DEFAULT_TURNS_COUNT,
+            "round": []
+        },
+        {
+            "name": "National chess tournament Paris 2022",
+            "place": "Paris",
+            "time_control": "bullet",
+            "description": "Les meilleurs joueurs de la France",
+            "players": players,
+            "start": date.today,
+            "turn_count": DEFAULT_TURNS_COUNT,
+            "round": []
+        }
+    ]
+    for tournament in tournaments:
+        tournament = Tournament(**tournament)
+        tournaments_list.append(tournament)
+
+    # tournament_with_index = {index + 1: tournaments_list[index] for index in range(len(tournaments))}
+    return tournaments_list
+
+
 def main():
     # TODO delete me once the database is implemented
     players: Dict[int, List] = players_added_for_test()
-    print("joueurs du tournois : ", players)
+    tournaments = tournaments_added_for_test(players)
+    # print("joueurs du tournois : ", players)
+    # print("tournois : ", tournaments)
     # TODO delete up to here
 
     # players = db.load_players()
 
-    controller = Controller(players=players)
+    controller = Controller(players=players, tournaments=tournaments)
     controller.run_chess_script()
 
     # """Récupérer info des joueurs"""

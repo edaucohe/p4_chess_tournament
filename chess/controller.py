@@ -84,11 +84,43 @@ class Controller:
     def define_matchs(self):
         pass
 
-    def make_tournament(self):
-        tournament = self.view.enter_new_tournament()
-        print("Valeur du tournoi : ", tournament)
-        self.tournaments.append(tournament)
-        return self.tournaments
+    def display_tournaments_list(self):
+        print("Tournois : ", self.tournaments)
+        self.view.display_tournaments_list(self.tournaments)
+
+    def make_new_tournament(self, option_selected):
+        option_selected = option_selected
+        number_of_players = len(self.players)
+        if option_selected == "PLAYERS_FROM_DATA_BASE":
+            print("option_selected : ", option_selected)
+            self.display_players_list()
+            print(f"\nChoisissez {DEFAULT_PLAYERS_NUMBER} joueurs")
+            for player_number in range(DEFAULT_PLAYERS_NUMBER):
+                player_id = self.view.enter_new_players_in_tournament(player_number+1, number_of_players)
+                print("player_id : ", player_id)
+        elif option_selected == "PLAYERS_FROM_TYPING":
+            print("option_selected : ", option_selected)
+            # for player_number in range(DEFAULT_PLAYERS_NUMBER):
+            #     self.view.enter_new_player()
+
+        # self.display_make_new_tournament_menu()
+        # tournament = self.view.enter_new_tournament(self.tournaments)
+        # print("Tournoi créé : ", tournament)
+        # self.tournaments.append(tournament)
+        # return self.tournaments
+
+    def display_make_new_tournament_menu(self):
+        score = MatchResult
+        players_with_score = []
+        players_source = self.view.display_make_new_tournament_menu()
+        if players_source == "PLAYERS_FROM_DATA_BASE":
+            self.display_players_list()
+        elif players_source == "PLAYERS_FROM_DATA_BASE":
+            for player_number in range(DEFAULT_PLAYERS_NUMBER):
+                player = self.enter_new_player()
+                players_with_score.append([player, score.LOSS])
+                self.players
+
 
     def modify_tournament(self):
         # self.view.display_modify_tournament_menu()
@@ -96,7 +128,7 @@ class Controller:
         # pass
 
     def start_tournament(self):
-        self.tournament_selected = self.view.display_tournaments_list(self.tournaments)
+        # self.tournament_selected = self.view.display_tournaments_list(self.tournaments)
         print("tournoi choisi : ", self.tournament_selected)
         # round = self.tournament_selected[ROUND_NUMBER_POSITION]
         # print("valeur de round : ", round)
@@ -124,9 +156,17 @@ class Controller:
                 print("valeur de l'option selected : ", option_selected)
                 self.update_player_info()
                 run = True
-            elif option_selected == "make_tournament":
-                self.tournaments = self.make_tournament()
-                print("Tournois : ", self.tournaments)
+            elif option_selected == "TOURNAMENTS_LIST":
+                self.display_tournaments_list()
+                # print("Tournois : ", self.tournaments)
+                run = True
+            elif option_selected == "PLAYERS_FROM_DATA_BASE":
+                self.make_new_tournament(option_selected)
+                # print("Tournois : ", self.tournaments)
+                run = True
+            elif option_selected == "PLAYERS_FROM_TYPING":
+                self.make_new_tournament(option_selected)
+                # print("Tournois : ", self.tournaments)
                 run = True
             elif option_selected == "modify_tournament":
                 self.modify_tournament()

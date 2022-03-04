@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from enum import Enum
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict
 from dataclasses import dataclass, field
 
 DEFAULT_PLAYERS_NUMBER = 2
@@ -65,11 +65,9 @@ class TimeControlKind(Enum):
 class Tournament:
     name: str
     place: str
-    # start: date
     time_control: TimeControlKind
     description: str
-    players: List[Player]
-    # round: List[Round]
+    players: Dict[int, List]
     start: date = field(default_factory=date.today)
     turn_count: int = DEFAULT_TURNS_COUNT
     round: List[Round] = field(default_factory=lambda: [])
@@ -96,6 +94,12 @@ class TournamentManagementMenu(Enum):
     START_TOURNAMENT = 3
     TOURNAMENT_DATA_UPDATE = 4
     PREVIOUS_MENU = 5
+
+
+class MakeNewTournamentMenu(Enum):
+    PLAYERS_FROM_DATA_BASE = 1
+    PLAYERS_FROM_TYPING = 2
+    PREVIOUS_MENU = 3
 
 
 class SaveData(Enum):

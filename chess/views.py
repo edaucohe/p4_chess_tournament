@@ -4,7 +4,8 @@ from typing import Any, Callable, List, Dict
 
 from chess.models import Player, Sex, MainMenu, ReportMenu, NewPlayerMenu, NewTournamentMenu, ModifyTournamentMenu, \
     ModifyPlayerInfoMenu, StartTournamentMenu, MENU_OPTION, Tournament, TimeControlKind, DEFAULT_PLAYERS_NUMBER, \
-    PlayerScore, SCORE_INIT, PlayerManagementMenu, TournamentManagementMenu, SaveData, MatchResult
+    PlayerScore, SCORE_INIT, PlayerManagementMenu, TournamentManagementMenu, SaveData, MatchResult, \
+    MakeNewTournamentMenu
 
 
 # @dataclass
@@ -131,11 +132,13 @@ class TerminalView:
         while option:
             selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
             if selection_menu == tournament_management_menu.TOURNAMENTS_LIST.value:
-                self.display_tournaments_list()
+                # self.display_tournaments_list()
+                self.option_selected = "TOURNAMENTS_LIST"
                 option = False
             elif selection_menu == tournament_management_menu.MAKE_NEW_TOURNAMENT.value:
-                self.make_new_tournament()
-                self.option_selected = ""
+                # self.make_new_tournament()
+                self.display_make_new_tournament_menu()
+                # self.option_selected = "MAKE_NEW_TOURNAMENT"
                 option = False
             elif selection_menu == tournament_management_menu.START_TOURNAMENT.value:
                 self.start_tournament()
@@ -270,15 +273,15 @@ class TerminalView:
                 print("-- Choisissez une option parmi les proposées --")
                 option = True
 
-    def display_tournaments_list(self, tournaments_list):
-        tournaments = tournaments_list
-        print("\n** Choisissez un tournoi **")
+    def display_tournaments_list(self, tournaments):
+        tournaments = tournaments
+        print("\n** Liste de tournois **")
         for index, tournament in enumerate(tournaments, start=1):
             print(f'{index}) {tournament.name}')
 
-        selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
-        tournament_selected = tournaments[selection_menu-1]
-        return tournament_selected
+        # selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
+        # tournament_selected = tournaments[selection_menu-1]
+        # return tournament_selected
 
     def display_start_tournament_menu(self):
         start_tournament_menu = StartTournamentMenu
@@ -398,7 +401,7 @@ class TerminalView:
         players = players
         print("display_players_dict")
         print(players)
-        print("\n** Choisissez un joueur **")
+        print("\n** Liste de joueurs **")
         for key, player in players.items():
             print(f'{key}) {player[player_parameter].first_name} {player[player_parameter].last_name}')
 
@@ -413,16 +416,65 @@ class TerminalView:
 
         return players
 
-    def enter_new_tournament(self):
+    def display_make_new_tournament_menu(self):
+        make_new_tournament_menu = MakeNewTournamentMenu
+        make_new_tournament_menu_options = {
+            1: "Ajouter les joueurs depuis la base de données",
+            2: "Ajouter des nouveaux joueurs",
+            3: "Revenir au menu précédent"
+        }
+        print("\n** Ajout de joueurs **")
+        for key in make_new_tournament_menu_options.keys():
+            print(f'{key}) {make_new_tournament_menu_options[key]}')
+
+        option = True
+        while option:
+            selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
+            if selection_menu == make_new_tournament_menu.PLAYERS_FROM_DATA_BASE.value:
+                # self.enter_new_player()
+                self.option_selected = "PLAYERS_FROM_DATA_BASE"
+                option = False
+            elif selection_menu == make_new_tournament_menu.PLAYERS_FROM_TYPING.value:
+                # self.display_main_menu()
+                self.option_selected = "PLAYERS_FROM_TYPING"
+                option = False
+            elif selection_menu == make_new_tournament_menu.PREVIOUS_MENU.value:
+                self.display_tournament_management_menu()
+                option = False
+            else:
+                print("-- Choisissez une option parmi les proposées --")
+                option = True
+        print("valeur de menu_option du ADD PLAYERS: ", self.option_selected)
+        # return self.option_selected
+
+    def enter_new_tournament(self, tournaments):
+        tournaments = tournaments
+        self.display_tournaments_list()
+        selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
+
         tournament = Tournament(
             name=input('Nom du tournoi : '),
             place=input('Lieu du tournoi : '),
             time_control=input_with_constraint('Contrôle du temps (bullet/blitz/quick play) : ',
                                                parse_fn=TimeControlKind),
             description=input('Description : '),
-            players=self.add_players()
+            players=self.display_add_players_options()
         )
         return tournament
+
+    def enter_new_players_in_tournament(self, player_number, number_of_players):
+        option = True
+        while option:
+            selection_menu = input_with_constraint(
+                f"\nChoisissez l'identifiant du joueur {player_number} : ", parse_fn=parse_positive_int)
+            if selection_menu > number_of_players:
+                print("-- Cet identifiant n'existe pas --")
+                option = True
+            else:
+                option = False
+
+        return selection_menu
+
 
     def player_data_menu(self):
         print("player_data_menu")
@@ -443,6 +495,9 @@ class TerminalView:
     #         print("Valeur de player : ", player_list)
     #         print("Valeur de player avec score : ", players_with_score)
     #     return players_with_score
+
+    def display_add_players_options(self):
+        pass
 
     def enter_new_player(self):  # -> Player:
         # How to parse/validate?
