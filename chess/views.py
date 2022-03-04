@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Any, Callable, List
+from typing import Any, Callable, List, Dict
 # from dataclasses import dataclass, asdict  # , field
 
 from chess.models import Player, Sex, MainMenu, ReportMenu, NewPlayerMenu, NewTournamentMenu, ModifyTournamentMenu, \
@@ -177,7 +177,8 @@ class TerminalView:
                 self.option_selected = "ENTER_NEW_PLAYER"
                 option = False
             elif selection_menu == player_management_menu.PLAYER_DATA_UPDATE.value:
-                self.player_data_menu()
+                # self.player_data_menu()
+                self.option_selected = "PLAYER_DATA_UPDATE"
                 option = False
             elif selection_menu == player_management_menu.PREVIOUS_MENU.value:
                 self.display_main_menu()
@@ -342,8 +343,9 @@ class TerminalView:
         option = True
         while option:
             selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
-            if selection_menu == update_player_info_menu.MODIFY_PLAYER_INFO.value:
-                self.update_player_info()
+            if selection_menu == update_player_info_menu.UPDATE_PLAYER_INFO.value:
+                # self.update_player_info()
+                self.option_selected = "UPDATE_PLAYER_INFO"
                 option = False
             elif selection_menu == update_player_info_menu.PREVIOUS_MENU.value:
                 self.display_main_menu()
@@ -391,9 +393,25 @@ class TerminalView:
                 print("-- Choisissez une option parmi les proposées --")
                 option = True
 
-    def display_players_list(self, list_of_players):
-        print("display_players_list")
-        print(list_of_players)
+    def display_players_list(self, players: Dict):
+        player_parameter = 0
+        players = players
+        print("display_players_dict")
+        print(players)
+        print("\n** Choisissez un joueur **")
+        for key, player in players.items():
+            print(f'{key}) {player[player_parameter].first_name} {player[player_parameter].last_name}')
+
+    def update_player_info(self, players: Dict):
+        players = players
+        self.display_players_list(players)
+        selection_menu = input_with_constraint("\nChoisissez un joueur : ", parse_fn=parse_positive_int)
+        for key, player in players.items():
+            if key == selection_menu:
+                new_info_player = self.enter_new_player()
+                players.update({key: new_info_player})
+
+        return players
 
     def enter_new_tournament(self):
         tournament = Tournament(
@@ -410,9 +428,6 @@ class TerminalView:
         print("player_data_menu")
 
     def modify_tournament(self):
-        pass
-
-    def update_player_info(self):
         pass
 
     # def add_players(self) -> List[Player]:
@@ -443,9 +458,9 @@ class TerminalView:
         print("nouveau joueur : ", player_with_score)
         return player_with_score
 
-    def display_players(self, players: List[Player]):
-        for idx, player in enumerate(players, start=1):
-            print(f'{idx} -- {player}')
+    # def display_players(self, players: List[Player]):
+    #     for idx, player in enumerate(players, start=1):
+    #         print(f'{idx} -- {player}')
 
     # def format_players_json(self, players: List[Player]) -> str:
     #     json_str = "["

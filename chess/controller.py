@@ -48,25 +48,10 @@ class Controller:
         player = self.view.enter_new_player()
         self.players.update({index: player})
 
-
-        # self.player_list = []
-        # for players_number in range(DEFAULT_PLAYERS_NUMBER):
-        #     player = self.view.enter_new_player()
-        #     self.player_list.append(player)
-        #     print("Valeur de player : ", self.player_list)
-
-            # self.players.append(player)
-            # player_added = self.players_to_add.get_players_info()
-            # # self.list_players.append(player_added)
-            # # starting_points = self.points.points
-            # starting_points = self.players_to_add.get_players_score().score  # Code pour remplir le score
-            # self.list_starting_points.append(starting_points)
-            # print("starting points : ", self.list_starting_points)
-            # self.list_players.append((player_added, starting_points))
-        # groupes = self.groups_number(self.list_starting_points)
-        # print("nb. de groupes : ", groupes)
-
-        # return self.players
+    def update_player_info(self):
+        print("print de self.players : ", self.players)
+        print("type de self.players : ", type(self.players))
+        self.players = self.view.update_player_info(self.players)
 
     def print_all_players(self):
         self.view.print_players_report(self.state.players)
@@ -134,6 +119,10 @@ class Controller:
             elif option_selected == "PLAYERS_LIST":
                 print("valeur de l'option selected : ", option_selected)
                 self.display_players_list()
+                run = True
+            elif option_selected == "PLAYER_DATA_UPDATE":
+                print("valeur de l'option selected : ", option_selected)
+                self.update_player_info()
                 run = True
             elif option_selected == "make_tournament":
                 self.tournaments = self.make_tournament()

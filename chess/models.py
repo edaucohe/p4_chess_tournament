@@ -125,7 +125,7 @@ class NewPlayerMenu(Enum):
 
 
 class ModifyPlayerInfoMenu(Enum):
-    MODIFY_PLAYER_INFO = 1
+    UPDATE_PLAYER_INFO = 1
     PREVIOUS_MENU = 2
 
 
