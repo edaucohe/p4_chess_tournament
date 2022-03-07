@@ -31,6 +31,7 @@ class Controller:
         self.tournaments = tournaments or []
         self.current_tournament = current_tournament or None
         self.view = view or TerminalView()
+        # self.players_in_tournament = dict()
         # self.player_score = player_score or PlayerScore
         # self.tournament_selected = []
 
@@ -89,19 +90,32 @@ class Controller:
         self.view.display_tournaments_list(self.tournaments)
 
     def make_new_tournament(self, option_selected):
+        players_id = []
+        players_id_set = {}
+        players_in_tournament = {}
         option_selected = option_selected
         number_of_players = len(self.players)
         if option_selected == "PLAYERS_FROM_DATA_BASE":
             print("option_selected : ", option_selected)
             self.display_players_list()
             print(f"\nChoisissez {DEFAULT_PLAYERS_NUMBER} joueurs")
+
             for player_number in range(DEFAULT_PLAYERS_NUMBER):
-                player_id = self.view.enter_new_players_in_tournament(player_number+1, number_of_players)
-                print("player_id : ", player_id)
+                player_id = self.view.enter_new_players_in_tournament(
+                    player_number+1, number_of_players, players_id_set)
+                players_id.append(player_id)
+                players_id_set = set(players_id)
+                players_in_tournament.update({player_id: self.players.get(player_id)})
+                print("self.players_in_tournament : ", players_in_tournament)
+
         elif option_selected == "PLAYERS_FROM_TYPING":
             print("option_selected : ", option_selected)
             # for player_number in range(DEFAULT_PLAYERS_NUMBER):
             #     self.view.enter_new_player()
+
+        tournament = self.view.enter_new_tournament(players_in_tournament)
+        print("Tournoi créé : ", tournament)
+        self.tournaments.append(tournament)
 
         # self.display_make_new_tournament_menu()
         # tournament = self.view.enter_new_tournament(self.tournaments)
@@ -136,6 +150,9 @@ class Controller:
         print("en ordre selon points : ", players_ordered_by_score)
         players_ordered_by_ranking = self.classify_by_ranking(players_ordered_by_score)
         print("en ordre selon classement : ", players_ordered_by_ranking)
+
+    def make_players_report(self):
+        self.view.make_players_report(self.players)
 
     def run_chess_script(self):
         run = True
@@ -173,6 +190,10 @@ class Controller:
                 run = True
             elif option_selected == "start_tournament":
                 self.start_tournament()
+                run = True
+            elif option_selected == "PLAYERS_REPORT":
+                self.make_players_report()
+                # print("Tournois : ", self.tournaments)
                 run = True
             elif option_selected == "close_script":
                 run = False

@@ -3,11 +3,12 @@ from enum import Enum
 from typing import List, Optional, Tuple, Dict
 from dataclasses import dataclass, field
 
-DEFAULT_PLAYERS_NUMBER = 2
+DEFAULT_PLAYERS_NUMBER = 8
 DEFAULT_TURNS_COUNT = 4
 SCORE_INIT = 0
 MENU_OPTION = ""
 DEFAULT_ROUND_VALUE = []
+NUMBER_MAX_OF_HEADS = 5
 
 
 class Sex(Enum):
@@ -59,6 +60,11 @@ class TimeControlKind(Enum):
     BULLET = 'bullet'
     BLITZ = 'blitz'
     QUICK_PLAY = 'quick play'
+
+
+class OrderPlayerList(Enum):
+    ALPHABETICAL = 'a'
+    RANKING = 'c'
 
 
 @dataclass
@@ -134,11 +140,11 @@ class ModifyPlayerInfoMenu(Enum):
 
 
 class ReportMenu(Enum):
-    PLAYERS_LIST = 1
-    PLAYERS_TOURNAMENT_LIST = 2
-    TOURNAMENT_LIST = 3
-    ROUNDS_LIST = 4
-    MATCHS_LIST = 5
+    PLAYERS_REPORT = 1
+    PLAYERS_TOURNAMENT_REPORT = 2
+    TOURNAMENTS_REPORT = 3
+    ROUNDS_REPORT = 4
+    MATCHS_REPORT = 5
     PREVIOUS_MENU = 6
 
 

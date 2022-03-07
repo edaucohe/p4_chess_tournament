@@ -112,6 +112,14 @@ def main():
     tournaments = tournaments_added_for_test(players)
     # print("joueurs du tournois : ", players)
     # print("tournois : ", tournaments)
+    # list_of_numbers = [0, 1, 2, 3, 4]
+    # set_number = set(list_of_numbers)
+    # print("set_number : ", set_number)
+    # number = int(input("tapez un numéro : "))
+    # if number not in set_number:
+    #     print(f"numéro {number} n'est pas dans la liste {list_of_numbers}")
+    # else:
+    #     print(f"numéro {number} est dans la liste {list_of_numbers}")
     # TODO delete up to here
 
     # players = db.load_players()

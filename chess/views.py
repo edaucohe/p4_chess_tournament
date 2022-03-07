@@ -1,3 +1,4 @@
+import csv
 from datetime import date
 from typing import Any, Callable, List, Dict
 # from dataclasses import dataclass, asdict  # , field
@@ -5,7 +6,7 @@ from typing import Any, Callable, List, Dict
 from chess.models import Player, Sex, MainMenu, ReportMenu, NewPlayerMenu, NewTournamentMenu, ModifyTournamentMenu, \
     ModifyPlayerInfoMenu, StartTournamentMenu, MENU_OPTION, Tournament, TimeControlKind, DEFAULT_PLAYERS_NUMBER, \
     PlayerScore, SCORE_INIT, PlayerManagementMenu, TournamentManagementMenu, SaveData, MatchResult, \
-    MakeNewTournamentMenu
+    MakeNewTournamentMenu, OrderPlayerList, NUMBER_MAX_OF_HEADS
 
 
 # @dataclass
@@ -374,19 +375,20 @@ class TerminalView:
         option = True
         while option:
             selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
-            if selection_menu == report_menu.PLAYERS_LIST.value:
-                self.make_players_report()
+            if selection_menu == report_menu.PLAYERS_REPORT.value:
+                # self.make_players_report()
+                self.option_selected = "PLAYERS_REPORT"
                 option = False
-            elif selection_menu == report_menu.PLAYERS_TOURNAMENT_LIST.value:
+            elif selection_menu == report_menu.PLAYERS_TOURNAMENT_REPORT.value:
                 self.make_players_by_tournament_report()
                 option = False
-            elif selection_menu == report_menu.TOURNAMENT_LIST.value:
+            elif selection_menu == report_menu.TOURNAMENTS_REPORT.value:
                 self.make_tournament_report()
                 option = False
-            elif selection_menu == report_menu.ROUNDS_LIST.value:
+            elif selection_menu == report_menu.ROUNDS_REPORT.value:
                 self.make_rounds_report()
                 option = False
-            elif selection_menu == report_menu.MATCHS_LIST.value:
+            elif selection_menu == report_menu.MATCHS_REPORT.value:
                 self.make_matchs_report()
                 option = False
             elif selection_menu == report_menu.PREVIOUS_MENU.value:
@@ -447,10 +449,10 @@ class TerminalView:
         print("valeur de menu_option du ADD PLAYERS: ", self.option_selected)
         # return self.option_selected
 
-    def enter_new_tournament(self, tournaments):
-        tournaments = tournaments
-        self.display_tournaments_list()
-        selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
+    def enter_new_tournament(self, players):
+        # tournaments = tournaments
+        # self.display_tournaments_list(tournaments)
+        # selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
 
         tournament = Tournament(
             name=input('Nom du tournoi : '),
@@ -458,23 +460,25 @@ class TerminalView:
             time_control=input_with_constraint('Contrôle du temps (bullet/blitz/quick play) : ',
                                                parse_fn=TimeControlKind),
             description=input('Description : '),
-            players=self.display_add_players_options()
+            players=players
         )
         return tournament
 
-    def enter_new_players_in_tournament(self, player_number, number_of_players):
+    # @staticmethod
+    def enter_new_players_in_tournament(self, player_number, number_of_players, players_id_set):
         option = True
+        selection_menu = 0
+
         while option:
             selection_menu = input_with_constraint(
                 f"\nChoisissez l'identifiant du joueur {player_number} : ", parse_fn=parse_positive_int)
-            if selection_menu > number_of_players:
-                print("-- Cet identifiant n'existe pas --")
+            if selection_menu > number_of_players or selection_menu in players_id_set:
+                print("-- Choisissez un autre identifiant --")
                 option = True
             else:
                 option = False
 
         return selection_menu
-
 
     def player_data_menu(self):
         print("player_data_menu")
@@ -533,8 +537,36 @@ class TerminalView:
         #     self.view.print_players_report(self.current_tournament.players)
         pass
 
-    def make_players_report(self):
-        pass
+    def make_players_report(self, players):
+        head_list = []
+        players = players
+        print("players[1] : ", players[1])
+        order_decision = input_with_constraint('Choisissez une option (a/c) : ', parse_fn=OrderPlayerList)
+        print("order_decision : ", order_decision.ALPHABETICAL)
+        print("type order_decision : ",  type(order_decision.ALPHABETICAL))
+
+        if order_decision == OrderPlayerList.ALPHABETICAL:
+            print("par ordre alphabétique")
+            for index, player in players.items():
+                # for number_of_head in NUMBER_MAX_OF_HEADS:
+                #     head_list.append(player[0])
+                #     print("head_list : ", head_list)
+                one_player = player[0]
+
+                nom_du_fichier = 'rapports/player_list_a.csv'
+                with open(nom_du_fichier, 'w', encoding='utf8', newline='') as csvfile:
+                    # tetes = list(info_livres_de_la_categorie[0].keys())
+                    print("players : ", players)
+                    print("player : ", player[0])
+                    for name, member in one_player.__members__.items():
+                        print(f"name : {name} et membre : {member}")
+                    # print("player.first_name : ", player[0].name)
+                    # heads = list(player)
+                    # writer = csv.DictWriter(csvfile, fieldnames=heads)
+                    # writer.writeheader()
+                    # writer.writerows(player)
+        elif order_decision == "c":
+            print("par classement")
 
     def make_players_by_tournament_report(self):
         pass
