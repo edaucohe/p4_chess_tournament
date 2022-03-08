@@ -33,7 +33,7 @@ pip install -r requirements.txt
 
 ## Setup
 
-
+Avant de lancer le script, il faut créer le dossier `rapports/`.
 
 ## Use
 Lancer le script :
@@ -41,6 +41,8 @@ Lancer le script :
 ```
 python main.py
 ```
+
+Les rapports seront écrits dans le dossier `rapports/`.
 
 ## Helpful links
 

@@ -95,7 +95,9 @@ class Controller:
 
     def display_tournaments_list(self):
         print("Tournois : ", self.tournaments)
-        self.view.display_tournaments_list(self.tournaments)
+        # self.view.display_tournaments_list(self.tournaments)
+        self.view.enter_tournament_selection(self.tournaments)
+
 
     def make_new_tournament(self, option_selected):
         players_id = []
@@ -159,10 +161,11 @@ class Controller:
         players_ordered_by_ranking = self.classify_by_ranking(players_ordered_by_score)
         print("en ordre selon classement : ", players_ordered_by_ranking)
 
-    def make_players_alphabetical_report(self):
+    def make_players_alphabetical_report(self, players, report, tournament_name):
         row_lists = []
-        report = "alphabetical"
-        players_by_alphabetical_order = self.classify_players_by_name_report(self.players)
+        # report = "alphabetical"
+        players_by_alphabetical_order = self.classify_players_by_name_report(players)
+        print("self.players : ", players)
         print("players_by_alphabetical_order : ", players_by_alphabetical_order)
 
         for index, player in players_by_alphabetical_order:
@@ -177,12 +180,14 @@ class Controller:
             print("row_list : ", row_list)
             row_lists.append(row_list)
 
-        self.view.make_players_report(row_lists, report)
+        file_name = str(tournament_name) + " (joueurs par ordre alphabetique)"
+        self.view.make_players_report(row_lists, report, file_name)
 
-    def make_players_ranking_report(self):
+    def make_players_ranking_report(self, players, report, tournament_name):
         row_lists = []
-        report = "ranking"
-        players_by_ranking_order = self.classify_players_by_ranking_report(self.players)
+        # report = "ranking"
+        players_by_ranking_order = self.classify_players_by_ranking_report(players)
+        print("self.players : ", players)
         print("players_by_alphabetical_order : ", players_by_ranking_order)
 
         for index, player in players_by_ranking_order:
@@ -197,7 +202,31 @@ class Controller:
             print("row_list : ", row_list)
             row_lists.append(row_list)
 
-        self.view.make_players_report(row_lists, report)
+        file_name = str(tournament_name) + " (joueurs par classement)"
+        self.view.make_players_report(row_lists, report, file_name)
+
+    def make_players_alphabetical_by_tournament_report(self):
+        self.display_tournaments_list()
+
+    def make_players_ranking_by_tournament_report(self):
+        pass
+
+    def make_players_by_tournament_report(self):
+        # self.display_tournaments_list()
+        tournament = self.view.enter_tournament_selection(self.tournaments)
+        print("tournament : ", tournament)
+        players = tournament.players
+        print("players : ", players)
+        selection = self.view.display_players_by_tournament_menu()
+        if selection == "ALPHABETICAL_BY_TOURNAMENT":
+            tournament_name = str(tournament.name)
+            report = "players_in_tournament_by_alphabetical_order"
+            self.make_players_alphabetical_report(players, report, tournament_name)
+        elif selection == "RANKING_BY_TOURNAMENT":
+            tournament_name = str(tournament.name)
+            report = "players_in_tournament_by_ranking_order"
+            self.make_players_ranking_report(players, report, tournament_name)
+
 
     def run_chess_script(self):
         run = True
@@ -237,10 +266,23 @@ class Controller:
                 self.start_tournament()
                 run = True
             elif option_selected == "ALPHABETICAL":
-                self.make_players_alphabetical_report()
+                report = "all_players_name_order"
+                tournament_name = "Liste complete"
+                self.make_players_alphabetical_report(self.players, report, tournament_name)
                 run = True
             elif option_selected == "RANKING":
-                self.make_players_ranking_report()
+                report = "all_players_ranking_order"
+                tournament_name = "Liste complete"
+                self.make_players_ranking_report(self.players, report, tournament_name)
+                run = True
+            elif option_selected == "ALPHABETICAL_BY_TOURNAMENT":
+                self.make_players_alphabetical_by_tournament_report()
+                run = True
+            elif option_selected == "RANKING_BY_TOURNAMENT":
+                self.make_players_ranking_by_tournament_report()
+                run = True
+            elif option_selected == "PLAYERS_TOURNAMENT_REPORT":
+                self.make_players_by_tournament_report()
                 run = True
             elif option_selected == "close_script":
                 run = False

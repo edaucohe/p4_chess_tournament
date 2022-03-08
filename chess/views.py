@@ -7,7 +7,7 @@ from typing import Any, Callable, List, Dict
 from chess.models import Player, Sex, MainMenu, ReportMenu, NewPlayerMenu, NewTournamentMenu, ModifyTournamentMenu, \
     ModifyPlayerInfoMenu, StartTournamentMenu, MENU_OPTION, Tournament, TimeControlKind, DEFAULT_PLAYERS_NUMBER, \
     PlayerScore, SCORE_INIT, PlayerManagementMenu, TournamentManagementMenu, SaveData, MatchResult, \
-    MakeNewTournamentMenu, OrderPlayerList, NUMBER_MAX_OF_HEADS, AllPlayersReportMenu
+    MakeNewTournamentMenu, OrderPlayerList, NUMBER_MAX_OF_HEADS, AllPlayersReportMenu, PlayersByTournamentReportMenu
 
 
 # @dataclass
@@ -112,8 +112,8 @@ class TerminalView:
                 print("-- Choisissez une option parmi les proposées ! --")
                 option = True
 
-            print("valeur de menu_option du MAIN WHILE : ", self.option_selected)
-        print("valeur de menu_option du MAIN HORS WHILE : ", self.option_selected)
+        #     print("valeur de menu_option du MAIN WHILE : ", self.option_selected)
+        # print("valeur de menu_option du MAIN HORS WHILE : ", self.option_selected)
         return self.option_selected
 
     def display_tournament_management_menu(self):
@@ -285,6 +285,29 @@ class TerminalView:
         # tournament_selected = tournaments[selection_menu-1]
         # return tournament_selected
 
+    def enter_tournament_selection(self, tournaments):
+        self.display_tournaments_list(tournaments)
+        number_of_tournament_list = []
+        # print("tournaments : ", tournaments)
+        # print("tournaments[0] : ", tournaments[0])
+        # print("tournaments[0].name : ", tournaments[0].name)
+        for number_of_tournament in range(len(tournaments)):
+            number_of_tournament_list.append(number_of_tournament+1)
+
+        option = True
+        while option:
+            selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
+
+            if selection_menu in number_of_tournament_list:
+                print("number_of_tournament dans le if : ", number_of_tournament_list)
+                option = False
+                tournament = tournaments[selection_menu-1]
+                return tournament
+
+            else:
+                print("-- Choisissez une option parmi les proposées --")
+                option = True
+
     def display_start_tournament_menu(self):
         start_tournament_menu = StartTournamentMenu
         start_tournament_menu_options = {
@@ -382,7 +405,9 @@ class TerminalView:
                 self.display_all_players_menu()
                 option = False
             elif selection_menu == report_menu.PLAYERS_TOURNAMENT_REPORT.value:
-                self.make_players_by_tournament_report()
+                # self.make_players_by_tournament_report()
+                # self.display_players_by_tournament_menu()
+                self.option_selected = "PLAYERS_TOURNAMENT_REPORT"
                 option = False
             elif selection_menu == report_menu.TOURNAMENTS_REPORT.value:
                 self.make_tournament_report()
@@ -428,6 +453,36 @@ class TerminalView:
             else:
                 print("-- Choisissez une option parmi les proposées --")
                 option = True
+
+    def display_players_by_tournament_menu(self):
+        all_players_by_tournament_report_menu = PlayersByTournamentReportMenu
+        all_players_by_tournament_report_menu_options = {
+            1: "Liste par ordre alphabétique",
+            2: "Liste par classement"
+        }
+        print("\n**** RAPPORTS DE JOUEURS ****")
+        for key in all_players_by_tournament_report_menu_options.keys():
+            print(f'{key}) {all_players_by_tournament_report_menu_options[key]}')
+
+        option = True
+        while option:
+            selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
+            if selection_menu == all_players_by_tournament_report_menu.ALPHABETICAL_BY_TOURNAMENT.value:
+                # self.make_players_by_tournament_report()
+                self.option_selected = "ALPHABETICAL_BY_TOURNAMENT"
+                option = False
+            elif selection_menu == all_players_by_tournament_report_menu.RANKING_BY_TOURNAMENT.value:
+                # self.make_tournament_report()
+                self.option_selected = "RANKING_BY_TOURNAMENT"
+                option = False
+            # elif selection_menu == all_players_by_tournament_report_menu.PREVIOUS_MENU.value:
+            #     self.display_make_reports_menu()
+            #     option = False
+            else:
+                print("-- Choisissez une option parmi les proposées --")
+                option = True
+
+        return self.option_selected
 
     def display_players_list(self, players: Dict):
         player_parameter = 0
@@ -568,17 +623,24 @@ class TerminalView:
         #     self.view.print_players_report(self.current_tournament.players)
         pass
 
-    def make_players_report(self, row_lists, report):
+    def make_players_report(self, row_lists, report, file_name):
         head_list = ["identifiant", "prenom", "nom", "date de naissance", "sexe", "classement"]
-        nom_du_fichier = "rapports/liste de joueurs.csv"
+        name_of_file = "rapports/liste de joueurs.csv"
 
-        if report == "alphabetical":
-            nom_du_fichier = 'rapports/liste de joueurs par ordre alphabetique.csv'
+        if report == "all_players_name_order":
+            # nom_du_fichier = 'rapports/liste de joueurs par ordre alphabetique.csv'
+            name_of_file = 'rapports/' + file_name + '.csv'
+        elif report == "all_players_ranking_order":
+            # nom_du_fichier = 'rapports/liste de joueurs par classement.csv'
+            name_of_file = 'rapports/' + file_name + '.csv'
+        elif report == "players_in_tournament_by_alphabetical_order":
+            # nom_du_fichier = 'rapports/liste de joueurs par ordre alphabetique selon tournoi.csv'
+            name_of_file = 'rapports/' + file_name + '.csv'
+        elif report == "players_in_tournament_by_ranking_order":
+            # nom_du_fichier = 'rapports/liste de joueurs par classement selon tournoi.csv'
+            name_of_file = 'rapports/' + file_name + '.csv'
 
-        elif report == "ranking":
-            nom_du_fichier = 'rapports/liste de joueurs par classement.csv'
-
-        with open(nom_du_fichier, 'w', encoding='utf8', newline='') as csvfile:
+        with open(name_of_file, 'w', encoding='utf8', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(head_list)
             writer.writerows(row_lists)

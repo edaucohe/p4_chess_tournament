@@ -153,6 +153,12 @@ class AllPlayersReportMenu(Enum):
     RANKING = 2
     PREVIOUS_MENU = 3
 
+
+class PlayersByTournamentReportMenu(Enum):
+    ALPHABETICAL_BY_TOURNAMENT = 1
+    RANKING_BY_TOURNAMENT = 2
+
+
 # @dataclass
 # class MainMenu:
 #     1: "Créer un tournoi"
