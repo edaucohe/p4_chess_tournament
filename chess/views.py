@@ -1,4 +1,5 @@
 import csv
+from dataclasses import fields, asdict
 from datetime import date
 from typing import Any, Callable, List, Dict
 # from dataclasses import dataclass, asdict  # , field
@@ -6,7 +7,7 @@ from typing import Any, Callable, List, Dict
 from chess.models import Player, Sex, MainMenu, ReportMenu, NewPlayerMenu, NewTournamentMenu, ModifyTournamentMenu, \
     ModifyPlayerInfoMenu, StartTournamentMenu, MENU_OPTION, Tournament, TimeControlKind, DEFAULT_PLAYERS_NUMBER, \
     PlayerScore, SCORE_INIT, PlayerManagementMenu, TournamentManagementMenu, SaveData, MatchResult, \
-    MakeNewTournamentMenu, OrderPlayerList, NUMBER_MAX_OF_HEADS
+    MakeNewTournamentMenu, OrderPlayerList, NUMBER_MAX_OF_HEADS, AllPlayersReportMenu
 
 
 # @dataclass
@@ -361,8 +362,8 @@ class TerminalView:
     def display_make_reports_menu(self):
         report_menu = ReportMenu
         report_menu_options = {
-            1: "Liste de tous les joueurs (a/c)",
-            2: "Liste des joueurs d'un tournoi (a/c)",
+            1: "Liste de tous les joueurs",
+            2: "Liste des joueurs d'un tournoi",
             3: "Liste de tous les tournois",
             4: "Liste de tous les tours d'un tournoi",
             5: "Liste de tous les matchs d'un tournoi",
@@ -377,7 +378,8 @@ class TerminalView:
             selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
             if selection_menu == report_menu.PLAYERS_REPORT.value:
                 # self.make_players_report()
-                self.option_selected = "PLAYERS_REPORT"
+                # self.option_selected = "PLAYERS_REPORT"
+                self.display_all_players_menu()
                 option = False
             elif selection_menu == report_menu.PLAYERS_TOURNAMENT_REPORT.value:
                 self.make_players_by_tournament_report()
@@ -393,6 +395,35 @@ class TerminalView:
                 option = False
             elif selection_menu == report_menu.PREVIOUS_MENU.value:
                 self.display_main_menu()
+                option = False
+            else:
+                print("-- Choisissez une option parmi les proposées --")
+                option = True
+
+    def display_all_players_menu(self):
+        all_players_report_menu = AllPlayersReportMenu
+        all_players_report_menu_options = {
+            1: "Liste par ordre alphabétique",
+            2: "Liste par classement",
+            3: "Revenir au menu précédent"
+        }
+        print("\n**** RAPPORTS DE JOUEURS ****")
+        for key in all_players_report_menu_options.keys():
+            print(f'{key}) {all_players_report_menu_options[key]}')
+
+        option = True
+        while option:
+            selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
+            if selection_menu == all_players_report_menu.ALPHABETICAL.value:
+                # self.make_players_by_tournament_report()
+                self.option_selected = "ALPHABETICAL"
+                option = False
+            elif selection_menu == all_players_report_menu.RANKING.value:
+                # self.make_tournament_report()
+                self.option_selected = "RANKING"
+                option = False
+            elif selection_menu == all_players_report_menu.PREVIOUS_MENU.value:
+                self.display_make_reports_menu()
                 option = False
             else:
                 print("-- Choisissez une option parmi les proposées --")
@@ -509,7 +540,7 @@ class TerminalView:
             first_name=input('Prénom : '),
             last_name=input('Nom : '),
             date_of_birth=input_with_constraint('Date de naissance (aaaa-mm-dd) : ', parse_fn=date.fromisoformat),
-            sex=input_with_constraint('Genre (h/f) : ', parse_fn=Sex),
+            sex=input_with_constraint('Genre (h/f) : ', parse_fn=Sex).value,
             ranking=input_with_constraint('Classement : ', parse_fn=parse_positive_int)
         )
         score = MatchResult
@@ -537,36 +568,20 @@ class TerminalView:
         #     self.view.print_players_report(self.current_tournament.players)
         pass
 
-    def make_players_report(self, players):
-        head_list = []
-        players = players
-        print("players[1] : ", players[1])
-        order_decision = input_with_constraint('Choisissez une option (a/c) : ', parse_fn=OrderPlayerList)
-        print("order_decision : ", order_decision.ALPHABETICAL)
-        print("type order_decision : ",  type(order_decision.ALPHABETICAL))
+    def make_players_report(self, row_lists, report):
+        head_list = ["identifiant", "prenom", "nom", "date de naissance", "sexe", "classement"]
+        nom_du_fichier = "rapports/liste de joueurs.csv"
 
-        if order_decision == OrderPlayerList.ALPHABETICAL:
-            print("par ordre alphabétique")
-            for index, player in players.items():
-                # for number_of_head in NUMBER_MAX_OF_HEADS:
-                #     head_list.append(player[0])
-                #     print("head_list : ", head_list)
-                one_player = player[0]
+        if report == "alphabetical":
+            nom_du_fichier = 'rapports/liste de joueurs par ordre alphabetique.csv'
 
-                nom_du_fichier = 'rapports/player_list_a.csv'
-                with open(nom_du_fichier, 'w', encoding='utf8', newline='') as csvfile:
-                    # tetes = list(info_livres_de_la_categorie[0].keys())
-                    print("players : ", players)
-                    print("player : ", player[0])
-                    for name, member in one_player.__members__.items():
-                        print(f"name : {name} et membre : {member}")
-                    # print("player.first_name : ", player[0].name)
-                    # heads = list(player)
-                    # writer = csv.DictWriter(csvfile, fieldnames=heads)
-                    # writer.writeheader()
-                    # writer.writerows(player)
-        elif order_decision == "c":
-            print("par classement")
+        elif report == "ranking":
+            nom_du_fichier = 'rapports/liste de joueurs par classement.csv'
+
+        with open(nom_du_fichier, 'w', encoding='utf8', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(head_list)
+            writer.writerows(row_lists)
 
     def make_players_by_tournament_report(self):
         pass

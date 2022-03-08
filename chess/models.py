@@ -148,6 +148,11 @@ class ReportMenu(Enum):
     PREVIOUS_MENU = 6
 
 
+class AllPlayersReportMenu(Enum):
+    ALPHABETICAL = 1
+    RANKING = 2
+    PREVIOUS_MENU = 3
+
 # @dataclass
 # class MainMenu:
 #     1: "Créer un tournoi"

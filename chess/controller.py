@@ -1,6 +1,6 @@
 from collections import Counter
 from typing import List, Dict, Optional, Tuple
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 
 from chess.views import TerminalView
 from chess.models import Player, Tournament, DEFAULT_PLAYERS_NUMBER, PlayerScore, MatchResult
@@ -74,6 +74,14 @@ class Controller:
     def classify_by_score(self, tournament_selected):
         sorted_players_by_score = sorted(tournament_selected.players, key=lambda score: score[1], reverse=True)
         return sorted_players_by_score
+
+    def classify_players_by_name_report(self, players_list):
+        players_sorted_by_name = sorted(players_list.items(), key=lambda n: n[1][0].last_name)
+        return players_sorted_by_name
+
+    def classify_players_by_ranking_report(self, players_list):
+        players_sorted_by_name = sorted(players_list.items(), key=lambda n: n[1][0].ranking, reverse=True)
+        return players_sorted_by_name
 
     # def assign_points(self):
     #     for players_number in range(PLAYERS_NUMBER):
@@ -151,8 +159,45 @@ class Controller:
         players_ordered_by_ranking = self.classify_by_ranking(players_ordered_by_score)
         print("en ordre selon classement : ", players_ordered_by_ranking)
 
-    def make_players_report(self):
-        self.view.make_players_report(self.players)
+    def make_players_alphabetical_report(self):
+        row_lists = []
+        report = "alphabetical"
+        players_by_alphabetical_order = self.classify_players_by_name_report(self.players)
+        print("players_by_alphabetical_order : ", players_by_alphabetical_order)
+
+        for index, player in players_by_alphabetical_order:
+            player_info = player[0]
+            row_list = [index,
+                        player_info.first_name,
+                        player_info.last_name,
+                        player_info.date_of_birth,
+                        player_info.sex,
+                        player_info.ranking
+                        ]
+            print("row_list : ", row_list)
+            row_lists.append(row_list)
+
+        self.view.make_players_report(row_lists, report)
+
+    def make_players_ranking_report(self):
+        row_lists = []
+        report = "ranking"
+        players_by_ranking_order = self.classify_players_by_ranking_report(self.players)
+        print("players_by_alphabetical_order : ", players_by_ranking_order)
+
+        for index, player in players_by_ranking_order:
+            player_info = player[0]
+            row_list = [index,
+                        player_info.first_name,
+                        player_info.last_name,
+                        player_info.date_of_birth,
+                        player_info.sex,
+                        player_info.ranking
+                        ]
+            print("row_list : ", row_list)
+            row_lists.append(row_list)
+
+        self.view.make_players_report(row_lists, report)
 
     def run_chess_script(self):
         run = True
@@ -191,9 +236,11 @@ class Controller:
             elif option_selected == "start_tournament":
                 self.start_tournament()
                 run = True
-            elif option_selected == "PLAYERS_REPORT":
-                self.make_players_report()
-                # print("Tournois : ", self.tournaments)
+            elif option_selected == "ALPHABETICAL":
+                self.make_players_alphabetical_report()
+                run = True
+            elif option_selected == "RANKING":
+                self.make_players_ranking_report()
                 run = True
             elif option_selected == "close_script":
                 run = False
