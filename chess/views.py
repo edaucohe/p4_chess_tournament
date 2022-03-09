@@ -75,6 +75,24 @@ def parse_positive_int(input_as_str: str) -> int:
 class TerminalView:
     option_selected = MENU_OPTION
 
+    def display_menu_with_input(self, name: str, choices: Dict[int, str]):
+        print(f'** {name} ** ')
+        for choice_index, choice_name in choices.items():
+            print(f'{choice_index} - {choice_name}')
+
+        user_input = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
+        is_input_valid = user_input in choices
+
+        while not is_input_valid:
+            user_input = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
+            is_input_valid = user_input in choices
+
+        return user_input
+
+    def display_close_message(self):
+        print('***** Closing, Byyyye *****')
+
+    ######### DELETE FROM HERE
     def display_main_menu(self):
         main_menu = MainMenu
         main_menu_options = {
@@ -285,29 +303,6 @@ class TerminalView:
         # tournament_selected = tournaments[selection_menu-1]
         # return tournament_selected
 
-    def enter_tournament_selection(self, tournaments):
-        self.display_tournaments_list(tournaments)
-        number_of_tournament_list = []
-        # print("tournaments : ", tournaments)
-        # print("tournaments[0] : ", tournaments[0])
-        # print("tournaments[0].name : ", tournaments[0].name)
-        for number_of_tournament in range(len(tournaments)):
-            number_of_tournament_list.append(number_of_tournament+1)
-
-        option = True
-        while option:
-            selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
-
-            if selection_menu in number_of_tournament_list:
-                print("number_of_tournament dans le if : ", number_of_tournament_list)
-                option = False
-                tournament = tournaments[selection_menu-1]
-                return tournament
-
-            else:
-                print("-- Choisissez une option parmi les proposées --")
-                option = True
-
     def display_start_tournament_menu(self):
         start_tournament_menu = StartTournamentMenu
         start_tournament_menu_options = {
@@ -483,6 +478,30 @@ class TerminalView:
                 option = True
 
         return self.option_selected
+    ##### TODO DELETE UP TO HERE
+
+    def enter_tournament_selection(self, tournaments):
+        self.display_tournaments_list(tournaments)
+        number_of_tournament_list = []
+        # print("tournaments : ", tournaments)
+        # print("tournaments[0] : ", tournaments[0])
+        # print("tournaments[0].name : ", tournaments[0].name)
+        for number_of_tournament in range(len(tournaments)):
+            number_of_tournament_list.append(number_of_tournament + 1)
+
+        option = True
+        while option:
+            selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
+
+            if selection_menu in number_of_tournament_list:
+                print("number_of_tournament dans le if : ", number_of_tournament_list)
+                option = False
+                tournament = tournaments[selection_menu - 1]
+                return tournament
+
+            else:
+                print("-- Choisissez une option parmi les proposées --")
+                option = True
 
     def display_players_list(self, players: Dict):
         player_parameter = 0
@@ -535,7 +554,7 @@ class TerminalView:
         print("valeur de menu_option du ADD PLAYERS: ", self.option_selected)
         # return self.option_selected
 
-    def enter_new_tournament(self, players):
+    def enter_new_tournament(self):
         # tournaments = tournaments
         # self.display_tournaments_list(tournaments)
         # selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
@@ -546,7 +565,7 @@ class TerminalView:
             time_control=input_with_constraint('Contrôle du temps (bullet/blitz/quick play) : ',
                                                parse_fn=TimeControlKind),
             description=input('Description : '),
-            players=players
+            players={}
         )
         return tournament
 
