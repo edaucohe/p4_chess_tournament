@@ -95,15 +95,14 @@ class Controller:
 
     def display_tournaments_list(self):
         print("Tournois : ", self.tournaments)
-        # self.view.display_tournaments_list(self.tournaments)
-        self.view.enter_tournament_selection(self.tournaments)
+        self.view.display_tournaments_list(self.tournaments)
+        # self.view.enter_tournament_selection(self.tournaments)
 
 
     def make_new_tournament(self, option_selected):
         players_id = []
         players_id_set = {}
         players_in_tournament = {}
-        option_selected = option_selected
         number_of_players = len(self.players)
         if option_selected == "PLAYERS_FROM_DATA_BASE":
             print("option_selected : ", option_selected)
@@ -126,12 +125,6 @@ class Controller:
         tournament = self.view.enter_new_tournament(players_in_tournament)
         print("Tournoi créé : ", tournament)
         self.tournaments.append(tournament)
-
-        # self.display_make_new_tournament_menu()
-        # tournament = self.view.enter_new_tournament(self.tournaments)
-        # print("Tournoi créé : ", tournament)
-        # self.tournaments.append(tournament)
-        # return self.tournaments
 
     def display_make_new_tournament_menu(self):
         score = MatchResult
