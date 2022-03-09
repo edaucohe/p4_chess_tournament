@@ -69,7 +69,7 @@ def players_added_for_test() -> Dict[int, List]:
     for player in players:
         player = Player(**player)
         players_with_score.append([player, score.LOSS])
-    
+
     players_with_index = {index+1: players_with_score[index] for index in range(len(players))}
     return players_with_index
 
@@ -125,7 +125,7 @@ def main():
     # players = db.load_players()
 
     controller = Controller(players=players, tournaments=tournaments)
-    controller.run_chess_script()
+    controller.main_menu()
 
     # """Récupérer info des joueurs"""
     # players_added.add_players()

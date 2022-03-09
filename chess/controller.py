@@ -98,7 +98,6 @@ class Controller:
         self.view.display_tournaments_list(self.tournaments)
         # self.view.enter_tournament_selection(self.tournaments)
 
-
     def make_new_tournament(self, option_selected):
         players_id = []
         players_id_set = {}
@@ -111,7 +110,7 @@ class Controller:
 
             for player_number in range(DEFAULT_PLAYERS_NUMBER):
                 player_id = self.view.enter_new_players_in_tournament(
-                    player_number+1, number_of_players, players_id_set)
+                    player_number + 1, number_of_players, players_id_set)
                 players_id.append(player_id)
                 players_id_set = set(players_id)
                 players_in_tournament.update({player_id: self.players.get(player_id)})
@@ -122,7 +121,9 @@ class Controller:
             # for player_number in range(DEFAULT_PLAYERS_NUMBER):
             #     self.view.enter_new_player()
 
-        tournament = self.view.enter_new_tournament(players_in_tournament)
+        tournament = self.view.enter_new_tournament()
+        tournament.players = players_in_tournament
+
         print("Tournoi créé : ", tournament)
         self.tournaments.append(tournament)
 
@@ -137,7 +138,6 @@ class Controller:
                 player = self.enter_new_player()
                 players_with_score.append([player, score.LOSS])
                 self.players
-
 
     def modify_tournament(self):
         # self.view.display_modify_tournament_menu()
@@ -220,62 +220,90 @@ class Controller:
             report = "players_in_tournament_by_ranking_order"
             self.make_players_ranking_report(players, report, tournament_name)
 
+    def tournaments_management_menu(self):
+        choices = {
+            1: "Choice 1",
+            2: "Go Back"
+        }
 
-    def run_chess_script(self):
+        name = "Tournament Management"
         run = True
         while run:
-            option_selected = self.display_menus()
-            if option_selected == "ENTER_NEW_PLAYER":
-                print("valeur de l'option selected : ", option_selected)
-                index = len(self.players) + 1
-                self.enter_new_player(index)
-                print("liste de joueurs avec identifiant", self.players)
-                # self.classify_by_points()
-                # self.classify_by_ranking()
-            elif option_selected == "PLAYERS_LIST":
-                print("valeur de l'option selected : ", option_selected)
-                self.display_players_list()
-                run = True
-            elif option_selected == "PLAYER_DATA_UPDATE":
-                print("valeur de l'option selected : ", option_selected)
-                self.update_player_info()
-                run = True
-            elif option_selected == "TOURNAMENTS_LIST":
-                self.display_tournaments_list()
-                # print("Tournois : ", self.tournaments)
-                run = True
-            elif option_selected == "PLAYERS_FROM_DATA_BASE":
-                self.make_new_tournament(option_selected)
-                # print("Tournois : ", self.tournaments)
-                run = True
-            elif option_selected == "PLAYERS_FROM_TYPING":
-                self.make_new_tournament(option_selected)
-                # print("Tournois : ", self.tournaments)
-                run = True
-            elif option_selected == "modify_tournament":
-                self.modify_tournament()
-                run = True
-            elif option_selected == "start_tournament":
-                self.start_tournament()
-                run = True
-            elif option_selected == "ALPHABETICAL":
-                report = "all_players_name_order"
-                tournament_name = "Liste complete"
-                self.make_players_alphabetical_report(self.players, report, tournament_name)
-                run = True
-            elif option_selected == "RANKING":
-                report = "all_players_ranking_order"
-                tournament_name = "Liste complete"
-                self.make_players_ranking_report(self.players, report, tournament_name)
-                run = True
-            elif option_selected == "ALPHABETICAL_BY_TOURNAMENT":
-                self.make_players_alphabetical_by_tournament_report()
-                run = True
-            elif option_selected == "RANKING_BY_TOURNAMENT":
-                self.make_players_ranking_by_tournament_report()
-                run = True
-            elif option_selected == "PLAYERS_TOURNAMENT_REPORT":
-                self.make_players_by_tournament_report()
-                run = True
-            elif option_selected == "close_script":
+            user_choice = self.view.display_menu_with_input(name, choices)
+            if user_choice == 1:
+                print('Choice 1')
+            elif user_choice == 2:
                 run = False
+
+    def players_management_menu(self):
+        choices = {
+            1: "Choice 1",
+            2: "Go Back"
+        }
+        name = "Players"
+        run = True
+        while run:
+            user_choice = self.view.display_menu_with_input(name, choices)
+            if user_choice == 1:
+                user = self.view.enter_new_player()
+                # do stuff with user
+            elif user_choice == 2:
+                run = False
+
+    def reports_menu(self):
+        choices = {
+            1: "Players report",
+            2: "Current tournament players report",
+            3: "Go Back"
+        }
+        reports_to_display = {
+            1: self.make_players_alphabetical_report,
+            2: self.make_players_alphabetical_by_tournament_report,
+        }
+        name = "Reports"
+        run = True
+        while run:
+            user_choice = self.view.display_menu_with_input(name, choices)
+            if user_choice == 3:
+                run = False
+            else:
+                reports_to_display[user_choice]()
+
+    def data_management_menu(self):
+        choices = {
+            1: "Choice 1",
+            2: "Go Back"
+        }
+        name = "Database"
+        run = True
+        while run:
+            user_choice = self.view.display_menu_with_input(name, choices)
+            if user_choice == 1:
+                print('Choice 1')
+            elif user_choice == 2:
+                run = False
+
+    def main_menu(self):
+        choices_names = {
+            1: "Gestion de tournois",
+            2: "Gestion de joueurs",
+            3: "Création de rapports",
+            4: "Sauvegarder/Charger les données",
+            5: "Fermer l'application"
+        }
+        choices_actions = {
+            1: self.tournaments_management_menu,
+            2: self.players_management_menu,
+            3: self.reports_menu,
+            4: self.data_management_menu,
+        }
+        name = "Main menu"
+        run = True
+        while run:
+            user_choice = self.view.display_menu_with_input(name, choices_names)
+            if user_choice == 5:
+                self.view.display_close_message()
+                run = False
+            else:
+                choices_actions[user_choice]()
+
