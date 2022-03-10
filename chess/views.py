@@ -75,11 +75,29 @@ def parse_positive_int(input_as_str: str) -> int:
 class TerminalView:
     option_selected = MENU_OPTION
 
-    def display_menu_with_input(self, name: str, choices: Dict[int, str]):
-        print(f'** {name} ** ')
+    # @staticmethod
+    # def display_menu_with_input(name: str, choices: Dict[int, str]):
+    #     print(f'\n**** {name} **** ')
+    #     for choice_index, choice_name in choices.items():
+    #         print(f'{choice_index} - {choice_name}')
+    #
+    #     # user_input = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
+    #     # is_input_valid = user_input in choices
+    #     #
+    #     # while not is_input_valid:
+    #     #     user_input = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
+    #     #     is_input_valid = user_input in choices
+    #     #
+    #     # return user_input
+
+    @staticmethod
+    def display_menu(name: str, choices: Dict[int, str]):
+        print(f'\n**{name}**')
         for choice_index, choice_name in choices.items():
             print(f'{choice_index} - {choice_name}')
 
+    @staticmethod
+    def input_for_menu(choices: Dict[int, str]):
         user_input = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
         is_input_valid = user_input in choices
 
@@ -503,14 +521,13 @@ class TerminalView:
                 print("-- Choisissez une option parmi les proposées --")
                 option = True
 
-    def display_players_list(self, players: Dict):
-        player_parameter = 0
-        players = players
-        print("display_players_dict")
-        print(players)
+    @staticmethod
+    def display_players_list(players: Dict):
+        # player_parameter = 0
+        print("players : ", players)
         print("\n** Liste de joueurs **")
         for key, player in players.items():
-            print(f'{key}) {player[player_parameter].first_name} {player[player_parameter].last_name}')
+            print(f'{key} - {player.first_name} {player.last_name}')
 
     def update_player_info(self, players: Dict):
         players = players
@@ -554,7 +571,8 @@ class TerminalView:
         print("valeur de menu_option du ADD PLAYERS: ", self.option_selected)
         # return self.option_selected
 
-    def enter_new_tournament(self):
+    @staticmethod
+    def enter_tournament_info(players):
         # tournaments = tournaments
         # self.display_tournaments_list(tournaments)
         # selection_menu = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
@@ -565,19 +583,19 @@ class TerminalView:
             time_control=input_with_constraint('Contrôle du temps (bullet/blitz/quick play) : ',
                                                parse_fn=TimeControlKind),
             description=input('Description : '),
-            players={}
+            players=players
         )
         return tournament
 
     # @staticmethod
-    def enter_new_players_in_tournament(self, player_number, number_of_players, players_id_set):
+    def enter_new_players_in_tournament(self, player_selection, all_players_listed, players_id_set):
         option = True
         selection_menu = 0
 
         while option:
             selection_menu = input_with_constraint(
-                f"\nChoisissez l'identifiant du joueur {player_number} : ", parse_fn=parse_positive_int)
-            if selection_menu > number_of_players or selection_menu in players_id_set:
+                f"\nChoisissez l'identifiant du joueur {player_selection} : ", parse_fn=parse_positive_int)
+            if selection_menu > all_players_listed or selection_menu in players_id_set:
                 print("-- Choisissez un autre identifiant --")
                 option = True
             else:
@@ -608,8 +626,16 @@ class TerminalView:
     def display_add_players_options(self):
         pass
 
-    def enter_new_player(self):  # -> Player:
+    @staticmethod
+    def enter_player_info():  # -> Player:
         # How to parse/validate?
+        # first_name = input('Prénom : ')
+        # if first_name == "":
+        #     first_name = Player.first_name
+        # else:
+        #     first_name = first_name
+        # print("first_name : ", first_name)
+
         player = Player(
             first_name=input('Prénom : '),
             last_name=input('Nom : '),
@@ -617,10 +643,10 @@ class TerminalView:
             sex=input_with_constraint('Genre (h/f) : ', parse_fn=Sex).value,
             ranking=input_with_constraint('Classement : ', parse_fn=parse_positive_int)
         )
-        score = MatchResult
-        player_with_score = [player, score.LOSS]
-        print("nouveau joueur : ", player_with_score)
-        return player_with_score
+        # score = MatchResult
+        # player_with_score = [player, score.LOSS]
+        # print("nouveau joueur : ", player_with_score)
+        return player
 
     # def display_players(self, players: List[Player]):
     #     for idx, player in enumerate(players, start=1):

@@ -5,8 +5,8 @@ from chess.controller import Controller
 from chess.models import Player, MatchResult, DEFAULT_TURNS_COUNT, Tournament
 
 
-def players_added_for_test() -> Dict[int, List]:
-    players_with_score = []
+def players_added_for_test() -> Dict[int, Player]:
+    players_list = []
     players = [
         {
             "first_name": "John",
@@ -65,13 +65,14 @@ def players_added_for_test() -> Dict[int, List]:
             "ranking": 1653
         }
     ]
-    score = MatchResult
+    # score = MatchResult
     for player in players:
         player = Player(**player)
-        players_with_score.append([player, score.LOSS])
+        players_list.append(player)
 
-    players_with_index = {index+1: players_with_score[index] for index in range(len(players))}
-    return players_with_index
+    # players_with_index = {index+1: Player for index in range(len(Player))}
+    players_with_id = {index + 1: players_list[index] for index in range(len(players))}
+    return players_with_id
 
 
 def tournaments_added_for_test(players):
@@ -102,13 +103,13 @@ def tournaments_added_for_test(players):
         tournament = Tournament(**tournament)
         tournaments_list.append(tournament)
 
-    # tournament_with_index = {index + 1: tournaments_list[index] for index in range(len(tournaments))}
-    return tournaments_list
+    tournament_with_index = {index + 1: tournaments_list[index] for index in range(len(tournaments))}
+    return tournament_with_index
 
 
 def main():
     # TODO delete me once the database is implemented
-    players: Dict[int, List] = players_added_for_test()
+    players: Dict[int, Player] = players_added_for_test()
     tournaments = tournaments_added_for_test(players)
     # print("joueurs du tournois : ", players)
     # print("tournois : ", tournaments)
@@ -125,7 +126,7 @@ def main():
     # players = db.load_players()
 
     controller = Controller(players=players, tournaments=tournaments)
-    controller.main_menu()
+    controller.display_main_menu()
 
     # """Récupérer info des joueurs"""
     # players_added.add_players()
