@@ -1,8 +1,8 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Dict, List
 
 from chess.controller import Controller
-from chess.models import Player, MatchResult, DEFAULT_TURNS_COUNT, Tournament
+from chess.models import Player, MatchResult, DEFAULT_TURNS_COUNT, Tournament, Round
 
 
 def players_added_for_test() -> Dict[int, Player]:
@@ -75,7 +75,7 @@ def players_added_for_test() -> Dict[int, Player]:
     return players_with_id
 
 
-def tournaments_added_for_test(players):
+def tournaments_added_for_test(players, round_for_starting):
     tournaments_list = []
     tournaments = [
         {
@@ -86,7 +86,7 @@ def tournaments_added_for_test(players):
             "players": players,
             "start": date.today,
             "turn_count": DEFAULT_TURNS_COUNT,
-            "round": []
+            "round": round_for_starting[0]
         },
         {
             "name": "National chess tournament Paris 2022",
@@ -96,7 +96,7 @@ def tournaments_added_for_test(players):
             "players": players,
             "start": date.today,
             "turn_count": DEFAULT_TURNS_COUNT,
-            "round": []
+            "round": round_for_starting[1]
         }
     ]
     for tournament in tournaments:
@@ -107,10 +107,34 @@ def tournaments_added_for_test(players):
     return tournament_with_index
 
 
+def rounds_added_for_test():
+    rounds_list = []
+    round_elements = [
+        {
+            "matches": [],
+            "name": "round 1",
+            "start": datetime.now(),
+            "end": None
+        },
+        {
+            "matches": [],
+            "name": "round 4",
+            "start": datetime.now(),
+            "end": datetime.now()
+        }
+    ]
+    for round_element in round_elements:
+        round_element = Round(**round_element)
+        rounds_list.append(round_element)
+
+    return rounds_list
+
+
 def main():
     # TODO delete me once the database is implemented
     players: Dict[int, Player] = players_added_for_test()
-    tournaments = tournaments_added_for_test(players)
+    round_for_starting = rounds_added_for_test()
+    tournaments = tournaments_added_for_test(players, round_for_starting)
     # print("joueurs du tournois : ", players)
     # print("tournois : ", tournaments)
     # list_of_numbers = [0, 1, 2, 3, 4]
