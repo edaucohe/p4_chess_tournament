@@ -31,28 +31,28 @@ class MatchResult(Enum):
     DRAW = 0.5
 
 
-class PlayerScore:
-    player_score: Tuple[Player, Optional[MatchResult]] = (Player, field(default=SCORE_INIT))
+# class PlayerScore:
+#     player_score: Tuple[Player, Optional[MatchResult]] = (Player, field(default=SCORE_INIT))
 
 
 # Match = Tuple[List[Player, Optional[MatchResult]], List[Player, Optional[MatchResult]]]
 # Match = Tuple[List[Union[Player, Optional[MatchResult]]], List[Union[Player, Optional[MatchResult]]]]
+# match: Tuple[Tuple[PlayerScore], Tuple[PlayerScore]]
 class Match:
-    match: Tuple[Tuple[PlayerScore], Tuple[PlayerScore]]
+    match: Tuple[Tuple[Player, Optional[MatchResult]], Tuple[Player, Optional[MatchResult]]]
 
 
 @dataclass
 class Round:
     matches: List[Match]
     name: str
-
     start: datetime = field(default_factory=datetime.now)
 
-    # Elle doit également contenir un champ Date et heure de fin,
+    '''Champ Date et heure de fin'''
     end: Optional[datetime] = None
 
+    '''Qui doit être automatiquement rempli lorsque l'utilisateur le marque comme terminé'''
     def close(self):
-        # qui doit être automatiquement rempli lorsque l'utilisateur le marque comme terminé
         self.end = datetime.now()
 
 
@@ -79,84 +79,84 @@ class Tournament:
     round: List[Round] = field(default_factory=lambda: [])
 
 
-class MainMenu(Enum):
-    TOURNAMENT_MANAGEMENT = 1
-    PLAYERS_MANAGEMENT = 2
-    MAKE_REPORTS = 3
-    SAVE_DATA = 4
-    CLOSE_APPLI = 5
-
-
-class PlayerManagementMenu(Enum):
-    PLAYERS_LIST = 1
-    ENTER_NEW_PLAYER = 2
-    PLAYER_DATA_UPDATE = 3
-    PREVIOUS_MENU = 4
-
-
-class TournamentManagementMenu(Enum):
-    TOURNAMENTS_LIST = 1
-    MAKE_NEW_TOURNAMENT = 2
-    START_TOURNAMENT = 3
-    TOURNAMENT_DATA_UPDATE = 4
-    PREVIOUS_MENU = 5
-
-
-class MakeNewTournamentMenu(Enum):
-    PLAYERS_FROM_DATA_BASE = 1
-    PLAYERS_FROM_TYPING = 2
-    PREVIOUS_MENU = 3
-
-
-class SaveData(Enum):
-    SAVE_DATA = 1
-    LOAD_DATA = 2
-    PREVIOUS_MENU = 3
-
-
-class NewTournamentMenu(Enum):
-    ENTER_NEW_TOURNAMENT = 1
-    PREVIOUS_MENU = 2
-
-
-class ModifyTournamentMenu(Enum):
-    MODIFY_TOURNAMENT = 1
-    PREVIOUS_MENU = 2
-
-
-class StartTournamentMenu(Enum):
-    START_TOURNAMENT = 1
-    PREVIOUS_MENU = 2
-
-
-class NewPlayerMenu(Enum):
-    ENTER_NEW_PLAYER = 1
-    PREVIOUS_MENU = 2
-
-
-class ModifyPlayerInfoMenu(Enum):
-    UPDATE_PLAYER_INFO = 1
-    PREVIOUS_MENU = 2
-
-
-class ReportMenu(Enum):
-    PLAYERS_REPORT = 1
-    PLAYERS_TOURNAMENT_REPORT = 2
-    TOURNAMENTS_REPORT = 3
-    ROUNDS_REPORT = 4
-    MATCHS_REPORT = 5
-    PREVIOUS_MENU = 6
-
-
-class AllPlayersReportMenu(Enum):
-    ALPHABETICAL = 1
-    RANKING = 2
-    PREVIOUS_MENU = 3
-
-
-class PlayersByTournamentReportMenu(Enum):
-    ALPHABETICAL_BY_TOURNAMENT = 1
-    RANKING_BY_TOURNAMENT = 2
+# class MainMenu(Enum):
+#     TOURNAMENT_MANAGEMENT = 1
+#     PLAYERS_MANAGEMENT = 2
+#     MAKE_REPORTS = 3
+#     SAVE_DATA = 4
+#     CLOSE_APPLI = 5
+#
+#
+# class PlayerManagementMenu(Enum):
+#     PLAYERS_LIST = 1
+#     ENTER_NEW_PLAYER = 2
+#     PLAYER_DATA_UPDATE = 3
+#     PREVIOUS_MENU = 4
+#
+#
+# class TournamentManagementMenu(Enum):
+#     TOURNAMENTS_LIST = 1
+#     MAKE_NEW_TOURNAMENT = 2
+#     START_TOURNAMENT = 3
+#     TOURNAMENT_DATA_UPDATE = 4
+#     PREVIOUS_MENU = 5
+#
+#
+# class MakeNewTournamentMenu(Enum):
+#     PLAYERS_FROM_DATA_BASE = 1
+#     PLAYERS_FROM_TYPING = 2
+#     PREVIOUS_MENU = 3
+#
+#
+# class SaveData(Enum):
+#     SAVE_DATA = 1
+#     LOAD_DATA = 2
+#     PREVIOUS_MENU = 3
+#
+#
+# class NewTournamentMenu(Enum):
+#     ENTER_NEW_TOURNAMENT = 1
+#     PREVIOUS_MENU = 2
+#
+#
+# class ModifyTournamentMenu(Enum):
+#     MODIFY_TOURNAMENT = 1
+#     PREVIOUS_MENU = 2
+#
+#
+# class StartTournamentMenu(Enum):
+#     START_TOURNAMENT = 1
+#     PREVIOUS_MENU = 2
+#
+#
+# class NewPlayerMenu(Enum):
+#     ENTER_NEW_PLAYER = 1
+#     PREVIOUS_MENU = 2
+#
+#
+# class ModifyPlayerInfoMenu(Enum):
+#     UPDATE_PLAYER_INFO = 1
+#     PREVIOUS_MENU = 2
+#
+#
+# class ReportMenu(Enum):
+#     PLAYERS_REPORT = 1
+#     PLAYERS_TOURNAMENT_REPORT = 2
+#     TOURNAMENTS_REPORT = 3
+#     ROUNDS_REPORT = 4
+#     MATCHS_REPORT = 5
+#     PREVIOUS_MENU = 6
+#
+#
+# class AllPlayersReportMenu(Enum):
+#     ALPHABETICAL = 1
+#     RANKING = 2
+#     PREVIOUS_MENU = 3
+#
+#
+# class PlayersByTournamentReportMenu(Enum):
+#     ALPHABETICAL_BY_TOURNAMENT = 1
+#     RANKING_BY_TOURNAMENT = 2
 
 
 # @dataclass

@@ -1,9 +1,10 @@
 from collections import Counter
+from datetime import datetime
 from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass, fields
 
 from chess.views import TerminalView
-from chess.models import Player, Tournament, DEFAULT_PLAYERS_NUMBER, PlayerScore, MatchResult
+from chess.models import Player, Tournament, DEFAULT_PLAYERS_NUMBER, Round  # , PlayerScore, MatchResult
 
 
 # @dataclass
@@ -26,11 +27,13 @@ class Controller:
             tournaments: Optional[Dict[int, Tournament]] = None,
             current_tournament: Optional[List[Tournament]] = None,
             view: Optional[TerminalView] = None,
+            round_info: Optional[Round] = None
     ):
         self.players = players or dict()
         self.tournaments = tournaments or dict()
         self.current_tournament = current_tournament or None
         self.view = view or TerminalView()
+        self.round = round_info or None
         # self.players_in_tournament = dict()
         # self.player_score = player_score or PlayerScore
         # self.tournament_selected = []
@@ -64,17 +67,21 @@ class Controller:
         return sorted_players_by_ranking
 
     def groups_number(self, list_points):
-        self.groups = Counter(list_points)
-        for group in range(len(self.groups)):
+        groups = Counter(list_points)
+        for group in range(len(groups)):
             self.number_of_groups += 1
 
         return self.number_of_groups
 
-    def classify_by_score(self, tournament_selected):
+
+
+    @staticmethod
+    def classify_by_score(tournament_selected):
         sorted_players_by_score = sorted(tournament_selected.players, key=lambda score: score[1], reverse=True)
         return sorted_players_by_score
 
-    def classify_players_by_name_report(self, players_list):
+    @staticmethod
+    def classify_players_by_name_report(players_list):
         players_sorted_by_name = sorted(players_list.items(), key=lambda n: n[1][0].last_name)
         return players_sorted_by_name
 
@@ -146,15 +153,7 @@ class Controller:
         self.view.display_tournaments_list(self.tournaments)
         # pass
 
-    def start_tournament(self):
-        # self.tournament_selected = self.view.display_tournaments_list(self.tournaments)
-        print("tournoi choisi : ", self.tournament_selected)
-        # round = self.tournament_selected[ROUND_NUMBER_POSITION]
-        # print("valeur de round : ", round)
-        players_ordered_by_score = self.classify_by_score(self.tournament_selected)
-        print("en ordre selon points : ", players_ordered_by_score)
-        players_ordered_by_ranking = self.classify_by_ranking(players_ordered_by_score)
-        print("en ordre selon classement : ", players_ordered_by_ranking)
+
 
     def make_players_alphabetical_report(self, players, report, tournament_name):
         row_lists = []
@@ -263,6 +262,108 @@ class Controller:
         tournament = self.view.enter_tournament_info(players_in_current_tournament)
         self.tournaments.update({tournament_id_selected: tournament})
 
+    @staticmethod
+    def groups_generated_by_counting_score(players_with_score: List[List]) -> Dict:
+        score_values = []
+        for player_with_score in players_with_score:
+            score_values.append(player_with_score[1])
+
+        groups = Counter(score_values)
+        sorted_groups = sorted(groups.items(), key=lambda item: item[0], reverse=True)
+        return dict(sorted_groups)
+
+    @staticmethod
+    def order_by_score(players_with_score: List[List]) -> List[List]:
+        sorted_players_by_score = sorted(players_with_score, key=lambda score: score[1], reverse=True)
+        return sorted_players_by_score
+
+    @staticmethod
+    def order_by_ranking(players_ordered_by_score: List[List]) -> List[List]:
+        sorted_players_by_ranking = sorted(players_ordered_by_score, key=lambda r: r[0].ranking, reverse=True)
+        return sorted_players_by_ranking
+
+    def classify_players_in_groups(self, players_with_score: List[List]) -> List[List[List]]:
+        index_of_player = 0
+        list_of_groups = []
+
+        groups_generated_by_counting_score = self.groups_generated_by_counting_score(players_with_score)
+        players_ordered_by_score = self.order_by_score(players_with_score)
+
+        '''Formation de groupes + tri par classement'''
+        for score, number_of_players in groups_generated_by_counting_score.items():
+            group = []
+            for number_of_player in range(number_of_players):
+                group.append(players_ordered_by_score[index_of_player+number_of_player])
+
+            group_of_players_ordered_by_ranking = self.order_by_ranking(group)
+            print("players_group_ordered_by_ranking : ", group_of_players_ordered_by_ranking)
+
+            index_of_player += number_of_players
+            list_of_groups.append(group_of_players_ordered_by_ranking)
+
+        return list_of_groups
+
+    def current_round(self):
+        pass
+
+    def enter_round_info(self, end_date):
+        round_info = self.view.enter_round_info(end_date=end_date)
+        return round_info
+
+    def start_tournament(self):
+        players_with_score = []
+        n = 0
+        score = 0
+
+        choices = self.display_tournaments_list(self.tournaments)
+        tournament_id_selected = self.view.input_for_menu(choices)
+
+        # print("self.tournaments.get(tournament_id_selected) : ", self.tournaments.get(tournament_id_selected))
+        current_tournament = self.tournaments.get(tournament_id_selected)
+        # print("current_tournament.round : ", current_tournament.round)
+        print("current_tournament : ", current_tournament)
+
+        # TODO Code pour générer des scores pour les joueurs
+        for player_id, player in current_tournament.players.items():
+            players_with_score.append([player, score])
+            n += 1
+            if n % 2 == 0:
+                score = 0
+            else:
+                score = 1
+        # TODO jusqu'ici
+
+        players_in_groups = self.classify_players_in_groups(players_with_score)
+        print("players_in_groups : ", players_in_groups)
+
+        self.current_round()
+
+        current_round = self.enter_round_info()
+
+        # if round_number == 1:
+        #     pass
+
+
+            # list_of_players_with_score =
+
+        # while len(current_tournament.round) == 4:
+        #     print("ce tournoi a finalisé")
+        #     tournament_id_selected = self.view.input_for_menu(choices)
+        # else:
+        #     pass
+
+
+
+
+        # self.tournament_selected = self.view.display_tournaments_list(self.tournaments)
+        # print("tournoi choisi : ", self.tournament_selected)
+        # # round = self.tournament_selected[ROUND_NUMBER_POSITION]
+        # # print("valeur de round : ", round)
+        # players_ordered_by_score = self.classify_by_score(self.tournament_selected)
+        # print("en ordre selon points : ", players_ordered_by_score)
+        # players_ordered_by_ranking = self.classify_by_ranking(players_ordered_by_score)
+        # print("en ordre selon classement : ", players_ordered_by_ranking)
+
     '''Les listes à afficher'''
     def display_players_list(self, players):
         choices = {}
@@ -284,6 +385,46 @@ class Controller:
         self.view.display_menu(name, choices)
 
         return choices
+
+    def display_start_tournament_menu(self):
+        choices = self.display_tournaments_list(self.tournaments)
+        tournament_id_selected = self.view.input_for_menu(choices)
+        round_in_current_tournament = self.tournaments.get(tournament_id_selected).round
+        print("round_in_current_tournament : ", round_in_current_tournament)
+
+        # end_date = None
+        # TODO Test pour savoir l état de end du Round
+        round_in_current_tournament = self.enter_round_info(end_date=None)
+        print("current_round : ", round_in_current_tournament)
+        print("current_round.end : ", round_in_current_tournament.end)
+
+        print("Premier situation")
+        if round_in_current_tournament.end is None:
+            print("** Entrer dans le tournoi ! **")
+        else:
+            print("Tournoi deja choisi, dslllll")
+
+        self.tournaments.get(tournament_id_selected).round = round_in_current_tournament
+        print("self.tournaments.get(tournament_id_selected) : ", self.tournaments.get(tournament_id_selected))
+
+        # end_date = self.round.close()
+        round_in_current_tournament = self.enter_round_info(end_date=datetime.now())
+        print("current_round : ", round_in_current_tournament)
+        print("current_round.end : ", round_in_current_tournament.end)
+
+        print("Deuxième situation")
+        if round_in_current_tournament.end is None:
+            print("** Entrer dans le tournoi ! **")
+        else:
+            print("Tournoi deja choisi, dslllll")
+
+        self.tournaments.get(tournament_id_selected).round = round_in_current_tournament
+        print("self.tournaments.get(tournament_id_selected) : ", self.tournaments.get(tournament_id_selected))
+
+        # TODO jusqu ici
+
+        # tournament = self.view.enter_tournament_info(players_in_current_tournament)
+        # self.tournaments.update({tournament_id_selected: tournament})
 
     '''Les menus à afficher'''
     def display_tournaments_management_menu(self):
@@ -307,7 +448,8 @@ class Controller:
             elif user_choice == 3:
                 self.update_tournament_info()
             elif user_choice == 4:
-                pass
+                # self.start_tournament()
+                self.display_start_tournament_menu()
             elif user_choice == 5:
                 run = False
 

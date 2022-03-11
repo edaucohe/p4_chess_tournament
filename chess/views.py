@@ -4,10 +4,8 @@ from datetime import date
 from typing import Any, Callable, List, Dict
 # from dataclasses import dataclass, asdict  # , field
 
-from chess.models import Player, Sex, MainMenu, ReportMenu, NewPlayerMenu, NewTournamentMenu, ModifyTournamentMenu, \
-    ModifyPlayerInfoMenu, StartTournamentMenu, MENU_OPTION, Tournament, TimeControlKind, DEFAULT_PLAYERS_NUMBER, \
-    PlayerScore, SCORE_INIT, PlayerManagementMenu, TournamentManagementMenu, SaveData, MatchResult, \
-    MakeNewTournamentMenu, OrderPlayerList, NUMBER_MAX_OF_HEADS, AllPlayersReportMenu, PlayersByTournamentReportMenu
+from chess.models import Player, Sex, MENU_OPTION, Tournament, TimeControlKind, DEFAULT_PLAYERS_NUMBER, \
+    SCORE_INIT, MatchResult, OrderPlayerList, NUMBER_MAX_OF_HEADS, Round
 
 
 # @dataclass
@@ -647,6 +645,11 @@ class TerminalView:
         # player_with_score = [player, score.LOSS]
         # print("nouveau joueur : ", player_with_score)
         return player
+
+    @staticmethod
+    def enter_round_info(end_date):
+        round_info = Round(matches=[], name=input('Nom du round : '), end=end_date)
+        return round_info
 
     # def display_players(self, players: List[Player]):
     #     for idx, player in enumerate(players, start=1):
