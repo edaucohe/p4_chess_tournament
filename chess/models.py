@@ -4,7 +4,8 @@ from typing import List, Optional, Tuple, Dict
 from dataclasses import dataclass, field
 
 DEFAULT_PLAYERS_NUMBER = 8
-DEFAULT_TURNS_COUNT = 4
+MAX_TURNS_COUNT = 4
+DEFAULT_TURN_COUNT = 1
 SCORE_INIT = 0
 MENU_OPTION = ""
 DEFAULT_ROUND_VALUE = []
@@ -75,7 +76,7 @@ class Tournament:
     description: str
     players: Dict[int, List]
     start: date = field(default_factory=date.today)
-    turn_count: int = DEFAULT_TURNS_COUNT
+    turn_count: int = DEFAULT_TURN_COUNT
     round: List[Round] = field(default_factory=lambda: [])
 
 

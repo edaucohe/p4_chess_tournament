@@ -200,7 +200,8 @@ class Controller:
         self.view.make_players_report(row_lists, report, file_name)
 
     def make_players_alphabetical_by_tournament_report(self):
-        self.display_tournaments_list()
+        # self.display_tournaments_list()
+        pass
 
     def make_players_ranking_by_tournament_report(self):
         pass
@@ -227,7 +228,7 @@ class Controller:
         self.players.update({id_new_player: new_player})
 
     def update_player_info(self):
-        choices = self.display_players_list(self.players)
+        choices = self.display_players_list()
         player_id_selected = self.view.input_for_menu(choices)
         player = self.view.enter_player_info()
         self.players.update({player_id_selected: player})
@@ -235,7 +236,7 @@ class Controller:
     def make_new_tournament(self):
         players_id__selected_list = []
         players_in_current_tournament = {}
-        choices = self.display_players_list(self.players)
+        choices = self.display_players_list()
 
         id_new_tournament = len(self.tournaments) + 1
         new_tournament = self.view.enter_tournament_info(players_in_current_tournament)
@@ -256,7 +257,7 @@ class Controller:
         print("self.tournaments : ", self.tournaments)
 
     def update_tournament_info(self):
-        choices = self.display_tournaments_list(self.tournaments)
+        choices = self.display_players_list()
         tournament_id_selected = self.view.input_for_menu(choices)
         players_in_current_tournament = self.tournaments.get(tournament_id_selected).players
         tournament = self.view.enter_tournament_info(players_in_current_tournament)
@@ -268,6 +269,23 @@ class Controller:
     def enter_round_info(self, end_date):
         round_info = self.view.enter_round_info(end_date=end_date)
         return round_info
+
+    # @staticmethod
+    # def current_round_number(current_tournament):
+    #     if current_tournament.turn_count == 1:
+    #         print(current_tournament.round.__getattribute__("name"))
+    #     elif current_tournament.turn_count == 2:
+    #         print("deuxième tour")
+    #     elif current_tournament.turn_count == 3:
+    #         print("troisième tour")
+    #     elif current_tournament.turn_count == 4:
+    #         print("dernier tour")
+
+    def tournament_management_round_one(self):
+        print("tournament_management_round_one")
+
+    def tournament_management_other_rounds(self):
+        print("tournament_management_other_rounds")
 
     @staticmethod
     def groups_formed_by_frequency_of_scores(players_with_score: List[List]) -> Dict:
@@ -328,15 +346,52 @@ class Controller:
         players_in_groups = self.classify_players_in_groups(players_with_score)
         print("players_in_groups : ", players_in_groups)
 
-        # self.current_round()
-        #
+        # current_round_of_tournament = self.current_round_number(current_tournament)
+        print(f"-- {current_tournament.round.__getattribute__('name')} --")
+        if current_tournament.turn_count == 1:
+            self.tournament_management_round_one()
+        elif current_tournament.turn_count == 2:
+            self.tournament_management_other_rounds()
+        elif current_tournament.turn_count == 3:
+            self.tournament_management_other_rounds()
+        elif current_tournament.turn_count == 4:
+            self.tournament_management_other_rounds()
+
         # current_round = self.enter_round_info()
 
         # if round_number == 1:
         #     pass
 
-    '''Les listes à afficher'''
-    def display_players_list(self, players):
+    def evaluate_current_tournament_status(self, tournament_id_selected):
+        current_tournament = self.tournaments.get(tournament_id_selected)
+        print("current_tournament : ", current_tournament)
+        round_in_current_tournament = self.tournaments.get(tournament_id_selected).round
+        end_value_of_current_round = round_in_current_tournament.__getattribute__('end')
+
+        if end_value_of_current_round is None:
+            message = f"\n** {current_tournament.name} **"
+            self.view.display_current_tournament_status_message(message)
+            self.start_tournament(current_tournament)
+        else:
+            message = "\n** Tournoi déjà fini =( **"
+            self.view.display_current_tournament_status_message(message)
+
+    '''Generation de listes à afficher'''
+    @staticmethod
+    def generate_tournaments_list(tournaments):
+        choices = {}
+        for tournament_number in range(len(tournaments)):
+            choices.update({tournament_number + 1: tournaments.get(tournament_number + 1).name})
+        name = " Liste de tournois "
+        return name, choices
+
+    def display_tournament_list(self):
+        name, choices = self.generate_tournaments_list(self.tournaments)
+        self.view.display_menu(name, choices)
+        return choices
+
+    @staticmethod
+    def generate_players_list(players):
         choices = {}
         for player_number in range(len(players)):
             choices.update({
@@ -344,36 +399,30 @@ class Controller:
                     players.get(player_number + 1).first_name + " " + players.get(player_number + 1).last_name
             })
         name = " Liste de joueurs "
+        return name, choices
+
+    def display_players_list(self):
+        name, choices = self.generate_players_list(self.players)
         self.view.display_menu(name, choices)
-
         return choices
-
-    def display_tournaments_list(self, tournaments):
-        choices = {}
-        for tournament_number in range(len(tournaments)):
-            choices.update({tournament_number + 1: tournaments.get(tournament_number + 1).name})
-        name = " Liste de tournois "
-        self.view.display_menu(name, choices)
-
-        return choices
-
-    def display_start_tournament_menu(self):
-        choices = self.display_tournaments_list(self.tournaments)
-        tournament_id_selected = self.view.input_for_menu(choices)
-
-        current_tournament = self.tournaments.get(tournament_id_selected)
-        print("current_tournament : ", current_tournament)
-        round_in_current_tournament = self.tournaments.get(tournament_id_selected).round
-        print("round_in_current_tournament : ", round_in_current_tournament)
-        end_value_of_current_round = round_in_current_tournament.__getattribute__('end')
-
-        if end_value_of_current_round is None:
-            print(f"\n** {current_tournament.name} **")
-            self.start_tournament(current_tournament)
-        else:
-            print("\n** Tournoi deja fini =( **")
 
     '''Les menus à afficher'''
+    def display_start_tournament_menu(self):
+        name, choices = self.generate_tournaments_list(self.tournaments)
+        go_to_last_menu_option = len(self.tournaments)+1
+        choices.update({go_to_last_menu_option: "Revenir au menu précédent"})
+        # tournament_id_selected = self.view.input_for_menu(choices)
+
+        name = "** Initier un tournoi **"
+        run = True
+        while run:
+            self.view.display_menu(name, choices)
+            user_choice = self.view.input_for_menu(choices)
+            if user_choice == 3:
+                run = False
+            else:
+                self.evaluate_current_tournament_status(user_choice)
+
     def display_tournaments_management_menu(self):
         choices = {
             1: "Liste de tournois",
@@ -389,13 +438,16 @@ class Controller:
             self.view.display_menu(name, choices)
             user_choice = self.view.input_for_menu(choices)
             if user_choice == 1:
-                self.display_tournaments_list(self.tournaments)
+                self.display_tournament_list()
+                # name, choices = self.generate_tournaments_list(self.tournaments)
+                # self.view.display_menu(name, choices)
             elif user_choice == 2:
                 self.make_new_tournament()
             elif user_choice == 3:
                 self.update_tournament_info()
             elif user_choice == 4:
                 # self.start_tournament()
+                # self.evaluate_current_tournament_status()
                 self.display_start_tournament_menu()
             elif user_choice == 5:
                 run = False
@@ -414,7 +466,9 @@ class Controller:
             user_choice = self.view.input_for_menu(choices)
             if user_choice == 1:
                 # self.view.display_players_list(self.players)
-                self.display_players_list(self.players)
+                self.display_players_list()
+                # name, choices = self.generate_players_list(self.players)
+                # self.view.display_menu(name, choices)
             elif user_choice == 2:
                 self.enter_new_player_info()
             elif user_choice == 3:

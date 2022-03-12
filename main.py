@@ -1,8 +1,8 @@
 from datetime import date, datetime
-from typing import Dict, List
+from typing import Dict
 
 from chess.controller import Controller
-from chess.models import Player, MatchResult, DEFAULT_TURNS_COUNT, Tournament, Round
+from chess.models import Player, Tournament, Round, MAX_TURNS_COUNT, DEFAULT_TURN_COUNT
 
 
 def players_added_for_test() -> Dict[int, Player]:
@@ -85,7 +85,7 @@ def tournaments_added_for_test(players, round_for_starting):
             "description": "Tous les meilleurs joueurs du monde",
             "players": players,
             "start": date.today,
-            "turn_count": DEFAULT_TURNS_COUNT,
+            "turn_count": DEFAULT_TURN_COUNT,
             "round": round_for_starting[0]
         },
         {
@@ -95,7 +95,7 @@ def tournaments_added_for_test(players, round_for_starting):
             "description": "Les meilleurs joueurs de la France",
             "players": players,
             "start": date.today,
-            "turn_count": DEFAULT_TURNS_COUNT,
+            "turn_count": MAX_TURNS_COUNT,
             "round": round_for_starting[1]
         }
     ]
@@ -112,13 +112,13 @@ def rounds_added_for_test():
     round_elements = [
         {
             "matches": [],
-            "name": "round 1",
+            "name": "Round " + str(DEFAULT_TURN_COUNT),
             "start": datetime.now(),
             "end": None
         },
         {
             "matches": [],
-            "name": "round 4",
+            "name": "Round " + str(MAX_TURNS_COUNT),
             "start": datetime.now(),
             "end": datetime.now()
         }
