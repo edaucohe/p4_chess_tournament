@@ -4,7 +4,8 @@ from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass, fields
 
 from chess.views import TerminalView
-from chess.models import Player, Tournament, DEFAULT_PLAYERS_NUMBER, Round  # , PlayerScore, MatchResult
+from chess.models import Player, Tournament, DEFAULT_PLAYERS_NUMBER, Round, Match, \
+    MatchResult  # , PlayerScore, MatchResult
 
 
 # @dataclass
@@ -281,11 +282,44 @@ class Controller:
     #     elif current_tournament.turn_count == 4:
     #         print("dernier tour")
 
-    def tournament_management_round_one(self):
+    def tournament_management_round_one(self, players_in_groups):
         print("tournament_management_round_one")
 
-    def tournament_management_other_rounds(self):
-        print("tournament_management_other_rounds")
+    @staticmethod
+    def make_list_of_matches(players_in_group):
+        matches = []
+        matches_by_group = []
+        for player_in_group in players_in_group:
+            print("player_in_group : ", player_in_group)
+            matches.append(player_in_group)
+            if len(matches) == 2:
+                matches_by_group.append(matches)
+                matches = []
+        return matches_by_group
+
+    def matches_by_round_management(self, players_in_groups):
+        all_matches_list = []
+        next_group_of_players = 1
+        for players_in_group in players_in_groups:
+            print("Nb de joueurs du groupe : ", len(players_in_group))
+            if len(players_in_group) % 2 == 0:
+                '''Nb pair de joueurs -> opposer les joueurs par ordre descendant'''
+                print("Nb PAIR de joueurs")
+                matches_by_group = self.make_list_of_matches(players_in_group)
+                all_matches_list.extend(matches_by_group)
+            else:
+                '''Nb impair de joueurs -> placer le dernier joueur dans le groupe suivant'''
+                print("Nb IMPAIR de joueurs")
+                last_player = players_in_group.pop()
+                print("last_player", last_player)
+                players_in_groups[next_group_of_players].insert(0, last_player)
+                print("players_in_group[next_group_of_players] : ", players_in_groups[next_group_of_players])
+                matches_by_group = self.make_list_of_matches(players_in_group)
+                all_matches_list.extend(matches_by_group)
+
+            next_group_of_players += 1
+
+        return all_matches_list
 
     @staticmethod
     def groups_formed_by_frequency_of_scores(players_with_score: List[List]) -> Dict:
@@ -330,32 +364,35 @@ class Controller:
 
     def start_tournament(self, current_tournament):
         players_with_score = []
+        all_matches_list = []
         n = 0
         score = 0
 
         # TODO Code pour générer des scores pour les joueurs
         for player_id, player in current_tournament.players.items():
             players_with_score.append([player, score])
-            n += 1
-            if n % 2 == 0:
+            if n % 3 == 0:
+                score = 1
+            elif n % 3 == 1:
                 score = 0
             else:
-                score = 1
+                score = 0.5
+            n += 1
         # TODO jusqu'ici
 
         players_in_groups = self.classify_players_in_groups(players_with_score)
         print("players_in_groups : ", players_in_groups)
 
-        # current_round_of_tournament = self.current_round_number(current_tournament)
         print(f"-- {current_tournament.round.__getattribute__('name')} --")
         if current_tournament.turn_count == 1:
-            self.tournament_management_round_one()
-        elif current_tournament.turn_count == 2:
-            self.tournament_management_other_rounds()
-        elif current_tournament.turn_count == 3:
-            self.tournament_management_other_rounds()
-        elif current_tournament.turn_count == 4:
-            self.tournament_management_other_rounds()
+            self.tournament_management_round_one(players_in_groups)
+        else:
+            all_matches_list = self.matches_by_round_management(players_in_groups)
+
+        print("all_matches_list = ", all_matches_list)
+
+        '''Voulez-vous entrer les résultats d un match ?'''
+        self.display_matches_list_menu(all_matches_list)
 
         # current_round = self.enter_round_info()
 
@@ -375,6 +412,9 @@ class Controller:
         else:
             message = "\n** Tournoi déjà fini =( **"
             self.view.display_current_tournament_status_message(message)
+
+    def enter_match_result(self, all_matches_list, match_selection):
+        pass
 
     '''Generation de listes à afficher'''
     @staticmethod
@@ -406,19 +446,47 @@ class Controller:
         self.view.display_menu(name, choices)
         return choices
 
-    '''Les menus à afficher'''
-    def display_start_tournament_menu(self):
-        name, choices = self.generate_tournaments_list(self.tournaments)
-        go_to_last_menu_option = len(self.tournaments)+1
-        choices.update({go_to_last_menu_option: "Revenir au menu précédent"})
-        # tournament_id_selected = self.view.input_for_menu(choices)
+    @staticmethod
+    def generate_matches_list(all_matches_list):
+        choices = {}
+        for match_number in range(len(all_matches_list)):
+            choices.update({
+                match_number + 1:
+                    all_matches_list[match_number][0][0].first_name + " " +
+                    all_matches_list[match_number][0][0].last_name +
+                    " vs " +
+                    all_matches_list[match_number][1][0].first_name + " " +
+                    all_matches_list[match_number][1][0].last_name})
+        name = " Liste de matches "
+        return name, choices
 
-        name = "** Initier un tournoi **"
+    '''Les menus à afficher'''
+    def display_matches_list_menu(self, all_matches_list):
+        name, choices = self.generate_matches_list(all_matches_list)
+        go_to_last_menu_option = len(all_matches_list) + 1
+        choices.update({go_to_last_menu_option: "Revenir au menu précédent"})
+
         run = True
         while run:
             self.view.display_menu(name, choices)
             user_choice = self.view.input_for_menu(choices)
-            if user_choice == 3:
+            if user_choice == go_to_last_menu_option:
+                run = False
+            else:
+                print(f"-- Match {user_choice} choisi --")
+                '''Donner l'option de remplir le résultat du match selon le match choisi'''
+                self.enter_match_result(all_matches_list, user_choice)
+
+    def display_start_tournament_menu(self):
+        name, choices = self.generate_tournaments_list(self.tournaments)
+        go_to_last_menu_option = len(self.tournaments)+1
+        choices.update({go_to_last_menu_option: "Revenir au menu précédent"})
+
+        run = True
+        while run:
+            self.view.display_menu(name, choices)
+            user_choice = self.view.input_for_menu(choices)
+            if user_choice == go_to_last_menu_option:
                 run = False
             else:
                 self.evaluate_current_tournament_status(user_choice)
@@ -439,15 +507,11 @@ class Controller:
             user_choice = self.view.input_for_menu(choices)
             if user_choice == 1:
                 self.display_tournament_list()
-                # name, choices = self.generate_tournaments_list(self.tournaments)
-                # self.view.display_menu(name, choices)
             elif user_choice == 2:
                 self.make_new_tournament()
             elif user_choice == 3:
                 self.update_tournament_info()
             elif user_choice == 4:
-                # self.start_tournament()
-                # self.evaluate_current_tournament_status()
                 self.display_start_tournament_menu()
             elif user_choice == 5:
                 run = False

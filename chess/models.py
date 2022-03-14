@@ -1,11 +1,12 @@
 from datetime import date, datetime
 from enum import Enum
-from typing import List, Optional, Tuple, Dict
+from typing import List, Optional, Tuple, Dict, Union
 from dataclasses import dataclass, field
 
 DEFAULT_PLAYERS_NUMBER = 8
 MAX_TURNS_COUNT = 4
 DEFAULT_TURN_COUNT = 1
+TEST_TURN_COUNT = 2
 SCORE_INIT = 0
 MENU_OPTION = ""
 DEFAULT_ROUND_VALUE = []
@@ -37,10 +38,11 @@ class MatchResult(Enum):
 
 
 # Match = Tuple[List[Player, Optional[MatchResult]], List[Player, Optional[MatchResult]]]
+# match: Tuple[Tuple[Player, Optional[MatchResult]], Tuple[Player, Optional[MatchResult]]]
 # Match = Tuple[List[Union[Player, Optional[MatchResult]]], List[Union[Player, Optional[MatchResult]]]]
 # match: Tuple[Tuple[PlayerScore], Tuple[PlayerScore]]
 class Match:
-    match: Tuple[Tuple[Player, Optional[MatchResult]], Tuple[Player, Optional[MatchResult]]]
+    match = Tuple[List[Union[Player, Optional[MatchResult]]], List[Union[Player, Optional[MatchResult]]]]
 
 
 @dataclass
