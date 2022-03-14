@@ -41,8 +41,30 @@ class MatchResult(Enum):
 # match: Tuple[Tuple[Player, Optional[MatchResult]], Tuple[Player, Optional[MatchResult]]]
 # Match = Tuple[List[Union[Player, Optional[MatchResult]]], List[Union[Player, Optional[MatchResult]]]]
 # match: Tuple[Tuple[PlayerScore], Tuple[PlayerScore]]
+# match = Tuple[List[Union[Player, Optional[MatchResult]]], List[Union[Player, Optional[MatchResult]]]]
+# class PlayerResult:
+#     player_result: Tuple[Player, Optional[MatchResult]]
+
+
+@dataclass
 class Match:
-    match = Tuple[List[Union[Player, Optional[MatchResult]]], List[Union[Player, Optional[MatchResult]]]]
+    # player_one_result: Tuple[Player, Optional[MatchResult]]
+    # player_two_result: Tuple[Player, Optional[MatchResult]]
+    # result: []
+    match: Tuple[List[Union[Player, Optional[MatchResult]]], List[Union[Player, Optional[MatchResult]]]]
+
+    # def result(self):
+    #     return list[self.player_one_result, self.player_two_result]
+    # return self.result
+
+    # def player_one_wins(self):
+    #     pass
+    #
+    # def player_two_wins(self):
+    #     pass
+    #
+    # def draw(self):
+    #     pass
 
 
 @dataclass
@@ -80,94 +102,3 @@ class Tournament:
     start: date = field(default_factory=date.today)
     turn_count: int = DEFAULT_TURN_COUNT
     round: List[Round] = field(default_factory=lambda: [])
-
-
-# class MainMenu(Enum):
-#     TOURNAMENT_MANAGEMENT = 1
-#     PLAYERS_MANAGEMENT = 2
-#     MAKE_REPORTS = 3
-#     SAVE_DATA = 4
-#     CLOSE_APPLI = 5
-#
-#
-# class PlayerManagementMenu(Enum):
-#     PLAYERS_LIST = 1
-#     ENTER_NEW_PLAYER = 2
-#     PLAYER_DATA_UPDATE = 3
-#     PREVIOUS_MENU = 4
-#
-#
-# class TournamentManagementMenu(Enum):
-#     TOURNAMENTS_LIST = 1
-#     MAKE_NEW_TOURNAMENT = 2
-#     START_TOURNAMENT = 3
-#     TOURNAMENT_DATA_UPDATE = 4
-#     PREVIOUS_MENU = 5
-#
-#
-# class MakeNewTournamentMenu(Enum):
-#     PLAYERS_FROM_DATA_BASE = 1
-#     PLAYERS_FROM_TYPING = 2
-#     PREVIOUS_MENU = 3
-#
-#
-# class SaveData(Enum):
-#     SAVE_DATA = 1
-#     LOAD_DATA = 2
-#     PREVIOUS_MENU = 3
-#
-#
-# class NewTournamentMenu(Enum):
-#     ENTER_NEW_TOURNAMENT = 1
-#     PREVIOUS_MENU = 2
-#
-#
-# class ModifyTournamentMenu(Enum):
-#     MODIFY_TOURNAMENT = 1
-#     PREVIOUS_MENU = 2
-#
-#
-# class StartTournamentMenu(Enum):
-#     START_TOURNAMENT = 1
-#     PREVIOUS_MENU = 2
-#
-#
-# class NewPlayerMenu(Enum):
-#     ENTER_NEW_PLAYER = 1
-#     PREVIOUS_MENU = 2
-#
-#
-# class ModifyPlayerInfoMenu(Enum):
-#     UPDATE_PLAYER_INFO = 1
-#     PREVIOUS_MENU = 2
-#
-#
-# class ReportMenu(Enum):
-#     PLAYERS_REPORT = 1
-#     PLAYERS_TOURNAMENT_REPORT = 2
-#     TOURNAMENTS_REPORT = 3
-#     ROUNDS_REPORT = 4
-#     MATCHS_REPORT = 5
-#     PREVIOUS_MENU = 6
-#
-#
-# class AllPlayersReportMenu(Enum):
-#     ALPHABETICAL = 1
-#     RANKING = 2
-#     PREVIOUS_MENU = 3
-#
-#
-# class PlayersByTournamentReportMenu(Enum):
-#     ALPHABETICAL_BY_TOURNAMENT = 1
-#     RANKING_BY_TOURNAMENT = 2
-
-
-# @dataclass
-# class MainMenu:
-#     1: "Créer un tournoi"
-#     2: "Modifier les coordonnées d'un tournoi",
-#     3: "Initier un tournoi",
-#     4: "Ajouter un joueur",
-#     5 : "Mettre à jour les coordonnées d'un joueur",
-#     6: "Créer un rapport",
-#     7: "Fermer l'application"

@@ -106,12 +106,19 @@ class TerminalView:
         return user_input
 
     @staticmethod
-    def display_close_message():
-        print('***** Application fermée *****')
-
-    @staticmethod
-    def display_current_tournament_status_message(message):
+    def display_a_simple_message(message):
         print(message)
+
+    # def display_close_message():
+    #     print('***** Application fermée *****')
+    #
+    # @staticmethod
+    # def display_current_tournament_status_message(message):
+    #     print(message)
+    #
+    # @staticmethod
+    # def display_match_result_message(message):
+    #     print(message)
 
     ######### DELETE FROM HERE
     def display_main_menu(self):
