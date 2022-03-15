@@ -268,7 +268,7 @@ class Controller:
         print("self.tournaments : ", self.tournaments)
 
     def update_tournament_info(self):
-        choices = self.display_players_list()
+        choices = self.display_tournament_list()
         tournament_id_selected = self.view.input_for_menu(choices)
         players_in_current_tournament = self.tournaments.get(tournament_id_selected).players
         tournament = self.view.enter_tournament_info(players_in_current_tournament)
@@ -559,6 +559,54 @@ class Controller:
         name = " Liste de matches "
         return name, choices
 
+    @staticmethod
+    def generate_players_report_list(players):
+        choices = {}
+        for player_number in range(len(players)):
+            choices.update({
+                player_number + 1:
+                    "id : " +
+                    str(players[player_number][0]) +
+                    " | " +
+                    players[player_number][1].first_name +
+                    " " +
+                    players[player_number][1].last_name +
+                    " | " + "date de naissance : " +
+                    str(players[player_number][1].date_of_birth) +
+                    " | " + "sexe : " +
+                    str(players[player_number][1].sex) +
+                    " | " + "ranking : " +
+                    str(players[player_number][1].ranking)
+            })
+        name = " Rapport de joueurs "
+        return name, choices
+
+    @staticmethod
+    def order_players_by_name_for_report(players: Dict):
+        players_ordered_by_name = sorted(players.items(), key=lambda n: n[1].last_name)
+        return players_ordered_by_name
+
+    def display_players_report_by_name(self, players):
+        print("players : ", players)
+        players_ordered_by_name = self.order_players_by_name_for_report(players)
+        print("players_ordered_by_ranking : ", players_ordered_by_name)
+        name, choices = self.generate_players_report_list(players_ordered_by_name)
+        name = name + "par nom "
+        self.view.display_menu(name, choices)
+
+    @staticmethod
+    def order_players_by_ranking_for_report(players: Dict):
+        players_ordered_by_ranking = sorted(players.items(), key=lambda r: r[1].ranking, reverse=True)
+        return players_ordered_by_ranking
+
+    def display_players_report_by_ranking(self, players):
+        print("players : ", players)
+        players_ordered_by_ranking = self.order_players_by_ranking_for_report(players)
+        print("players_ordered_by_ranking : ", players_ordered_by_ranking)
+        name, choices = self.generate_players_report_list(players_ordered_by_ranking)
+        name = name + "par classement "
+        self.view.display_menu(name, choices)
+
     '''Les menus à afficher'''
     def display_matches_list_menu(self):
         number_of_match_selected = []
@@ -580,7 +628,6 @@ class Controller:
                 self.view.display_a_simple_message(message)
                 self.enter_match_result_menu(user_choice)
                 # number_of_match_selected.append(user_choice)
-
 
     def display_start_tournament_menu(self):
         name, choices = self.generate_tournaments_list(self.tournaments)
@@ -645,6 +692,35 @@ class Controller:
             elif user_choice == 4:
                 run = False
 
+    def display_players_report_menu(self, players):
+        choices = {
+            1: "Rapport par ordre descendant",
+            2: "Rapport par classement",
+            3: "Revenir au menu précédent"
+        }
+        name = "** CRÉATION DE RAPPORTS **"
+        run = True
+        while run:
+            self.view.display_menu(name, choices)
+            user_choice = self.view.input_for_menu(choices)
+            if user_choice == 1:
+                print('Liste de tous les joueurs')
+                self.display_players_report_by_name(players)
+            elif user_choice == 2:
+                print('Liste des joueurs d un tournoi')
+                self.display_players_report_by_ranking(players)
+            elif user_choice == 3:
+                run = False
+
+    def display_players_report_by_tournament_menu(self):
+        pass
+
+    def display_tournament_report(self):
+        pass
+
+    def display_tournaments_report(self):
+        pass
+
     def display_reports_menu(self):
         choices = {
             1: "Liste de tous les joueurs",
@@ -661,10 +737,13 @@ class Controller:
             user_choice = self.view.input_for_menu(choices)
             if user_choice == 1:
                 print('Liste de tous les joueurs')
+                self.display_players_report_menu(self.players)
             elif user_choice == 2:
                 print('Liste des joueurs d un tournoi')
+                self.display_players_report_by_tournament_menu()
             elif user_choice == 3:
                 print('Liste de tous les tournois')
+                self.display_tournaments_report()
             elif user_choice == 4:
                 print('Liste de tous les tours d un tournoi')
             elif user_choice == 5:
