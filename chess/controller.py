@@ -103,8 +103,17 @@ class Controller:
     #     elif current_tournament.turn_count == 4:
     #         print("dernier tour")
 
-    def tournament_management_round_one(self, players_in_groups):
+    @staticmethod
+    def tournament_management_round_one(players_in_groups):
         print("tournament_management_round_one")
+        all_matches = []
+        for number_of_players_in_group in range(len(players_in_groups[0])-4):
+            print("Nb de joueurs du groupe : ", len(players_in_groups[0])-4)
+            print("joueurs du groupe : ", players_in_groups[0][number_of_players_in_group])
+            all_matches.append([players_in_groups[0][number_of_players_in_group],
+                                players_in_groups[0][number_of_players_in_group+4]])
+
+        return all_matches
 
     @staticmethod
     def make_list_of_matches(players_in_group):
@@ -199,6 +208,10 @@ class Controller:
                 score = 0
             else:
                 score = 0.5
+            # if n % 2 == 0:
+            #     score = 1
+            # else:
+            #     score = 0
             n += 1
         # TODO jusqu'ici
 
@@ -207,7 +220,7 @@ class Controller:
 
         print(f"-- {self.current_tournament.round.__getattribute__('name')} --")
         if self.current_tournament.turn_count == 1:
-            self.tournament_management_round_one(players_in_groups)
+            self.all_matches = self.tournament_management_round_one(players_in_groups)
         else:
             self.all_matches = self.matches_by_round_management(players_in_groups)
 
