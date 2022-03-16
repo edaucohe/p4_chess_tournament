@@ -219,7 +219,7 @@ class Controller:
         print("players_in_groups : ", players_in_groups)
 
         print(f"-- {self.current_tournament.round.__getattribute__('name')} --")
-        if self.current_tournament.turn_count == 1:
+        if self.current_tournament.round_count == 1:
             self.all_matches = self.tournament_management_round_one(players_in_groups)
         else:
             self.all_matches = self.matches_by_round_management(players_in_groups)
