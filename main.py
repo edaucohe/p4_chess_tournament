@@ -77,6 +77,16 @@ def players_added_for_test() -> Dict[int, Player]:
 
 def tournaments_added_for_test(players, round_for_starting):
     tournaments_list = []
+    scores = {
+        players.get(1): 0,
+        players.get(2): 0,
+        players.get(3): 1,
+        players.get(4): 1,
+        players.get(5): 1,
+        players.get(6): 0.5,
+        players.get(7): 0.5,
+        players.get(8): 0
+    }
     tournaments = [
         {
             "name": "Master chess tournament Dubai 2022",
@@ -84,9 +94,10 @@ def tournaments_added_for_test(players, round_for_starting):
             "time_control": "bullet",
             "description": "Tous les meilleurs joueurs du monde",
             "players": players,
+            'scores': scores,
             "start": date.today,
-            "turn_count": TEST_TURN_COUNT,
-            "round": round_for_starting[0]
+            "round_count": TEST_TURN_COUNT,
+            "rounds": [round_for_starting[0]]
         },
         {
             "name": "National chess tournament Paris 2022",
@@ -94,9 +105,10 @@ def tournaments_added_for_test(players, round_for_starting):
             "time_control": "bullet",
             "description": "Les meilleurs joueurs de la France",
             "players": players,
+            'scores': scores,
             "start": date.today,
-            "turn_count": MAX_TURNS_COUNT,
-            "round": round_for_starting[1]
+            "round_count": MAX_TURNS_COUNT,
+            "rounds": [round_for_starting[1]]
         }
     ]
     for tournament in tournaments:
@@ -134,6 +146,7 @@ def main():
     # TODO delete me once the database is implemented
     players: Dict[int, Player] = players_added_for_test()
     round_for_starting = rounds_added_for_test()
+    print("round_for_starting : ", round_for_starting)
     tournaments = tournaments_added_for_test(players, round_for_starting)
     # print("joueurs du tournois : ", players)
     # print("tournois : ", tournaments)

@@ -6,18 +6,18 @@
 
 Ce projet a comme but de mettre en place un tournoi d'échecs (système suisse) dont le déroulement de base est : 
 
-- Créer un nouveau tournoi.
-- Ajouter huit joueurs.
-- L'ordinateur génère des paires de joueurs pour le premier tour.
-- Lorsque le tour est terminé, entrez les résultats.
-- Répétez les étapes 3 et 4 pour les tours suivants jusqu'à ce que tous les tours soient joués, et que le tournoi soit terminé.
+1) L'utilisateur crée un nouveau tournoi.
+2) L'utilisateur ajoute huit joueurs par tournoi.
+3) L'ordinateur génère des paires de joueurs pour le premier round.
+4) L'utilisateur entre les résultats des matchs du round.
+5) Répéter les étapes 3 et 4 pour les rounds suivants jusqu'à ce que tous les rounds soient joués, et que le tournoi soit terminé.
 
 Les consignes techniques à développer/suivre sont :
 - La conformité avec la PEP8.
 - Un code maintenable que possible afin d'éviter les bugs.
-- La mise en place du modèle MVC.
+- La mise en place du modèle MVC (Model-View-Controller).
 - Le peluchage du code grâce à Flake8.
-- L'utilisation de TinyDB pour les base de données.
+- L'utilisation de TinyDB pour la base de données.
 
 ## Installation
 
@@ -33,7 +33,7 @@ pip install -r requirements.txt
 
 ## Setup
 
-Avant de lancer le script, il faut créer le dossier `rapports/`.
+Rien à signaler
 
 ## Use
 Lancer le script :
@@ -41,8 +41,6 @@ Lancer le script :
 ```
 python main.py
 ```
-
-Les rapports seront écrits dans le dossier `rapports/`.
 
 ## Helpful links
 

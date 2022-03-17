@@ -74,7 +74,6 @@ class Round:
     end: Optional[datetime] = None
 
     '''Qui doit être automatiquement rempli lorsque l'utilisateur le marque comme terminé'''
-
     def close(self):
         self.end = datetime.now()
 
@@ -83,11 +82,6 @@ class TimeControlKind(Enum):
     BULLET = 'bullet'
     BLITZ = 'blitz'
     QUICK_PLAY = 'quick play'
-
-
-class OrderPlayerList(Enum):
-    ALPHABETICAL = 'a'
-    RANKING = 'c'
 
 
 @dataclass

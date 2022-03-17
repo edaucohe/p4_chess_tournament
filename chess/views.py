@@ -58,7 +58,8 @@ class TerminalView:
             time_control=input_with_constraint('Contrôle du temps (bullet/blitz/quick play) : ',
                                                parse_fn=TimeControlKind),
             description=input('Description : '),
-            players=players
+            players=players,
+            scores={}
         )
         return tournament
 
@@ -77,6 +78,10 @@ class TerminalView:
     def enter_round_info(end_date):
         round_info = Round(matches=[], name=input('Nom du round : '), end=end_date)
         return round_info
+
+    @staticmethod
+    def round_finished():
+        return Round.close
 
     # def format_players_json(self, players: List[Player]) -> str:
     #     json_str = "["
