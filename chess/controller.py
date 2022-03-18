@@ -36,6 +36,7 @@ class Controller:
         self.round = round_info or None
         self.all_matches = []
         self.matches_played = []
+        self.matches_played_in_current_round = []
         self.players_in_groups = []
         # self.match_result = match or []
         # self.player_one_result = match.player_one_result or ()
@@ -243,7 +244,7 @@ class Controller:
         print("players_in_groups : ", players_in_groups)
 
         print(f"-- {self.current_tournament.rounds[-1].__getattribute__('name')} --")
-        if self.current_tournament.round_count == 1:
+        if len(self.current_tournament.rounds) == 1:
             self.all_matches = self.tournament_management_round_one(players_in_groups)
             self.players_in_groups = players_in_groups
         else:
@@ -270,6 +271,7 @@ class Controller:
             # players_in_groups = []
             # self.players_in_groups = players_in_groups
             self.matches_played = []
+            self.matches_played_in_current_round = []
         # print("list_of_matches : ", list_of_matches)
         # print("new_all_matches : ", new_all_matches)
 
@@ -325,6 +327,7 @@ class Controller:
 
     def enter_match_result(self, player_one, player_two, match_result_selection, match_selection):
         match_result = MatchResult
+        # matches = []
         list_of_matches = self.current_tournament.rounds[-1].__getattribute__("matches")
         # list_of_rounds = [self.current_tournament.round]
         # print("list_of_rounds : ", list_of_rounds)
@@ -339,6 +342,15 @@ class Controller:
             self.current_tournament.scores.update(
                 {player_one[0]: self.current_tournament.scores.get(player_one[0]) + 1})
 
+            # matches.append = tuple(Match([player_one, match_result.WIN], [player_two, match_result.LOSS]))
+            match = ([player_one[0], MatchResult.WIN], [player_two[0], MatchResult.LOSS])
+            self.matches_played_in_current_round.append(match)
+            print("self.matches_played_in_current_round : ", self.matches_played_in_current_round)
+            print("self.current_tournament.rounds :", self.current_tournament.rounds[-1])
+            self.current_tournament.rounds[-1] = self.view.enter_round_match(
+                self.matches_played_in_current_round, self.current_tournament.rounds[-1].__getattribute__("name"))
+            print("self.current_tournament.rounds :", self.current_tournament.rounds)
+
             # match = Match([player_one[0], match_result.WIN], [player_two[0], match_result.LOSS])
             # list_of_matches.append(match)
             # # list_of_rounds.append(self.current_tournament.round)
@@ -351,6 +363,18 @@ class Controller:
             self.matches_played.append(match_selection)
             self.current_tournament.scores.update(
                 {player_two[0]: self.current_tournament.scores.get(player_two[0]) + 1})
+
+            match = ([player_one[0], MatchResult.LOSS], [player_two[0], MatchResult.WIN])
+            self.matches_played_in_current_round.append(match)
+            print("self.matches_played_in_current_round : ", self.matches_played_in_current_round)
+            print("self.current_tournament.rounds[-1] :", self.current_tournament.rounds[-1])
+            self.current_tournament.rounds[-1] = self.view.enter_round_match(
+                self.matches_played_in_current_round, self.current_tournament.rounds[-1].__getattribute__("name"))
+            # self.current_tournament.rounds[-1] = self.view.enter_round_match(match)  # pour rajouter un match dans Rounds
+            # self.current_tournament.rounds.append(
+            #     self.view.enter_round_match(match))  # pour rajouter un Round dans rounds
+            print("self.current_tournament.rounds :", self.current_tournament.rounds)
+
             # self.current_tournament.scores.get(player_two)
             # print("self.current_tournament.scores.get(player_two) : ", self.current_tournament.scores.get(player_two))
             # match = Match(([player_one[0], match_result.LOSS], [player_two[0], match_result.WIN]))
@@ -368,6 +392,15 @@ class Controller:
                 {player_one[0]: self.current_tournament.scores.get(player_one[0]) + 0.5})
             self.current_tournament.scores.update(
                 {player_two[0]: self.current_tournament.scores.get(player_two[0]) + 0.5})
+
+            match = ([player_one[0], MatchResult.DRAW], [player_two[0], MatchResult.DRAW])
+            self.matches_played_in_current_round.append(match)
+            print("self.matches_played_in_current_round : ", self.matches_played_in_current_round)
+            print("self.current_tournament.rounds :", self.current_tournament.rounds[-1])
+            self.current_tournament.rounds[-1] = self.view.enter_round_match(
+                self.matches_played_in_current_round, self.current_tournament.rounds[-1].__getattribute__("name"))
+            # self.current_tournament.rounds[-1] = self.view.enter_round_match(match)
+            print("self.current_tournament.rounds :", self.current_tournament.rounds)
 
             # match = Match(([player_one[0], match_result.DRAW], [player_two[0], match_result.DRAW]))
             # list_of_matches.append(match)

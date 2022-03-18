@@ -80,11 +80,11 @@ def tournaments_added_for_test(players, round_for_starting):
     scores = {
         players.get(1): 0,
         players.get(2): 0,
-        players.get(3): 1,
-        players.get(4): 1,
-        players.get(5): 1,
-        players.get(6): 0.5,
-        players.get(7): 0.5,
+        players.get(3): 0,
+        players.get(4): 0,
+        players.get(5): 0,
+        players.get(6): 0,
+        players.get(7): 0,
         players.get(8): 0
     }
     tournaments = [
@@ -96,7 +96,7 @@ def tournaments_added_for_test(players, round_for_starting):
             "players": players,
             'scores': scores,
             "start": date.today,
-            "round_count": TEST_TURN_COUNT,
+            "round_count": DEFAULT_TURN_COUNT,
             "rounds": [round_for_starting[0]]
         },
         {
@@ -124,7 +124,7 @@ def rounds_added_for_test():
     round_elements = [
         {
             "matches": [],
-            "name": "Round " + str(TEST_TURN_COUNT),
+            "name": "Round " + str(DEFAULT_TURN_COUNT),
             "start": datetime.now(),
             "end": None
         },
