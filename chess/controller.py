@@ -35,7 +35,7 @@ class Controller:
         self.view = view or TerminalView()
         self.round = round_info or None
         self.all_matches = []
-        self.matches_played = []
+        self.number_of_matches_played = []
         self.matches_played_in_current_round = []
         self.players_in_groups = []
         # self.match_result = match or []
@@ -228,15 +228,15 @@ class Controller:
         # afin de ne pas repeter les matchs
         # Cette liste pourrait etre un self a remettre a 0 s il y a un nouveau round a joueur
 
-        if not self.matches_played:
-            print("la liste est vide : ", self.matches_played)
+        if not self.number_of_matches_played:
+            print("la liste est vide : ", self.number_of_matches_played)
             players_in_groups = self.classify_players_in_groups()
             # current_round =
-        elif 1 <= len(self.matches_played) <= 3:
-            print("la liste a les elements : ", self.matches_played)
+        elif 1 <= len(self.number_of_matches_played) <= 3:
+            print("la liste a les elements : ", self.number_of_matches_played)
             # self.players_in_groups = players_in_groups
-        # elif not self.matches_played:
-        #     print("la liste est vide : ", self.matches_played)
+        # elif not self.number_of_matches_played:
+        #     print("la liste est vide : ", self.number_of_matches_played)
         #     players_in_groups = self.classify_players_in_groups()
         #     current_round =
 
@@ -256,21 +256,35 @@ class Controller:
         '''Voulez-vous entrer les résultats d un match ?'''
         self.display_matches_list_menu()
 
-        if len(self.matches_played) == 4:
-            print(f"la liste a bien {len(self.matches_played)} elements : ", self.matches_played)
+        if len(self.number_of_matches_played) == 4:
+            print(f"la liste a bien {len(self.number_of_matches_played)} elements : ", self.number_of_matches_played)
             print("il va falloir reinitialiser les variables pour passer au prochain ROUND")
             print("Marquer le Round comme terminé")
             print("Round.end : ", Round.end)
             Round.end = datetime.now
             print("Round.end : ", Round.end)
-            self.current_tournament.rounds.append(self.view.enter_round_info(end_date=None))
+
+            '''Pour le nouveau Round'''
+            print("len(self.current_tournament.rounds) : ", len(self.current_tournament.rounds))
+            print("self.current_tournament.rounds[-1].end : ", self.current_tournament.rounds[-1].end)
+            self.current_tournament.rounds[-1].end = datetime.now()
+            print("NEW self.current_tournament.rounds[-1].end : ", self.current_tournament.rounds[-1].end)
+            if len(self.current_tournament.rounds) == self.current_tournament.round_count:
+                print("DEJA ENTRÉ self.current_tournament.rounds[-1].end : ", self.current_tournament.rounds[-1].end)
+            else:
+                # self.current_tournament.rounds.append(self.view.enter_round_info(end_date=None))
+                round_name = f"ROUND {len(self.current_tournament.rounds)+1}"
+                print(round_name)
+                self.current_tournament.rounds.append(self.view.enter_new_round(round_name))
+
+            # self.current_tournament.rounds.append(self.view.enter_round_info(end_date=None))
             # self.view.round_finished()
 
             # print("self.view.round_finished() : ", self.round.end.value)
 
             # players_in_groups = []
             # self.players_in_groups = players_in_groups
-            self.matches_played = []
+            self.number_of_matches_played = []
             self.matches_played_in_current_round = []
         # print("list_of_matches : ", list_of_matches)
         # print("new_all_matches : ", new_all_matches)
@@ -335,7 +349,7 @@ class Controller:
         if match_result_selection == 1:
             message = f"{player_one[0].first_name + ' ' + player_one[0].last_name} a gagné le match"
             self.view.display_a_simple_message(message)
-            self.matches_played.append(match_selection)
+            self.number_of_matches_played.append(match_selection)
             # player_score = self.current_tournament.scores.get(player_one[0])
             # player_score += 1
             # self.current_tournament.scores.update({player_one[0]: player_score})
@@ -360,7 +374,7 @@ class Controller:
         elif match_result_selection == 2:
             message = f"{player_two[0].first_name + ' ' + player_two[0].last_name} a gagné le match"
             self.view.display_a_simple_message(message)
-            self.matches_played.append(match_selection)
+            self.number_of_matches_played.append(match_selection)
             self.current_tournament.scores.update(
                 {player_two[0]: self.current_tournament.scores.get(player_two[0]) + 1})
 
@@ -386,7 +400,7 @@ class Controller:
         elif match_result_selection == 3:
             message = "Les joueurs ont fait un match nul"
             self.view.display_a_simple_message(message)
-            self.matches_played.append(match_selection)
+            self.number_of_matches_played.append(match_selection)
             # self.current_tournament.scores.get(player_one)
             self.current_tournament.scores.update(
                 {player_one[0]: self.current_tournament.scores.get(player_one[0]) + 0.5})
@@ -478,9 +492,9 @@ class Controller:
             # elif user_choice != go_to_last_menu_option and user_choice in number_of_match_selected:
             #     message = "Match déjà choisi. Choisissez un autre"
             #     self.view.display_a_simple_message(message)
-            elif user_choice != go_to_last_menu_option and user_choice in self.matches_played:
+            elif user_choice != go_to_last_menu_option and user_choice in self.number_of_matches_played:
                 print("Match deja choisit ! Choisissez un autre match, svp")
-            elif user_choice != go_to_last_menu_option and user_choice not in self.matches_played:
+            elif user_choice != go_to_last_menu_option and user_choice not in self.number_of_matches_played:
                 message = f"-- Match {user_choice} choisi --"
                 self.view.display_a_simple_message(message)
                 self.enter_match_result_menu(user_choice)

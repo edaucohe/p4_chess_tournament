@@ -75,8 +75,8 @@ class TerminalView:
         return player
 
     @staticmethod
-    def enter_new_round():
-        new_round = Round(matches=[], name="-- Round 1 --")
+    def enter_new_round(round_name):
+        return Round(matches=[], name=round_name)
 
     @staticmethod
     def enter_round_info(end_date):

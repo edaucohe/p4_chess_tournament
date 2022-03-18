@@ -96,7 +96,7 @@ def tournaments_added_for_test(players, round_for_starting):
             "players": players,
             'scores': scores,
             "start": date.today,
-            "round_count": DEFAULT_TURN_COUNT,
+            "round_count": MAX_TURNS_COUNT,
             "rounds": [round_for_starting[0]]
         },
         {
@@ -124,13 +124,13 @@ def rounds_added_for_test():
     round_elements = [
         {
             "matches": [],
-            "name": "Round " + str(DEFAULT_TURN_COUNT),
+            "name": "ROUND 1",
             "start": datetime.now(),
             "end": None
         },
         {
             "matches": [],
-            "name": "Round " + str(MAX_TURNS_COUNT),
+            "name": "ROUND 4",
             "start": datetime.now(),
             "end": datetime.now()
         }
