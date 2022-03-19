@@ -698,6 +698,73 @@ class Controller:
         self.view.display_menu(name, choices)
         return choices
 
+    @staticmethod
+    def generate_rounds_report(current_tournament):
+        rounds_in_current_tournament = current_tournament.rounds
+        choices = {"Tournoi :": current_tournament.__getattribute__("name")}
+
+        for round_in_current_tournament in rounds_in_current_tournament:
+            if round_in_current_tournament.__getattribute__('end') is None:
+                message = "Round encore en cours"
+            else:
+                message = str(round_in_current_tournament.__getattribute__('end'))
+            choices.update({
+                str(round_in_current_tournament.__getattribute__('name')):
+                    "| " + "Date de début : " +
+                    str(round_in_current_tournament.__getattribute__('start')) +
+                    " | " + "Date de fin : " +
+                    message
+            })
+
+        name = " Rapports de rounds "
+        return name, choices
+
+    def display_rounds_report(self, tournament_id_selected):
+        self.current_tournament = []
+        self.current_tournament = self.tournaments.get(tournament_id_selected)
+        name, choices = self.generate_rounds_report(self.current_tournament)
+        self.view.make_rounds_report(name, choices)
+
+    def display_rounds_report_menu(self):
+        name, choices = self.generate_tournaments_list(self.tournaments)
+        go_to_last_menu_option = len(self.tournaments) + 1
+        choices.update({go_to_last_menu_option: "Revenir au menu précédent"})
+
+        run = True
+        while run:
+            self.view.display_menu(name, choices)
+            user_choice = self.view.input_for_menu(choices)
+            if user_choice == go_to_last_menu_option:
+                run = False
+            else:
+                self.display_rounds_report(user_choice)
+
+    def display_matches_report(self, tournament_id_selected):
+        self.current_tournament = []
+        self.current_tournament = self.tournaments.get(tournament_id_selected)
+        print("current_tournament : ", self.current_tournament)
+
+        round_in_current_tournament = self.tournaments.get(tournament_id_selected).rounds
+        print("round_in_current_tournament : ", round_in_current_tournament)
+
+        matches_of_current_tournament = round_in_current_tournament[-1].__getattribute__('matches')
+        print("matches_of_current_tournament : ", matches_of_current_tournament)
+
+    def display_matches_report_menu(self):
+        print("** display_matches_by_tournament_report **")
+        name, choices = self.generate_tournaments_list(self.tournaments)
+        go_to_last_menu_option = len(self.tournaments) + 1
+        choices.update({go_to_last_menu_option: "Revenir au menu précédent"})
+
+        run = True
+        while run:
+            self.view.display_menu(name, choices)
+            user_choice = self.view.input_for_menu(choices)
+            if user_choice == go_to_last_menu_option:
+                run = False
+            else:
+                self.display_matches_report(user_choice)
+
     def display_reports_menu(self):
         choices = {
             1: "Liste de tous les joueurs",
@@ -723,8 +790,10 @@ class Controller:
                 self.display_tournaments_report()
             elif user_choice == 4:
                 print('Liste de tous les tours d un tournoi')
+                self.display_rounds_report_menu()
             elif user_choice == 5:
                 print('Liste de tous les matchs d un tournoi')
+                self.display_matches_report_menu()
             elif user_choice == 6:
                 run = False
 

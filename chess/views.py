@@ -136,8 +136,11 @@ class TerminalView:
     def make_tournament_report(self):
         pass
 
-    def make_rounds_report(self):
-        pass
+    @staticmethod
+    def make_rounds_report(name: str, choices: Dict):
+        print(f'\n**{name}**')
+        for choice_index, choice_name in choices.items():
+            print(f'{choice_index} {choice_name}')
 
     def make_matchs_report(self):
         pass
