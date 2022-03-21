@@ -2,7 +2,7 @@ from datetime import date, datetime
 from typing import Dict
 
 from chess.controller import Controller
-from chess.models import Player, Tournament, Round, MAX_TURNS_COUNT, DEFAULT_TURN_COUNT, TEST_TURN_COUNT
+from chess.models import Player, Tournament, Round, MAX_TURNS_COUNT
 
 
 def players_added_for_test() -> Dict[int, Player]:

@@ -137,7 +137,7 @@ class TerminalView:
         pass
 
     @staticmethod
-    def make_rounds_report(name: str, choices: Dict):
+    def make_common_report_for_rounds_and_matches(name: str, choices: Dict):
         print(f'\n**{name}**')
         for choice_index, choice_name in choices.items():
             print(f'{choice_index} {choice_name}')
