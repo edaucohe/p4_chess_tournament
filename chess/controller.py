@@ -236,7 +236,7 @@ class Controller:
                 return match_already_played, self.number_of_exchange_done
 
         return match_already_played, self.number_of_exchange_done
-    
+
         # print("self.matches_already_played : ", self.matches_already_played)
         # print("matches_already_played : ", matches_already_played)
 
@@ -552,11 +552,53 @@ class Controller:
             elif user_choice == 5:
                 run = False
 
+    # def enter_one_player_data(self):
+    #     return data
+
     '''Gestion de joueurs'''
     def update_player_info(self):
         choices = self.display_players_list()
         player_id_selected = self.view.input_for_menu(choices)
-        player = self.view.enter_player_info()
+        first_name = ""
+        last_name = ""
+        date_of_birth = None
+        sex = None
+        ranking = None
+
+        number_of_data = 5
+        for data in range(number_of_data):
+            if data == 0:
+                first_name = self.view.enter_first_name_data()
+                if first_name == "":
+                    first_name = self.players.get(player_id_selected).first_name
+                else:
+                    first_name = first_name
+            elif data == 1:
+                last_name = self.view.enter_last_name_data()
+                if last_name == "":
+                    last_name = self.players.get(player_id_selected).last_name
+                else:
+                    last_name = last_name
+            elif data == 2:
+                date_of_birth = self.view.enter_birth_data()
+                if date_of_birth is None:
+                    date_of_birth = self.players.get(player_id_selected).date_of_birth
+                else:
+                    date_of_birth = date_of_birth
+            elif data == 3:
+                sex = self.view.enter_sex_data()
+                if sex is None:
+                    sex = self.players.get(player_id_selected).sex
+                else:
+                    sex = sex
+            elif data == 4:
+                ranking = self.view.enter_ranking_data()
+                if ranking is None:
+                    ranking = self.players.get(player_id_selected).ranking
+                else:
+                    ranking = ranking
+
+        player = self.view.update_player_info(first_name, last_name, date_of_birth, sex, ranking)
         self.players.update({player_id_selected: player})
 
     def enter_new_player_info(self):

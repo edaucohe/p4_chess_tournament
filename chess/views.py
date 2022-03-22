@@ -28,6 +28,20 @@ def parse_positive_int(input_as_str: str) -> int:
     return value
 
 
+def only_one_input_with_constraint(desc: str, parse_fn: Callable[[str], Any]):
+    while True:
+        input_value = input(desc)
+        if input_value == "":
+            return None
+        else:
+            try:
+                return parse_fn(input_value)
+            except ValueError:
+                print("Merci de respecter le bon format")
+            except AssertionError:
+                print("La valeur doit être un numéro positif")
+
+
 class TerminalView:
     @staticmethod
     def display_menu(name: str, choices: Dict[int, str]):
@@ -73,6 +87,46 @@ class TerminalView:
             ranking=input_with_constraint('Classement : ', parse_fn=parse_positive_int)
         )
         return player
+
+    @staticmethod
+    def update_player_info(first_name, last_name, date_of_birth, sex, ranking):  # -> Player:
+        player = Player(
+            first_name=first_name, last_name=last_name, date_of_birth=date_of_birth, sex=sex, ranking=ranking)
+        return player
+
+    @staticmethod
+    def enter_first_name_data():
+        return input("Prénom : ")
+
+    @staticmethod
+    def enter_last_name_data():
+        return input("Nom : ")
+
+    @staticmethod
+    def enter_birth_data():
+        return only_one_input_with_constraint('Date de naissance (aaaa-mm-dd) : ', parse_fn=date.fromisoformat)
+
+    @staticmethod
+    def enter_sex_data():
+        sex = only_one_input_with_constraint('Genre (h/f) : ', parse_fn=Sex)
+        return sex.value
+
+    @staticmethod
+    def enter_ranking_data():
+        return only_one_input_with_constraint('Classement : ', parse_fn=parse_positive_int)
+
+    # @staticmethod
+    # def enter_one_player_info(choice):
+    #     if choice == "":
+    #         player = Player(
+    #             first_name=Player.first_name,
+    #             last_name=input('Nom : '),
+    #             date_of_birth=input_with_constraint('Date de naissance (aaaa-mm-dd) : ', parse_fn=date.fromisoformat),
+    #             sex=input_with_constraint('Genre (h/f) : ', parse_fn=Sex).value,
+    #             ranking=input_with_constraint('Classement : ', parse_fn=parse_positive_int)
+    #         )
+    #
+    #     return player
 
     @staticmethod
     def enter_new_round(round_name):
