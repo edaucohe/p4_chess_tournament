@@ -1,6 +1,6 @@
 import csv
 from datetime import date
-from typing import Any, Callable, List, Dict
+from typing import Any, Callable, List, Dict, Optional
 
 from chess.models import Player, Sex, Tournament, TimeControlKind, Round
 
@@ -50,7 +50,10 @@ class TerminalView:
             print(f'{choice_index} - {choice_name}')
 
     @staticmethod
-    def input_for_menu(choices: Dict[int, str]):
+    def input_for_menu(choices: Dict[int, str], header: Optional[str] = None):
+        if header is not None:
+            print(header)
+
         user_input = input_with_constraint("\nChoisissez une option : ", parse_fn=parse_positive_int)
         is_input_valid = user_input in choices
 
@@ -65,14 +68,30 @@ class TerminalView:
         print(message)
 
     @staticmethod
-    def enter_tournament_info(players):
+    def enter_tournament_info(players: Optional[Dict[int, Player]] = None):
         tournament = Tournament(
             name=input('Nom du tournoi : '),
             place=input('Lieu du tournoi : '),
             time_control=input_with_constraint('Contrôle du temps (bullet/blitz/quick play) : ',
                                                parse_fn=TimeControlKind),
             description=input('Description : '),
-            players=players,
+            round_count=input_with_constraint('Nombre de round : ', parse_fn=parse_positive_int),
+            players=players or {},
+            scores={}
+        )
+        return tournament
+
+    @staticmethod
+    def enter_tournament_update_info(existing_tournament: Tournament):
+        # TODO
+        tournament = Tournament(
+            name=input('Nom du tournoi : '),
+            place=input('Lieu du tournoi : '),
+            time_control=input_with_constraint('Contrôle du temps (bullet/blitz/quick play) : ',
+                                               parse_fn=TimeControlKind),
+            description=input('Description : '),
+            round_count=input_with_constraint('Nombre de round : ', parse_fn=parse_positive_int),
+            players=players or {},
             scores={}
         )
         return tournament

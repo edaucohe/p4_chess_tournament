@@ -2,6 +2,7 @@ from collections import Counter
 from datetime import datetime
 from typing import List, Dict, Optional
 
+import service
 from chess.views import TerminalView
 from chess.models import Player, Tournament, DEFAULT_PLAYERS_NUMBER, Round, MatchResult
 
@@ -25,184 +26,133 @@ class Controller:
             players: Optional[Dict[int, Player]] = None,
             tournaments: Optional[Dict[int, Tournament]] = None,
             current_tournament: Optional[Tournament] = None,
-            view: Optional[TerminalView] = None,
-            round_info: Optional[Round] = None,
-            # match: Optional[Match] = None
-    ):
+            view: Optional[TerminalView] = None):
         self.players = players or dict()
         self.tournaments = tournaments or dict()
         self.current_tournament = current_tournament or None
         self.view = view or TerminalView()
-        self.round = round_info or None
-        self.all_matches = []
-        self.number_of_matches_played = []
-        self.matches_played_in_current_round = []
-        self.players_in_groups = []
-        self.matches_already_played = []
-        # self.next_match = 1
-        # self.next_player = 0
-        self.number_of_exchange_done = 0
-        self.evaluation_of_matches = True
-        # self.match_result = match or []
-        # self.player_one_result = match.player_one_result or ()
-        # self.player_two_result = match.player_two_result or ()
-        # self.match = match or ()
-
-        # self.players_in_tournament = dict()
-        # self.player_score = player_score or PlayerScore
-        # self.tournament_selected = []
-
-    # @staticmethod
-    # def clear_screen():
-    #     # os.system('cls')
-    #     if os.name == 'nt':
-    #         os.system('cls')
-    #     else:
-    #         print("\n"*10)
-    #     return 0
-
-    # def __add__(self, other):
 
     '''Gestion de tournois'''
-    def make_new_tournament(self):
-        players_id__selected_list = []
-        players_in_current_tournament = {}
+
+    def create_new_tournament(self):
+        # Enter tournament info
+        new_tournament = self.view.enter_tournament_info()
+
+        # Add players to it
+        selected_players = {}
         choices = self.display_players_list()
-
-        id_new_tournament = len(self.tournaments) + 1
-        new_tournament = self.view.enter_tournament_info(players_in_current_tournament)
-        self.tournaments.update({id_new_tournament: new_tournament})
-
         for player_number in range(DEFAULT_PLAYERS_NUMBER):
-            player_id_selected = self.view.input_for_menu(choices)
-            while player_id_selected in players_id__selected_list:
-                # print("choisissez un autre joueur !")
+            player_id = self.view.input_for_menu(choices, header='Choisissez un joueur')
+            while player_id in selected_players:
                 message = "choisissez un autre joueur !"
                 self.view.display_a_simple_message(message)
-                player_id_selected = self.view.input_for_menu(choices)
+                player_id = self.view.input_for_menu(choices)
 
-            player = self.players[player_id_selected]
-            players_in_current_tournament.update({player_id_selected: player})
-            players_id__selected_list.append(player_id_selected)
+            selected_players[player_id] = self.players[player_id]
+        new_tournament.players = selected_players
 
-        new_tournament.players = players_in_current_tournament
+        # Run post-init actions
+        new_tournament.init()
+
+        # Store tournament in our list
+        new_tournament_id = len(self.tournaments) + 1
+        self.tournaments.update({new_tournament_id: new_tournament})
+        self.current_tournament = new_tournament
+
         print("new_tournament : ", new_tournament)
         print("self.tournaments : ", self.tournaments)
 
     def update_tournament_info(self):
         choices = self.display_tournament_list()
-        tournament_id_selected = self.view.input_for_menu(choices)
-        players_in_current_tournament = self.tournaments.get(tournament_id_selected).players
-        tournament = self.view.enter_tournament_info(players_in_current_tournament)
-        self.tournaments.update({tournament_id_selected: tournament})
+        tournament_id = self.view.input_for_menu(choices)
 
-    def current_round(self):
-        pass
+        tournament = self.tournaments[tournament_id]
+        updated_tournament = self.view.enter_tournament_update_info(tournament)
+        self.tournaments[tournament_id] = updated_tournament
 
-    def enter_round_info(self, end_date):
-        round_info = self.view.enter_round_info(end_date=end_date)
-        return round_info
+    # TODO move me in the tournament model
+    # @staticmethod
+    # def tournament_management_round_one(players_in_groups):
+    #     print("tournament_management_round_one")
+    #     all_matches = []
+    #     for number_of_players_in_group in range(len(players_in_groups[0]) - 4):
+    #         # print("Nb de joueurs du groupe : ", len(players_in_groups[0])-4)
+    #         # print("joueurs du groupe : ", players_in_groups[0][number_of_players_in_group])
+    #         all_matches.append([players_in_groups[0][number_of_players_in_group],
+    #                             players_in_groups[0][number_of_players_in_group + 4]])
+    #
+    #     return all_matches
+
+    # TODO move me in the tournament model
+    # @staticmethod
+    # def make_list_of_matches(players_in_group):
+    #     matches = []
+    #     matches_by_group = []
+    #     for player_in_group in players_in_group:
+    #         print("player_in_group : ", player_in_group)
+    #         matches.append(player_in_group)
+    #         if len(matches) == 2:
+    #             matches_by_group.append(matches)
+    #             matches = []
+    #     return matches_by_group
+
+    # TODO move me
+    # def matches_by_round_management(self, players_in_groups):
+    #     """
+    #
+    #     :param players_in_groups:
+    #     :type players_in_groups:
+    #     :return:
+    #     :rtype:
+    #     """
+    #     all_matches = []
+    #     next_group_of_players = 1
+    #     for players_in_group in players_in_groups:
+    #         print("Nb de joueurs du groupe : ", len(players_in_group))
+    #         if len(players_in_group) % 2 == 0:
+    #             # this is a comment
+    #             # Nb pair de joueurs -> opposer les joueurs par ordre descendant
+    #             # print("Nb PAIR de joueurs")
+    #             matches_by_group = self.make_list_of_matches(players_in_group)
+    #             all_matches.extend(matches_by_group)
+    #         else:
+    #             '''Nb impair de joueurs -> placer le dernier joueur dans le groupe suivant'''
+    #             # print("Nb IMPAIR de joueurs")
+    #             last_player = players_in_group.pop()
+    #             # print("last_player", last_player)
+    #             players_in_groups[next_group_of_players].insert(0, last_player)
+    #             # print("players_in_group[next_group_of_players] : ", players_in_groups[next_group_of_players])
+    #             matches_by_group = self.make_list_of_matches(players_in_group)
+    #             all_matches.extend(matches_by_group)
+    #
+    #         next_group_of_players += 1
+    #
+    #     return all_matches
 
     # @staticmethod
-    # def current_round_number(current_tournament):
-    #     if current_tournament.turn_count == 1:
-    #         print(current_tournament.round.__getattribute__("name"))
-    #     elif current_tournament.turn_count == 2:
-    #         print("deuxième tour")
-    #     elif current_tournament.turn_count == 3:
-    #         print("troisième tour")
-    #     elif current_tournament.turn_count == 4:
-    #         print("dernier tour")
+    # def groups_formed_by_frequency_of_scores(players_with_score) -> Dict:
+    #     score_values = []
+    #     for player, score in players_with_score.items():
+    #         score_values.append(score)
+    #
+    #     groups = Counter(score_values)
+    #     sorted_groups = sorted(groups.items(), key=lambda item: item[0], reverse=True)
+    #     return dict(sorted_groups)
 
-    @staticmethod
-    def tournament_management_round_one(players_in_groups):
-        print("tournament_management_round_one")
-        all_matches = []
-        for number_of_players_in_group in range(len(players_in_groups[0])-4):
-            # print("Nb de joueurs du groupe : ", len(players_in_groups[0])-4)
-            # print("joueurs du groupe : ", players_in_groups[0][number_of_players_in_group])
-            all_matches.append([players_in_groups[0][number_of_players_in_group],
-                                players_in_groups[0][number_of_players_in_group+4]])
+    # TODO Move me in tournament
+    # @staticmethod
+    # def order_players_by_score(players_with_score) -> List[List]:
+    #     sorted_players_by_score = sorted(players_with_score.items(), key=lambda score: score[1], reverse=True)
+    #     # PLAYERS ORDER BY score DESC, rank ASC
+    #     return sorted_players_by_score
+    #
+    # @staticmethod
+    # def order_players_by_ranking(players_ordered_by_score: List[List]) -> List[List]:
+    # SOIT from itertools import groupby pour grouper par score (demande des manipulation)
+    # SOIT sorted(players, key=lambda p: (p.score, p.rank) <- à remplir comme il faut, reverse=True)
+    #     sorted_players_by_ranking = sorted(players_ordered_by_score, key=lambda r: r[0].ranking, reverse=True)
+    #     return sorted_players_by_ranking
 
-        return all_matches
-
-    @staticmethod
-    def make_list_of_matches(players_in_group):
-        matches = []
-        matches_by_group = []
-        for player_in_group in players_in_group:
-            print("player_in_group : ", player_in_group)
-            matches.append(player_in_group)
-            if len(matches) == 2:
-                matches_by_group.append(matches)
-                matches = []
-        return matches_by_group
-
-    def matches_by_round_management(self, players_in_groups):
-        all_matches = []
-        next_group_of_players = 1
-        for players_in_group in players_in_groups:
-            print("Nb de joueurs du groupe : ", len(players_in_group))
-            if len(players_in_group) % 2 == 0:
-                '''Nb pair de joueurs -> opposer les joueurs par ordre descendant'''
-                # print("Nb PAIR de joueurs")
-                matches_by_group = self.make_list_of_matches(players_in_group)
-                all_matches.extend(matches_by_group)
-            else:
-                '''Nb impair de joueurs -> placer le dernier joueur dans le groupe suivant'''
-                # print("Nb IMPAIR de joueurs")
-                last_player = players_in_group.pop()
-                # print("last_player", last_player)
-                players_in_groups[next_group_of_players].insert(0, last_player)
-                # print("players_in_group[next_group_of_players] : ", players_in_groups[next_group_of_players])
-                matches_by_group = self.make_list_of_matches(players_in_group)
-                all_matches.extend(matches_by_group)
-
-            next_group_of_players += 1
-
-        return all_matches
-
-    @staticmethod
-    def groups_formed_by_frequency_of_scores(players_with_score) -> Dict:
-        score_values = []
-        for player, score in players_with_score.items():
-            score_values.append(score)
-
-        groups = Counter(score_values)
-        sorted_groups = sorted(groups.items(), key=lambda item: item[0], reverse=True)
-        return dict(sorted_groups)
-
-    @staticmethod
-    def order_players_by_score(players_with_score) -> List[List]:
-        sorted_players_by_score = sorted(players_with_score.items(), key=lambda score: score[1], reverse=True)
-        return sorted_players_by_score
-
-    @staticmethod
-    def order_players_by_ranking(players_ordered_by_score: List[List]) -> List[List]:
-        sorted_players_by_ranking = sorted(players_ordered_by_score, key=lambda r: r[0].ranking, reverse=True)
-        return sorted_players_by_ranking
-
-    def classify_players_in_groups(self) -> List[List[List]]:
-        index_of_player = 0
-        list_of_groups = []
-        # self.current_tournament.scores
-
-        groups_generated_by_counting_score = self.groups_formed_by_frequency_of_scores(self.current_tournament.scores)
-        players_ordered_by_score = self.order_players_by_score(self.current_tournament.scores)
-
-        '''Formation de groupes + tri par classement'''
-        for score, number_of_players in groups_generated_by_counting_score.items():
-            group = []
-            for number_of_player in range(number_of_players):
-                group.append(players_ordered_by_score[index_of_player+number_of_player])
-
-            group_of_players_ordered_by_ranking = self.order_players_by_ranking(group)
-            print("players_group_ordered_by_ranking : ", group_of_players_ordered_by_ranking)
-
-            index_of_player += number_of_players
-            list_of_groups.append(group_of_players_ordered_by_ranking)
-
-        return list_of_groups
 
     def evaluate_if_matches_repeated(self, number_of_exchange_done):
         matches_already_played = []
@@ -248,14 +198,14 @@ class Controller:
         print("index_of_current_match : ", index_of_current_match)
         if self.number_of_exchange_done % 2 == 1:
             print("self.all_matches[index_of_current_match][1] : ", self.all_matches[index_of_current_match][1])
-            print("self.all_matches[index_of_current_match+1][0] : ", self.all_matches[index_of_current_match+1][0])
-            self.all_matches[index_of_current_match][1], self.all_matches[index_of_current_match+1][0] = \
-                self.all_matches[index_of_current_match+1][0], self.all_matches[index_of_current_match][1]
+            print("self.all_matches[index_of_current_match+1][0] : ", self.all_matches[index_of_current_match + 1][0])
+            self.all_matches[index_of_current_match][1], self.all_matches[index_of_current_match + 1][0] = \
+                self.all_matches[index_of_current_match + 1][0], self.all_matches[index_of_current_match][1]
         elif self.number_of_exchange_done % 2 == 0:
             print("self.all_matches[index_of_current_match][1] : ", self.all_matches[index_of_current_match][1])
-            print("self.all_matches[index_of_current_match+1][1] : ", self.all_matches[index_of_current_match+1][1])
-            self.all_matches[index_of_current_match][1], self.all_matches[index_of_current_match+1][1] = \
-                self.all_matches[index_of_current_match+1][1], self.all_matches[index_of_current_match][1]
+            print("self.all_matches[index_of_current_match+1][1] : ", self.all_matches[index_of_current_match + 1][1])
+            self.all_matches[index_of_current_match][1], self.all_matches[index_of_current_match + 1][1] = \
+                self.all_matches[index_of_current_match + 1][1], self.all_matches[index_of_current_match][1]
         # if self.number_of_exchange_done % 4 == 3:
         #     print("self.all_matches[index_of_current_match][1] : ", self.all_matches[index_of_current_match][1])
         #     print("self.all_matches[index_of_current_match+2][0] : ", self.all_matches[index_of_current_match+2][0])
@@ -321,7 +271,8 @@ class Controller:
 
         if self.evaluation_of_matches:
             self.number_of_exchange_done = 0
-            match_already_played, number_of_exchange_done = self.evaluate_if_matches_repeated(self.number_of_exchange_done)
+            match_already_played, number_of_exchange_done = self.evaluate_if_matches_repeated(
+                self.number_of_exchange_done)
             # print("match_already_played : ", match_already_played)
 
             number_of_exchange_done = 0
@@ -361,7 +312,7 @@ class Controller:
                 print("DEJA ENTRÉ self.current_tournament.rounds[-1].end : ", self.current_tournament.rounds[-1].end)
             else:
                 # self.current_tournament.rounds.append(self.view.enter_round_info(end_date=None))
-                round_name = f"ROUND {len(self.current_tournament.rounds)+1}"
+                round_name = f"ROUND {len(self.current_tournament.rounds) + 1}"
                 # print(round_name)
                 self.current_tournament.rounds.append(self.view.enter_new_round(round_name))
 
@@ -386,11 +337,13 @@ class Controller:
         self.current_tournament = []
         self.current_tournament = self.tournaments.get(tournament_id_selected)
         # print("current_tournament : ", self.current_tournament)
-        round_in_current_tournament = self.tournaments.get(tournament_id_selected).rounds
+        rounds_in_current_tournament: List[Round] = self.tournaments.get(tournament_id_selected).rounds
         # print("round_in_current_tournament : ", round_in_current_tournament)
-        end_value_of_current_round = round_in_current_tournament[-1].__getattribute__('end')
+        current_round: Optional[Round] = rounds_in_current_tournament[-1] if len(
+            rounds_in_current_tournament) > 0 else None
 
-        if end_value_of_current_round is None:
+        if current_round is None:
+            # Rounds not generated yet
             message = f"\n** {self.current_tournament.name} **"
             self.view.display_a_simple_message(message)
             self.start_tournament(self.players_in_groups)
@@ -448,8 +401,8 @@ class Controller:
         print("list_of_matches : ", list_of_matches)
 
     def enter_match_result_menu(self, match_selection):
-        player_one = self.all_matches[match_selection-1][0]
-        player_two = self.all_matches[match_selection-1][1]
+        player_one = self.all_matches[match_selection - 1][0]
+        player_two = self.all_matches[match_selection - 1][1]
         choices = {
             1: player_one[0].first_name + " " + player_one[0].last_name,
             2: player_two[0].first_name + " " + player_two[0].last_name,
@@ -518,7 +471,7 @@ class Controller:
 
     def display_start_tournament_menu(self):
         name, choices = self.generate_tournaments_list(self.tournaments)
-        go_to_last_menu_option = len(self.tournaments)+1
+        go_to_last_menu_option = len(self.tournaments) + 1
         choices.update({go_to_last_menu_option: "Revenir au menu précédent"})
 
         run = True
@@ -547,7 +500,7 @@ class Controller:
             if user_choice == 1:
                 self.display_tournament_list()
             elif user_choice == 2:
-                self.make_new_tournament()
+                self.create_new_tournament()
             elif user_choice == 3:
                 self.update_tournament_info()
             elif user_choice == 4:
@@ -559,6 +512,7 @@ class Controller:
     #     return data
 
     '''Gestion de joueurs'''
+
     def update_player_info(self):
         choices = self.display_players_list()
         player_id_selected = self.view.input_for_menu(choices)
@@ -647,6 +601,7 @@ class Controller:
                 run = False
 
     '''Gestion de rapports'''
+
     @staticmethod
     def generate_players_report_list(players):
         choices = {}
@@ -670,24 +625,18 @@ class Controller:
         return name, choices
 
     @staticmethod
-    def order_players_by_name_for_report(players: Dict):
-        players_ordered_by_name = sorted(players.items(), key=lambda n: n[1].last_name)
-        return players_ordered_by_name
+    def players_sorted_alphabetically(players: Dict):
+        return sorted(players.items(), key=lambda n: n[1].last_name)
 
     def display_players_report_by_name(self, players):
-        players_ordered_by_name = self.order_players_by_name_for_report(players)
-        name, choices = self.generate_players_report_list(players_ordered_by_name)
+        sorted_players = self.players_sorted_alphabetically(players)
+        name, choices = self.generate_players_report_list(sorted_players)
         name = name + "par nom "
         self.view.display_menu(name, choices)
 
-    @staticmethod
-    def order_players_by_ranking_for_report(players: Dict):
-        players_ordered_by_ranking = sorted(players.items(), key=lambda r: r[1].ranking, reverse=True)
-        return players_ordered_by_ranking
-
     def display_players_report_by_ranking(self, players):
-        players_ordered_by_ranking = self.order_players_by_ranking_for_report(players)
-        name, choices = self.generate_players_report_list(players_ordered_by_ranking)
+        sorted_players = sorted(players.items(), key=lambda r: r[1].ranking, reverse=True)
+        name, choices = self.generate_players_report_list(sorted_players)
         name = name + "par classement "
         self.view.display_menu(name, choices)
 
@@ -873,6 +822,7 @@ class Controller:
                 run = False
 
     '''Gestion de la base de données'''
+
     def display_data_management_menu(self):
         choices = {
             1: "Sauvegarder les données",
@@ -892,6 +842,7 @@ class Controller:
                 run = False
 
     '''Menu principal'''
+
     def display_main_menu(self):
         choices = {
             1: "Gestion de tournois",

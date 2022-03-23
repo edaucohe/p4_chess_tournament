@@ -92,10 +92,28 @@ class Tournament:
     description: str
     players: Dict[int, Player]  # {1: Player1}
     scores: Dict[Player, float]  # {Player1: 3.5}
-    start: date = field(default_factory=date.today)
+    start: Optional[date] = None
     round_count: int = DEFAULT_TURN_COUNT
 
     # rounds = [round1, round2, ...]
     # current round = rounds[-1]
     # max(len(rounds)) = turn_count
     rounds: List[Round] = field(default_factory=lambda: [])
+
+    def current_round(self):
+        return self.rounds[-1]
+
+    def init(self):
+        self.generate_next_round()
+        self.start = date.today()
+
+    def generate_next_round(self):
+        # TODO
+        if self.rounds == []:
+            # generate first round
+            next_round = Round()
+            pairs = generate_pairs()
+        else:
+            # generate next round
+            next_round = Round()
+        self.rounds.append(next_round)
