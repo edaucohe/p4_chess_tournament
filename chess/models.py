@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 
 DEFAULT_PLAYERS_NUMBER = 8
 MAX_TURNS_COUNT = 4
-DEFAULT_TURN_COUNT = 1
+DEFAULT_TURN_COUNT = 4
 TEST_TURN_COUNT = 2
 SCORE_INIT = 0
 MENU_OPTION = ""
@@ -104,16 +104,58 @@ class Tournament:
         return self.rounds[-1]
 
     def init(self):
+        self.generate_scores()
         self.generate_next_round()
         self.start = date.today()
 
+    def generate_scores(self):
+        for player in self.players.values():
+            self.scores.update({player: 0})
+
     def generate_next_round(self):
         # TODO
-        if self.rounds == []:
+        players_sorted = self.sort_players()
+        matches = self.generate_pairs(players_sorted)
+        if not self.rounds:
             # generate first round
-            next_round = Round()
-            pairs = generate_pairs()
-        else:
+            next_round = Round(matches=matches, name="Round 1")
+            self.rounds.append(next_round)
+        # else:
             # generate next round
-            next_round = Round()
-        self.rounds.append(next_round)
+            # next_round = Round()
+
+        # self.rounds.append(next_round)
+
+    def sort_players(self):
+        players_sorted = sorted(self.scores.items(), key=lambda scores: (scores[1], scores[0].ranking), reverse=True)
+        return players_sorted
+
+    @staticmethod
+    def generate_pairs(players_sorted):
+        matches = []
+        for number_of_match in range(len(players_sorted)-4):
+            matches.append((list(players_sorted[number_of_match]), list(players_sorted[number_of_match+4])))
+        return matches
+
+    def enter_match_result(self, match_selected, result_selected):
+        for match in self.rounds[-1].matches:
+            if match == match_selected:
+                if result_selected == 1:
+                    self.scores[match[0][0]] += 1
+                    match[0][1] = MatchResult.WIN
+                    match[1][1] = MatchResult.LOSS
+                if result_selected == 2:
+                    self.scores[match[1][0]] += 1
+                    match[0][1] = MatchResult.LOSS
+                    match[1][1] = MatchResult.WIN
+                if result_selected == 3:
+                    self.scores[match[0][0]] += 0.5
+                    self.scores[match[1][0]] += 0.5
+                    match[0][1] = MatchResult.DRAW
+                    match[1][1] = MatchResult.DRAW
+
+        return match_selected
+
+        # if result_selected == 1:
+        #     match[0]
+        print("enter_match_result")

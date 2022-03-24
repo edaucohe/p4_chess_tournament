@@ -2,7 +2,6 @@ from collections import Counter
 from datetime import datetime
 from typing import List, Dict, Optional
 
-import service
 from chess.views import TerminalView
 from chess.models import Player, Tournament, DEFAULT_PLAYERS_NUMBER, Round, MatchResult
 
@@ -63,25 +62,53 @@ class Controller:
         print("self.tournaments : ", self.tournaments)
 
     def update_tournament_info(self):
+        name = ""
+        place = ""
+        time_control = ""
+        description = ""
+
         choices = self.display_tournament_list()
         tournament_id = self.view.input_for_menu(choices)
 
-        tournament = self.tournaments[tournament_id]
-        updated_tournament = self.view.enter_tournament_update_info(tournament)
+        number_of_data = 4
+        for data in range(number_of_data):
+            if data == 0:
+                name = self.view.enter_tournament_name()
+                if name == "":
+                    name = self.tournaments[tournament_id].name
+            elif data == 1:
+                place = self.view.enter_tournament_place()
+                if place == "":
+                    place = self.tournaments[tournament_id].place
+            elif data == 2:
+                time_control = self.view.enter_tournament_time_control()
+                if time_control is None:
+                    time_control = self.tournaments[tournament_id].time_control
+            elif data == 3:
+                description = self.view.enter_tournament_description()
+                if description == "":
+                    description = self.tournaments[tournament_id].description
+
+        round_count = self.tournaments[tournament_id].round_count
+        players = self.tournaments[tournament_id].players
+        scores = self.tournaments[tournament_id].scores
+
+        updated_tournament = self.view.update_tournament_info(name, place, time_control, description, round_count, players, scores)
         self.tournaments[tournament_id] = updated_tournament
+        print("updated_tournament : ", updated_tournament)
 
     # TODO move me in the tournament model
-    # @staticmethod
-    # def tournament_management_round_one(players_in_groups):
-    #     print("tournament_management_round_one")
-    #     all_matches = []
-    #     for number_of_players_in_group in range(len(players_in_groups[0]) - 4):
-    #         # print("Nb de joueurs du groupe : ", len(players_in_groups[0])-4)
-    #         # print("joueurs du groupe : ", players_in_groups[0][number_of_players_in_group])
-    #         all_matches.append([players_in_groups[0][number_of_players_in_group],
-    #                             players_in_groups[0][number_of_players_in_group + 4]])
-    #
-    #     return all_matches
+    @staticmethod
+    def tournament_management_round_one(players_in_groups):
+        print("tournament_management_round_one")
+        all_matches = []
+        for number_of_players_in_group in range(len(players_in_groups[0]) - 4):
+            # print("Nb de joueurs du groupe : ", len(players_in_groups[0])-4)
+            # print("joueurs du groupe : ", players_in_groups[0][number_of_players_in_group])
+            all_matches.append([players_in_groups[0][number_of_players_in_group],
+                                players_in_groups[0][number_of_players_in_group + 4]])
+
+        return all_matches
 
     # TODO move me in the tournament model
     # @staticmethod
@@ -145,7 +172,7 @@ class Controller:
     #     sorted_players_by_score = sorted(players_with_score.items(), key=lambda score: score[1], reverse=True)
     #     # PLAYERS ORDER BY score DESC, rank ASC
     #     return sorted_players_by_score
-    #
+    # #
     # @staticmethod
     # def order_players_by_ranking(players_ordered_by_score: List[List]) -> List[List]:
     # SOIT from itertools import groupby pour grouper par score (demande des manipulation)
@@ -217,36 +244,34 @@ class Controller:
         #     self.all_matches[index_of_current_match][1], self.all_matches[index_of_current_match+2][1] = \
         #         self.all_matches[index_of_current_match+2][1], self.all_matches[index_of_current_match][1]
 
-    def start_tournament(self, players_in_groups):
+    def start_tournament(self):
         self.all_matches = []
-        players_with_score = []
-        n = 0
-        score = 0
+        # players_with_score = []
+        # n = 0
+        # score = 0
         print("self.current_tournament.players : ", self.current_tournament.players)
         print("self.current_tournament.scores : ", self.current_tournament.scores)
 
-        # TODO Code pour générer des scores pour les joueurs
-        for player_id, player in self.current_tournament.players.items():
-            players_with_score.append([player, score])
-            if n % 3 == 0:
-                score = 1
-            elif n % 3 == 1:
-                score = 0
-            else:
-                score = 0.5
-            # if n % 2 == 0:
-            #     score = 1
-            # else:
-            #     score = 0
-            n += 1
-        # TODO jusqu'ici
+        self.display_matches_list_menu()
 
-        if not self.number_of_matches_played:
-            print("la liste est vide : ", self.number_of_matches_played)
-            players_in_groups = self.classify_players_in_groups()
-            # current_round =
-        elif 1 <= len(self.number_of_matches_played) <= 3:
-            print("la liste a les elements : ", self.number_of_matches_played)
+
+
+        # # TODO Code pour générer des scores pour les joueurs
+        # for player_id, player in self.current_tournament.players.items():
+        #     players_with_score.append([player, score])
+        #     if n % 3 == 0:
+        #         score = 1
+        #     elif n % 3 == 1:
+        #         score = 0
+        #     else:
+        #         score = 0.5
+        #     # if n % 2 == 0:
+        #     #     score = 1
+        #     # else:
+        #     #     score = 0
+        #     n += 1
+        # # TODO jusqu'ici
+
             # self.players_in_groups = players_in_groups
         # elif not self.number_of_matches_played:
         #     print("la liste est vide : ", self.number_of_matches_played)
@@ -256,7 +281,6 @@ class Controller:
         # players_in_groups = self.classify_players_in_groups()
         # print("players_in_groups : ", players_in_groups)
 
-        # print(f"-- {self.current_tournament.rounds[-1].__getattribute__('name')} --")
         message = f"-- {self.current_tournament.rounds[-1].__getattribute__('name')} --"
         self.view.display_a_simple_message(message)
 
@@ -335,19 +359,23 @@ class Controller:
 
     def evaluate_current_tournament_status(self, tournament_id_selected):
         self.current_tournament = []
-        self.current_tournament = self.tournaments.get(tournament_id_selected)
-        # print("current_tournament : ", self.current_tournament)
-        rounds_in_current_tournament: List[Round] = self.tournaments.get(tournament_id_selected).rounds
-        # print("round_in_current_tournament : ", round_in_current_tournament)
-        current_round: Optional[Round] = rounds_in_current_tournament[-1] if len(
-            rounds_in_current_tournament) > 0 else None
+        self.current_tournament = self.tournaments[tournament_id_selected]
+        print("self.current_tournament : ", self.current_tournament)
+        rounds_in_current_tournament: List[Round] = self.tournaments[tournament_id_selected].rounds
+        current_round: Optional[Round] = \
+            rounds_in_current_tournament[-1] if len(rounds_in_current_tournament) > 0 else None
 
         if current_round is None:
-            # Rounds not generated yet
+            # There is no round in current tournament
+            message = "round pas encore généré"
+            self.view.display_a_simple_message(message)
+        elif current_round is not None and rounds_in_current_tournament[-1].end is None:
+            # current round in current tournament
             message = f"\n** {self.current_tournament.name} **"
             self.view.display_a_simple_message(message)
-            self.start_tournament(self.players_in_groups)
-        else:
+            self.start_tournament()
+        elif current_round is not None and rounds_in_current_tournament[-1].end is not None:
+            # current tournament is ended
             message = "\n** Tournoi déjà fini =( **"
             self.view.display_a_simple_message(message)
 
@@ -401,26 +429,25 @@ class Controller:
         print("list_of_matches : ", list_of_matches)
 
     def enter_match_result_menu(self, match_selection):
-        player_one = self.all_matches[match_selection - 1][0]
-        player_two = self.all_matches[match_selection - 1][1]
+        match = self.current_tournament.rounds[-1].matches[match_selection-1]
+        player_one = match[0]
+        player_two = match[1]
         choices = {
             1: player_one[0].first_name + " " + player_one[0].last_name,
             2: player_two[0].first_name + " " + player_two[0].last_name,
             3: "Match null",
             4: "Revenir au menu précédent"
         }
-
         name = " Qui a gagné le match ? "
-        run = True
-        while run:
-            self.view.display_menu(name, choices)
-            user_choice = self.view.input_for_menu(choices)
-            if user_choice == 4:
-                run = False
-            else:
-                self.enter_match_result(player_one, player_two, user_choice, match_selection)
-                # print("self.current_tournament : ", self.current_tournament)
-                run = False
+
+        self.view.display_menu(name, choices)
+        user_choice = self.view.input_for_menu(choices)
+        if user_choice == 4:
+            pass
+        else:
+            # self.enter_match_result(player_one, player_two, user_choice, match_selection)
+            self.current_tournament.enter_match_result(match, user_choice)
+            print("self.current_tournament : ", self.current_tournament)
 
     @staticmethod
     def generate_tournaments_list(tournaments):
@@ -435,24 +462,35 @@ class Controller:
         self.view.display_menu(name, choices)
         return choices
 
-    @staticmethod
-    def generate_matches_list(all_matches_list):
+    def generate_matches_list(self):
         choices = {}
-        for match_number in range(len(all_matches_list)):
+        matches = self.current_tournament.rounds[-1].matches
+        print("matches : ", matches)
+        for match in matches:
             choices.update({
-                match_number + 1:
-                    all_matches_list[match_number][0][0].first_name + " " +
-                    all_matches_list[match_number][0][0].last_name +
+                matches.index(match)+1:
+                    match[0][0].first_name + " " +
+                    match[0][0].last_name +
                     " vs " +
-                    all_matches_list[match_number][1][0].first_name + " " +
-                    all_matches_list[match_number][1][0].last_name})
+                    match[1][0].first_name + " " +
+                    match[1][0].last_name
+            })
+
+        # for match_number in range(len(matches)):
+        #     choices.update({
+        #         match_number + 1:
+        #             self.current_tournament.rounds[match_number].matches[0][0].first_name + " " +
+        #             self.current_tournament.rounds[match_number][0][0].last_name +
+        #             " vs " +
+        #             self.current_tournament.rounds[match_number][1][0].first_name + " " +
+        #             self.current_tournament.rounds[match_number][1][0].last_name})
+
         name = " Liste de matches "
         return name, choices
 
     def display_matches_list_menu(self):
-        self.evaluation_of_matches = False
-        name, choices = self.generate_matches_list(self.all_matches)
-        go_to_last_menu_option = len(self.all_matches) + 1
+        name, choices = self.generate_matches_list()
+        go_to_last_menu_option = len(self.current_tournament.rounds[-1].matches) + 1
         choices.update({go_to_last_menu_option: "Revenir au menu précédent"})
 
         run = True
@@ -461,10 +499,10 @@ class Controller:
             user_choice = self.view.input_for_menu(choices)
             if user_choice == go_to_last_menu_option:
                 run = False
-            elif user_choice != go_to_last_menu_option and user_choice in self.number_of_matches_played:
-                message = "Match deja choisit ! Choisissez un autre match, svp"
-                self.view.display_a_simple_message(message)
-            elif user_choice != go_to_last_menu_option and user_choice not in self.number_of_matches_played:
+            # elif user_choice != go_to_last_menu_option and user_choice in self.number_of_matches_played:
+            #     message = "Match deja choisit ! Choisissez un autre match, svp"
+            #     self.view.display_a_simple_message(message)
+            elif user_choice != go_to_last_menu_option:  # and user_choice not in self.number_of_matches_played:
                 message = f"-- Match {user_choice} choisi --"
                 self.view.display_a_simple_message(message)
                 self.enter_match_result_menu(user_choice)
@@ -514,62 +552,53 @@ class Controller:
     '''Gestion de joueurs'''
 
     def update_player_info(self):
-        choices = self.display_players_list()
-        player_id_selected = self.view.input_for_menu(choices)
         first_name = ""
         last_name = ""
         date_of_birth = None
         sex = None
         ranking = None
 
+        choices = self.display_players_list()
+        player_id_selected = self.view.input_for_menu(choices)
+
         number_of_data = 5
         for data in range(number_of_data):
             if data == 0:
                 first_name = self.view.enter_first_name_data()
                 if first_name == "":
-                    first_name = self.players.get(player_id_selected).first_name
-                else:
-                    first_name = first_name
+                    first_name = self.players[player_id_selected].first_name
             elif data == 1:
                 last_name = self.view.enter_last_name_data()
                 if last_name == "":
-                    last_name = self.players.get(player_id_selected).last_name
-                else:
-                    last_name = last_name
+                    last_name = self.players[player_id_selected].last_name
             elif data == 2:
                 date_of_birth = self.view.enter_birth_data()
                 if date_of_birth is None:
-                    date_of_birth = self.players.get(player_id_selected).date_of_birth
-                else:
-                    date_of_birth = date_of_birth
+                    date_of_birth = self.players[player_id_selected].date_of_birth
             elif data == 3:
                 sex = self.view.enter_sex_data()
                 if sex is None:
-                    sex = self.players.get(player_id_selected).sex
-                else:
-                    sex = sex
+                    sex = self.players[player_id_selected].sex
             elif data == 4:
                 ranking = self.view.enter_ranking_data()
                 if ranking is None:
-                    ranking = self.players.get(player_id_selected).ranking
-                else:
-                    ranking = ranking
+                    ranking = self.players[player_id_selected].ranking
 
         player = self.view.update_player_info(first_name, last_name, date_of_birth, sex, ranking)
-        self.players.update({player_id_selected: player})
+        self.players[player_id_selected] = player
 
     def enter_new_player_info(self):
         id_new_player = len(self.players) + 1
         new_player = self.view.enter_player_info()
-        self.players.update({id_new_player: new_player})
+        self.players[id_new_player] = new_player
 
     @staticmethod
     def generate_players_list(players):
         choices = {}
         for player_number in range(len(players)):
             choices.update({
-                player_number + 1:
-                    players.get(player_number + 1).first_name + " " + players.get(player_number + 1).last_name
+                player_number+1:
+                    players[player_number+1].first_name + " " + players[player_number+1].last_name
             })
         name = " Liste de joueurs "
         return name, choices

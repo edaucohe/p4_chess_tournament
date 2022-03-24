@@ -75,11 +75,24 @@ class TerminalView:
             time_control=input_with_constraint('Contrôle du temps (bullet/blitz/quick play) : ',
                                                parse_fn=TimeControlKind),
             description=input('Description : '),
-            round_count=input_with_constraint('Nombre de round : ', parse_fn=parse_positive_int),
             players=players or {},
             scores={}
         )
         return tournament
+
+    @staticmethod
+    def update_tournament_info(name, place, time_control, description, round_count, players, scores):
+        tournament = Tournament(
+            name=name, place=place,
+            time_control=time_control,
+            description=description,
+            round_count=round_count,
+            players=players,
+            scores=scores
+        )
+        return tournament
+
+
 
     @staticmethod
     def enter_tournament_update_info(existing_tournament: Tournament):
@@ -95,6 +108,22 @@ class TerminalView:
             scores={}
         )
         return tournament
+
+    @staticmethod
+    def enter_tournament_name():
+        return input("Nom : ")
+
+    @staticmethod
+    def enter_tournament_place():
+        return input("Place : ")
+
+    @staticmethod
+    def enter_tournament_time_control():
+        return only_one_input_with_constraint('Contrôle du temps (bullet/blitz/quick play) : ', parse_fn=TimeControlKind)
+
+    @staticmethod
+    def enter_tournament_description():
+        return input("Description : ")
 
     @staticmethod
     def enter_player_info():  # -> Player:
@@ -128,24 +157,14 @@ class TerminalView:
     @staticmethod
     def enter_sex_data():
         sex = only_one_input_with_constraint('Genre (h/f) : ', parse_fn=Sex)
-        return sex.value
+        if sex is None:
+            return sex
+        else:
+            return sex.value
 
     @staticmethod
     def enter_ranking_data():
         return only_one_input_with_constraint('Classement : ', parse_fn=parse_positive_int)
-
-    # @staticmethod
-    # def enter_one_player_info(choice):
-    #     if choice == "":
-    #         player = Player(
-    #             first_name=Player.first_name,
-    #             last_name=input('Nom : '),
-    #             date_of_birth=input_with_constraint('Date de naissance (aaaa-mm-dd) : ', parse_fn=date.fromisoformat),
-    #             sex=input_with_constraint('Genre (h/f) : ', parse_fn=Sex).value,
-    #             ranking=input_with_constraint('Classement : ', parse_fn=parse_positive_int)
-    #         )
-    #
-    #     return player
 
     @staticmethod
     def enter_new_round(round_name):
