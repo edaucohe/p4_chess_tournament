@@ -80,34 +80,17 @@ class TerminalView:
         )
         return tournament
 
-    @staticmethod
-    def update_tournament_info(name, place, time_control, description, round_count, players, scores):
-        tournament = Tournament(
-            name=name, place=place,
-            time_control=time_control,
-            description=description,
-            round_count=round_count,
-            players=players,
-            scores=scores
-        )
-        return tournament
-
-
-
-    @staticmethod
-    def enter_tournament_update_info(existing_tournament: Tournament):
-        # TODO
-        tournament = Tournament(
-            name=input('Nom du tournoi : '),
-            place=input('Lieu du tournoi : '),
-            time_control=input_with_constraint('Contrôle du temps (bullet/blitz/quick play) : ',
-                                               parse_fn=TimeControlKind),
-            description=input('Description : '),
-            round_count=input_with_constraint('Nombre de round : ', parse_fn=parse_positive_int),
-            players=players or {},
-            scores={}
-        )
-        return tournament
+    # @staticmethod
+    # def update_tournament_info(name, place, time_control, description, round_count, players, scores):
+    #     tournament = Tournament(
+    #         name=name, place=place,
+    #         time_control=time_control,
+    #         description=description,
+    #         round_count=round_count,
+    #         players=players,
+    #         scores=scores
+    #     )
+    #     return tournament
 
     @staticmethod
     def enter_tournament_name():
@@ -119,7 +102,8 @@ class TerminalView:
 
     @staticmethod
     def enter_tournament_time_control():
-        return only_one_input_with_constraint('Contrôle du temps (bullet/blitz/quick play) : ', parse_fn=TimeControlKind)
+        return only_one_input_with_constraint(
+            'Contrôle du temps (bullet/blitz/quick play) : ', parse_fn=TimeControlKind)
 
     @staticmethod
     def enter_tournament_description():
@@ -136,11 +120,11 @@ class TerminalView:
         )
         return player
 
-    @staticmethod
-    def update_player_info(first_name, last_name, date_of_birth, sex, ranking):  # -> Player:
-        player = Player(
-            first_name=first_name, last_name=last_name, date_of_birth=date_of_birth, sex=sex, ranking=ranking)
-        return player
+    # @staticmethod
+    # def update_player_info(first_name, last_name, date_of_birth, sex, ranking):  # -> Player:
+    #     player = Player(
+    #         first_name=first_name, last_name=last_name, date_of_birth=date_of_birth, sex=sex, ranking=ranking)
+    #     return player
 
     @staticmethod
     def enter_first_name_data():
@@ -179,9 +163,9 @@ class TerminalView:
     def enter_round_match(match, round_name):
         return Round(matches=match, name=round_name)
 
-    @staticmethod
-    def round_finished():
-        return Round.close
+    # @staticmethod
+    # def round_finished():
+    #     return Round.close
 
     # def format_players_json(self, players: List[Player]) -> str:
     #     json_str = "["

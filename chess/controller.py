@@ -1,5 +1,3 @@
-from collections import Counter
-from datetime import datetime
 from typing import List, Dict, Optional
 
 from chess.views import TerminalView
@@ -51,6 +49,7 @@ class Controller:
         new_tournament.players = selected_players
 
         # Run post-init actions
+        new_tournament.generate_scores()
         new_tournament.init()
 
         # Store tournament in our list
@@ -70,45 +69,27 @@ class Controller:
         choices = self.display_tournament_list()
         tournament_id = self.view.input_for_menu(choices)
 
+        tournament_selected = self.tournaments[tournament_id]
         number_of_data = 4
         for data in range(number_of_data):
             if data == 0:
                 name = self.view.enter_tournament_name()
                 if name == "":
-                    name = self.tournaments[tournament_id].name
+                    name = tournament_selected.name
             elif data == 1:
                 place = self.view.enter_tournament_place()
                 if place == "":
-                    place = self.tournaments[tournament_id].place
+                    place = tournament_selected.place
             elif data == 2:
                 time_control = self.view.enter_tournament_time_control()
                 if time_control is None:
-                    time_control = self.tournaments[tournament_id].time_control
+                    time_control = tournament_selected.time_control
             elif data == 3:
                 description = self.view.enter_tournament_description()
                 if description == "":
-                    description = self.tournaments[tournament_id].description
+                    description = tournament_selected.description
 
-        round_count = self.tournaments[tournament_id].round_count
-        players = self.tournaments[tournament_id].players
-        scores = self.tournaments[tournament_id].scores
-
-        updated_tournament = self.view.update_tournament_info(name, place, time_control, description, round_count, players, scores)
-        self.tournaments[tournament_id] = updated_tournament
-        print("updated_tournament : ", updated_tournament)
-
-    # TODO move me in the tournament model
-    @staticmethod
-    def tournament_management_round_one(players_in_groups):
-        print("tournament_management_round_one")
-        all_matches = []
-        for number_of_players_in_group in range(len(players_in_groups[0]) - 4):
-            # print("Nb de joueurs du groupe : ", len(players_in_groups[0])-4)
-            # print("joueurs du groupe : ", players_in_groups[0][number_of_players_in_group])
-            all_matches.append([players_in_groups[0][number_of_players_in_group],
-                                players_in_groups[0][number_of_players_in_group + 4]])
-
-        return all_matches
+        tournament_selected.update_tournament(name, place, time_control, description)
 
     # TODO move me in the tournament model
     # @staticmethod
@@ -123,130 +104,70 @@ class Controller:
     #             matches = []
     #     return matches_by_group
 
-    # TODO move me
-    # def matches_by_round_management(self, players_in_groups):
-    #     """
+    # def evaluate_if_matches_repeated(self, number_of_exchange_done):
+    #     matches_already_played = []
+    #     # print("matches_already_played - quand on initialise : ", matches_already_played)
+    #     # print("len(matches_already_played) - quand on initialise : ", len(matches_already_played))
+    #     match_already_played = False
     #
-    #     :param players_in_groups:
-    #     :type players_in_groups:
-    #     :return:
-    #     :rtype:
-    #     """
-    #     all_matches = []
-    #     next_group_of_players = 1
-    #     for players_in_group in players_in_groups:
-    #         print("Nb de joueurs du groupe : ", len(players_in_group))
-    #         if len(players_in_group) % 2 == 0:
-    #             # this is a comment
-    #             # Nb pair de joueurs -> opposer les joueurs par ordre descendant
-    #             # print("Nb PAIR de joueurs")
-    #             matches_by_group = self.make_list_of_matches(players_in_group)
-    #             all_matches.extend(matches_by_group)
+    #     for match in self.all_matches:
+    #         index_of_current_match = self.all_matches.index(match)
+    #         # print("index_of_current_match : ", index_of_current_match)
+    #         # print("self.all_matches : ", self.all_matches)
+    #         # print("match : ", match)
+    #         p1 = match[0][0]
+    #         p2 = match[1][0]
+    #         match_to_play = (p1, p2)
+    #
+    #         if match_to_play in self.matches_already_played:
+    #             match_already_played = True
+    #             # print("match_to_play (deja joué) : ", match_to_play)
+    #             self.exchange_players(index_of_current_match, number_of_exchange_done)
     #         else:
-    #             '''Nb impair de joueurs -> placer le dernier joueur dans le groupe suivant'''
-    #             # print("Nb IMPAIR de joueurs")
-    #             last_player = players_in_group.pop()
-    #             # print("last_player", last_player)
-    #             players_in_groups[next_group_of_players].insert(0, last_player)
-    #             # print("players_in_group[next_group_of_players] : ", players_in_groups[next_group_of_players])
-    #             matches_by_group = self.make_list_of_matches(players_in_group)
-    #             all_matches.extend(matches_by_group)
+    #             matches_already_played.append((p1, p2))
+    #             matches_already_played.append((p2, p1))
+    #             # print("match_to_play (p1, p2) : ", (p1, p2))
+    #             # print("match_to_play (p2, p1) : ", (p2, p1))
+    #             # print("matches_already_played : ", matches_already_played)
     #
-    #         next_group_of_players += 1
+    #         if self.all_matches.index(match) == 3 and match_already_played is False:
+    #             self.matches_already_played.extend(matches_already_played)
+    #             # print("self.matches_already_played () : ", self.matches_already_played)
+    #             # print("len(self.matches_already_played) () : ", len(self.matches_already_played))
+    #             self.number_of_exchange_done = 0
+    #             return match_already_played, self.number_of_exchange_done
     #
-    #     return all_matches
-
-    # @staticmethod
-    # def groups_formed_by_frequency_of_scores(players_with_score) -> Dict:
-    #     score_values = []
-    #     for player, score in players_with_score.items():
-    #         score_values.append(score)
+    #     return match_already_played, self.number_of_exchange_done
     #
-    #     groups = Counter(score_values)
-    #     sorted_groups = sorted(groups.items(), key=lambda item: item[0], reverse=True)
-    #     return dict(sorted_groups)
-
-    # TODO Move me in tournament
-    # @staticmethod
-    # def order_players_by_score(players_with_score) -> List[List]:
-    #     sorted_players_by_score = sorted(players_with_score.items(), key=lambda score: score[1], reverse=True)
-    #     # PLAYERS ORDER BY score DESC, rank ASC
-    #     return sorted_players_by_score
-    # #
-    # @staticmethod
-    # def order_players_by_ranking(players_ordered_by_score: List[List]) -> List[List]:
-    # SOIT from itertools import groupby pour grouper par score (demande des manipulation)
-    # SOIT sorted(players, key=lambda p: (p.score, p.rank) <- à remplir comme il faut, reverse=True)
-    #     sorted_players_by_ranking = sorted(players_ordered_by_score, key=lambda r: r[0].ranking, reverse=True)
-    #     return sorted_players_by_ranking
-
-
-    def evaluate_if_matches_repeated(self, number_of_exchange_done):
-        matches_already_played = []
-        # print("matches_already_played - quand on initialise : ", matches_already_played)
-        # print("len(matches_already_played) - quand on initialise : ", len(matches_already_played))
-        match_already_played = False
-
-        for match in self.all_matches:
-            index_of_current_match = self.all_matches.index(match)
-            # print("index_of_current_match : ", index_of_current_match)
-            # print("self.all_matches : ", self.all_matches)
-            # print("match : ", match)
-            p1 = match[0][0]
-            p2 = match[1][0]
-            match_to_play = (p1, p2)
-
-            if match_to_play in self.matches_already_played:
-                match_already_played = True
-                # print("match_to_play (deja joué) : ", match_to_play)
-                self.exchange_players(index_of_current_match, number_of_exchange_done)
-            else:
-                matches_already_played.append((p1, p2))
-                matches_already_played.append((p2, p1))
-                # print("match_to_play (p1, p2) : ", (p1, p2))
-                # print("match_to_play (p2, p1) : ", (p2, p1))
-                # print("matches_already_played : ", matches_already_played)
-
-            if self.all_matches.index(match) == 3 and match_already_played is False:
-                self.matches_already_played.extend(matches_already_played)
-                # print("self.matches_already_played () : ", self.matches_already_played)
-                # print("len(self.matches_already_played) () : ", len(self.matches_already_played))
-                self.number_of_exchange_done = 0
-                return match_already_played, self.number_of_exchange_done
-
-        return match_already_played, self.number_of_exchange_done
-
-        # print("self.matches_already_played : ", self.matches_already_played)
-        # print("matches_already_played : ", matches_already_played)
-
-    def exchange_players(self, index_of_current_match, number_of_exchange_done):
-        self.number_of_exchange_done += 1
-        print("self.number_of_exchange_done : ", self.number_of_exchange_done)
-        print("index_of_current_match : ", index_of_current_match)
-        if self.number_of_exchange_done % 2 == 1:
-            print("self.all_matches[index_of_current_match][1] : ", self.all_matches[index_of_current_match][1])
-            print("self.all_matches[index_of_current_match+1][0] : ", self.all_matches[index_of_current_match + 1][0])
-            self.all_matches[index_of_current_match][1], self.all_matches[index_of_current_match + 1][0] = \
-                self.all_matches[index_of_current_match + 1][0], self.all_matches[index_of_current_match][1]
-        elif self.number_of_exchange_done % 2 == 0:
-            print("self.all_matches[index_of_current_match][1] : ", self.all_matches[index_of_current_match][1])
-            print("self.all_matches[index_of_current_match+1][1] : ", self.all_matches[index_of_current_match + 1][1])
-            self.all_matches[index_of_current_match][1], self.all_matches[index_of_current_match + 1][1] = \
-                self.all_matches[index_of_current_match + 1][1], self.all_matches[index_of_current_match][1]
-        # if self.number_of_exchange_done % 4 == 3:
-        #     print("self.all_matches[index_of_current_match][1] : ", self.all_matches[index_of_current_match][1])
-        #     print("self.all_matches[index_of_current_match+2][0] : ", self.all_matches[index_of_current_match+2][0])
-        #     self.all_matches[index_of_current_match][1], self.all_matches[index_of_current_match+2][0] = \
-        #         self.all_matches[index_of_current_match+2][0], self.all_matches[index_of_current_match][1]
-        # elif self.number_of_exchange_done % 4 == 0:
-        #     print("self.all_matches[index_of_current_match][1] : ", self.all_matches[index_of_current_match][1])
-        #     print("self.all_matches[index_of_current_match+2][1] : ", self.all_matches[index_of_current_match+2][1])
-        #     self.all_matches[index_of_current_match][1], self.all_matches[index_of_current_match+2][1] = \
-        #         self.all_matches[index_of_current_match+2][1], self.all_matches[index_of_current_match][1]
+    #     # print("self.matches_already_played : ", self.matches_already_played)
+    #     # print("matches_already_played : ", matches_already_played)
+    #
+    # def exchange_players(self, index_of_current_match, number_of_exchange_done):
+    #     self.number_of_exchange_done += 1
+    #     print("self.number_of_exchange_done : ", self.number_of_exchange_done)
+    #     print("index_of_current_match : ", index_of_current_match)
+    #     if self.number_of_exchange_done % 2 == 1:
+    #         print("self.all_matches[index_of_current_match][1] : ", self.all_matches[index_of_current_match][1])
+    #         print("self.all_matches[index_of_current_match+1][0] : ", self.all_matches[index_of_current_match + 1][0])
+    #         self.all_matches[index_of_current_match][1], self.all_matches[index_of_current_match + 1][0] = \
+    #             self.all_matches[index_of_current_match + 1][0], self.all_matches[index_of_current_match][1]
+    #     elif self.number_of_exchange_done % 2 == 0:
+    #         print("self.all_matches[index_of_current_match][1] : ", self.all_matches[index_of_current_match][1])
+    #         print("self.all_matches[index_of_current_match+1][1] : ", self.all_matches[index_of_current_match + 1][1])
+    #         self.all_matches[index_of_current_match][1], self.all_matches[index_of_current_match + 1][1] = \
+    #             self.all_matches[index_of_current_match + 1][1], self.all_matches[index_of_current_match][1]
+    #     # if self.number_of_exchange_done % 4 == 3:
+    #     #     print("self.all_matches[index_of_current_match][1] : ", self.all_matches[index_of_current_match][1])
+    #     #     print("self.all_matches[index_of_current_match+2][0] : ", self.all_matches[index_of_current_match+2][0])
+    #     #     self.all_matches[index_of_current_match][1], self.all_matches[index_of_current_match+2][0] = \
+    #     #         self.all_matches[index_of_current_match+2][0], self.all_matches[index_of_current_match][1]
+    #     # elif self.number_of_exchange_done % 4 == 0:
+    #     #     print("self.all_matches[index_of_current_match][1] : ", self.all_matches[index_of_current_match][1])
+    #     #     print("self.all_matches[index_of_current_match+2][1] : ", self.all_matches[index_of_current_match+2][1])
+    #     #     self.all_matches[index_of_current_match][1], self.all_matches[index_of_current_match+2][1] = \
+    #     #         self.all_matches[index_of_current_match+2][1], self.all_matches[index_of_current_match][1]
 
     def start_tournament(self):
-        self.all_matches = []
-        # players_with_score = []
         # n = 0
         # score = 0
         print("self.current_tournament.players : ", self.current_tournament.players)
@@ -254,7 +175,22 @@ class Controller:
 
         self.display_matches_list_menu()
 
+        number_of_results = 0
+        current_round = self.current_tournament.rounds[-1]
+        print("current_round before : ", current_round)
+        for match in current_round.matches:
+            if isinstance(match[0][1], MatchResult):
+                number_of_results += 1
+            else:
+                pass
 
+        print("number_of_results : ", number_of_results)
+        if number_of_results == 4:
+            current_round.close()
+            self.current_tournament.init()
+
+        print("current_round after : ", current_round)
+        print("self.current_tournament : ", self.current_tournament)
 
         # # TODO Code pour générer des scores pour les joueurs
         # for player_id, player in self.current_tournament.players.items():
@@ -281,29 +217,29 @@ class Controller:
         # players_in_groups = self.classify_players_in_groups()
         # print("players_in_groups : ", players_in_groups)
 
-        message = f"-- {self.current_tournament.rounds[-1].__getattribute__('name')} --"
-        self.view.display_a_simple_message(message)
-
-        if len(self.current_tournament.rounds) == 1:
-            self.all_matches = self.tournament_management_round_one(players_in_groups)
-            self.players_in_groups = players_in_groups
-        else:
-            self.all_matches = self.matches_by_round_management(players_in_groups)
-            self.players_in_groups = players_in_groups
-
-        print("all_matches = ", self.all_matches)
-
-        if self.evaluation_of_matches:
-            self.number_of_exchange_done = 0
-            match_already_played, number_of_exchange_done = self.evaluate_if_matches_repeated(
-                self.number_of_exchange_done)
-            # print("match_already_played : ", match_already_played)
-
-            number_of_exchange_done = 0
-            while match_already_played:
-                '''refaire les matches'''
-                match_already_played, number_of_exchange_done = \
-                    self.evaluate_if_matches_repeated(number_of_exchange_done)
+        # message = f"-- {self.current_tournament.rounds[-1].__getattribute__('name')} --"
+        # self.view.display_a_simple_message(message)
+        #
+        # if len(self.current_tournament.rounds) == 1:
+        #     self.all_matches = self.tournament_management_round_one(players_in_groups)
+        #     self.players_in_groups = players_in_groups
+        # else:
+        #     self.all_matches = self.matches_by_round_management(players_in_groups)
+        #     self.players_in_groups = players_in_groups
+        #
+        # print("all_matches = ", self.all_matches)
+        #
+        # if self.evaluation_of_matches:
+        #     self.number_of_exchange_done = 0
+        #     match_already_played, number_of_exchange_done = self.evaluate_if_matches_repeated(
+        #         self.number_of_exchange_done)
+        #     # print("match_already_played : ", match_already_played)
+        #
+        #     number_of_exchange_done = 0
+        #     while match_already_played:
+        #         '''refaire les matches'''
+        #         match_already_played, number_of_exchange_done = \
+        #             self.evaluate_if_matches_repeated(number_of_exchange_done)
 
                 # for next_match in range(3):
                 #     for next_player in range(2):
@@ -314,41 +250,41 @@ class Controller:
         # else:
         #     '''laisser les matchs créés'''
 
-        '''Voulez-vous entrer les résultats d un match ?'''
-        self.display_matches_list_menu()
-
-        if len(self.number_of_matches_played) == 4:
-            self.evaluation_of_matches = True
-            # print(f"la liste a bien {len(self.number_of_matches_played)} elements : ", self.number_of_matches_played)
-            # print("il va falloir réinitialiser les variables pour passer au prochain ROUND")
-            # print("Marquer le Round comme terminé")
-            # print("Round.end : ", Round.end)
-            Round.end = datetime.now
-            # print("Round.end : ", Round.end)
-
-            '''Pour le nouveau Round'''
-            # print("len(self.current_tournament.rounds) : ", len(self.current_tournament.rounds))
-            # print("self.current_tournament.rounds[-1].end : ", self.current_tournament.rounds[-1].end)
-            self.current_tournament.rounds[-1].end = datetime.now()
-            # print("NEW self.current_tournament.rounds[-1].end : ", self.current_tournament.rounds[-1].end)
-
-            if len(self.current_tournament.rounds) == self.current_tournament.round_count:
-                print("DEJA ENTRÉ self.current_tournament.rounds[-1].end : ", self.current_tournament.rounds[-1].end)
-            else:
-                # self.current_tournament.rounds.append(self.view.enter_round_info(end_date=None))
-                round_name = f"ROUND {len(self.current_tournament.rounds) + 1}"
-                # print(round_name)
-                self.current_tournament.rounds.append(self.view.enter_new_round(round_name))
-
-            # self.current_tournament.rounds.append(self.view.enter_round_info(end_date=None))
-            # self.view.round_finished()
-
-            # print("self.view.round_finished() : ", self.round.end.value)
-
-            # players_in_groups = []
-            # self.players_in_groups = players_in_groups
-            self.number_of_matches_played = []
-            self.matches_played_in_current_round = []
+        # '''Voulez-vous entrer les résultats d un match ?'''
+        # self.display_matches_list_menu()
+        #
+        # if len(self.number_of_matches_played) == 4:
+        #     self.evaluation_of_matches = True
+        #     # print(f"la liste a bien {len(self.number_of_matches_played)} elements : ", self.number_of_matches_played)
+        #     # print("il va falloir réinitialiser les variables pour passer au prochain ROUND")
+        #     # print("Marquer le Round comme terminé")
+        #     # print("Round.end : ", Round.end)
+        #     Round.end = datetime.now
+        #     # print("Round.end : ", Round.end)
+        #
+        #     '''Pour le nouveau Round'''
+        #     # print("len(self.current_tournament.rounds) : ", len(self.current_tournament.rounds))
+        #     # print("self.current_tournament.rounds[-1].end : ", self.current_tournament.rounds[-1].end)
+        #     self.current_tournament.rounds[-1].end = datetime.now()
+        #     # print("NEW self.current_tournament.rounds[-1].end : ", self.current_tournament.rounds[-1].end)
+        #
+        #     if len(self.current_tournament.rounds) == self.current_tournament.round_count:
+        #         print("DEJA ENTRÉ self.current_tournament.rounds[-1].end : ", self.current_tournament.rounds[-1].end)
+        #     else:
+        #         # self.current_tournament.rounds.append(self.view.enter_round_info(end_date=None))
+        #         round_name = f"ROUND {len(self.current_tournament.rounds) + 1}"
+        #         # print(round_name)
+        #         self.current_tournament.rounds.append(self.view.enter_new_round(round_name))
+        #
+        #     # self.current_tournament.rounds.append(self.view.enter_round_info(end_date=None))
+        #     # self.view.round_finished()
+        #
+        #     # print("self.view.round_finished() : ", self.round.end.value)
+        #
+        #     # players_in_groups = []
+        #     # self.players_in_groups = players_in_groups
+        #     self.number_of_matches_played = []
+        #     self.matches_played_in_current_round = []
         # print("list_of_matches : ", list_of_matches)
         # print("new_all_matches : ", new_all_matches)
 
@@ -379,54 +315,54 @@ class Controller:
             message = "\n** Tournoi déjà fini =( **"
             self.view.display_a_simple_message(message)
 
-    def enter_match_result(self, player_one, player_two, match_result_selection, match_selection):
-        list_of_matches = self.current_tournament.rounds[-1].__getattribute__("matches")
-
-        if match_result_selection == 1:
-            message = f"{player_one[0].first_name + ' ' + player_one[0].last_name} a gagné le match"
-            self.view.display_a_simple_message(message)
-            self.number_of_matches_played.append(match_selection)
-            self.current_tournament.scores.update(
-                {player_one[0]: self.current_tournament.scores.get(player_one[0]) + 1})
-            match = ([player_one[0], MatchResult.WIN], [player_two[0], MatchResult.LOSS])
-            self.matches_played_in_current_round.append(match)
-            # print("self.matches_played_in_current_round : ", self.matches_played_in_current_round)
-            # print("self.current_tournament.rounds :", self.current_tournament.rounds[-1])
-            self.current_tournament.rounds[-1] = self.view.enter_round_match(
-                self.matches_played_in_current_round, self.current_tournament.rounds[-1].__getattribute__("name"))
-            # print("self.current_tournament.rounds :", self.current_tournament.rounds)
-
-        elif match_result_selection == 2:
-            message = f"{player_two[0].first_name + ' ' + player_two[0].last_name} a gagné le match"
-            self.view.display_a_simple_message(message)
-            self.number_of_matches_played.append(match_selection)
-            self.current_tournament.scores.update(
-                {player_two[0]: self.current_tournament.scores.get(player_two[0]) + 1})
-            match = ([player_one[0], MatchResult.LOSS], [player_two[0], MatchResult.WIN])
-            self.matches_played_in_current_round.append(match)
-            # print("self.matches_played_in_current_round : ", self.matches_played_in_current_round)
-            # print("self.current_tournament.rounds[-1] :", self.current_tournament.rounds[-1])
-            self.current_tournament.rounds[-1] = self.view.enter_round_match(
-                self.matches_played_in_current_round, self.current_tournament.rounds[-1].__getattribute__("name"))
-            # print("self.current_tournament.rounds :", self.current_tournament.rounds)
-
-        elif match_result_selection == 3:
-            message = "Les joueurs ont fait un match nul"
-            self.view.display_a_simple_message(message)
-            self.number_of_matches_played.append(match_selection)
-            self.current_tournament.scores.update(
-                {player_one[0]: self.current_tournament.scores.get(player_one[0]) + 0.5})
-            self.current_tournament.scores.update(
-                {player_two[0]: self.current_tournament.scores.get(player_two[0]) + 0.5})
-            match = ([player_one[0], MatchResult.DRAW], [player_two[0], MatchResult.DRAW])
-            self.matches_played_in_current_round.append(match)
-            # print("self.matches_played_in_current_round : ", self.matches_played_in_current_round)
-            # print("self.current_tournament.rounds :", self.current_tournament.rounds[-1])
-            self.current_tournament.rounds[-1] = self.view.enter_round_match(
-                self.matches_played_in_current_round, self.current_tournament.rounds[-1].__getattribute__("name"))
-            # print("self.current_tournament.rounds :", self.current_tournament.rounds)
-
-        print("list_of_matches : ", list_of_matches)
+    # def enter_match_result(self, player_one, player_two, match_result_selection, match_selection):
+    #     list_of_matches = self.current_tournament.rounds[-1].__getattribute__("matches")
+    #
+    #     if match_result_selection == 1:
+    #         message = f"{player_one[0].first_name + ' ' + player_one[0].last_name} a gagné le match"
+    #         self.view.display_a_simple_message(message)
+    #         self.number_of_matches_played.append(match_selection)
+    #         self.current_tournament.scores.update(
+    #             {player_one[0]: self.current_tournament.scores.get(player_one[0]) + 1})
+    #         match = ([player_one[0], MatchResult.WIN], [player_two[0], MatchResult.LOSS])
+    #         self.matches_played_in_current_round.append(match)
+    #         # print("self.matches_played_in_current_round : ", self.matches_played_in_current_round)
+    #         # print("self.current_tournament.rounds :", self.current_tournament.rounds[-1])
+    #         self.current_tournament.rounds[-1] = self.view.enter_round_match(
+    #             self.matches_played_in_current_round, self.current_tournament.rounds[-1].__getattribute__("name"))
+    #         # print("self.current_tournament.rounds :", self.current_tournament.rounds)
+    #
+    #     elif match_result_selection == 2:
+    #         message = f"{player_two[0].first_name + ' ' + player_two[0].last_name} a gagné le match"
+    #         self.view.display_a_simple_message(message)
+    #         self.number_of_matches_played.append(match_selection)
+    #         self.current_tournament.scores.update(
+    #             {player_two[0]: self.current_tournament.scores.get(player_two[0]) + 1})
+    #         match = ([player_one[0], MatchResult.LOSS], [player_two[0], MatchResult.WIN])
+    #         self.matches_played_in_current_round.append(match)
+    #         # print("self.matches_played_in_current_round : ", self.matches_played_in_current_round)
+    #         # print("self.current_tournament.rounds[-1] :", self.current_tournament.rounds[-1])
+    #         self.current_tournament.rounds[-1] = self.view.enter_round_match(
+    #             self.matches_played_in_current_round, self.current_tournament.rounds[-1].__getattribute__("name"))
+    #         # print("self.current_tournament.rounds :", self.current_tournament.rounds)
+    #
+    #     elif match_result_selection == 3:
+    #         message = "Les joueurs ont fait un match nul"
+    #         self.view.display_a_simple_message(message)
+    #         self.number_of_matches_played.append(match_selection)
+    #         self.current_tournament.scores.update(
+    #             {player_one[0]: self.current_tournament.scores.get(player_one[0]) + 0.5})
+    #         self.current_tournament.scores.update(
+    #             {player_two[0]: self.current_tournament.scores.get(player_two[0]) + 0.5})
+    #         match = ([player_one[0], MatchResult.DRAW], [player_two[0], MatchResult.DRAW])
+    #         self.matches_played_in_current_round.append(match)
+    #         # print("self.matches_played_in_current_round : ", self.matches_played_in_current_round)
+    #         # print("self.current_tournament.rounds :", self.current_tournament.rounds[-1])
+    #         self.current_tournament.rounds[-1] = self.view.enter_round_match(
+    #             self.matches_played_in_current_round, self.current_tournament.rounds[-1].__getattribute__("name"))
+    #         # print("self.current_tournament.rounds :", self.current_tournament.rounds)
+    #
+    #     print("list_of_matches : ", list_of_matches)
 
     def enter_match_result_menu(self, match_selection):
         match = self.current_tournament.rounds[-1].matches[match_selection-1]
@@ -445,9 +381,9 @@ class Controller:
         if user_choice == 4:
             pass
         else:
-            # self.enter_match_result(player_one, player_two, user_choice, match_selection)
-            self.current_tournament.enter_match_result(match, user_choice)
+            message = self.current_tournament.enter_match_result(match, user_choice)
             print("self.current_tournament : ", self.current_tournament)
+            self.view.display_a_simple_message(message)
 
     @staticmethod
     def generate_tournaments_list(tournaments):
@@ -489,8 +425,12 @@ class Controller:
         return name, choices
 
     def display_matches_list_menu(self):
+        name_of_round = self.current_tournament.rounds[-1].name
+        self.view.display_a_simple_message(name_of_round)
+
         name, choices = self.generate_matches_list()
-        go_to_last_menu_option = len(self.current_tournament.rounds[-1].matches) + 1
+        current_matches = self.current_tournament.rounds[-1].matches
+        go_to_last_menu_option = len(current_matches) + 1
         choices.update({go_to_last_menu_option: "Revenir au menu précédent"})
 
         run = True
@@ -499,13 +439,14 @@ class Controller:
             user_choice = self.view.input_for_menu(choices)
             if user_choice == go_to_last_menu_option:
                 run = False
-            # elif user_choice != go_to_last_menu_option and user_choice in self.number_of_matches_played:
-            #     message = "Match deja choisit ! Choisissez un autre match, svp"
-            #     self.view.display_a_simple_message(message)
-            elif user_choice != go_to_last_menu_option:  # and user_choice not in self.number_of_matches_played:
+            elif user_choice != go_to_last_menu_option \
+                    and not isinstance(current_matches[user_choice-1][0][1], MatchResult):
                 message = f"-- Match {user_choice} choisi --"
                 self.view.display_a_simple_message(message)
                 self.enter_match_result_menu(user_choice)
+            else:
+                message = "Match deja choisit ! Choisissez un autre match, svp"
+                self.view.display_a_simple_message(message)
 
     def display_start_tournament_menu(self):
         name, choices = self.generate_tournaments_list(self.tournaments)
@@ -561,31 +502,35 @@ class Controller:
         choices = self.display_players_list()
         player_id_selected = self.view.input_for_menu(choices)
 
+        player_selected = self.players[player_id_selected]
         number_of_data = 5
         for data in range(number_of_data):
             if data == 0:
                 first_name = self.view.enter_first_name_data()
                 if first_name == "":
-                    first_name = self.players[player_id_selected].first_name
+                    first_name = player_selected.first_name
             elif data == 1:
                 last_name = self.view.enter_last_name_data()
                 if last_name == "":
-                    last_name = self.players[player_id_selected].last_name
+                    last_name = player_selected.last_name
             elif data == 2:
                 date_of_birth = self.view.enter_birth_data()
                 if date_of_birth is None:
-                    date_of_birth = self.players[player_id_selected].date_of_birth
+                    date_of_birth = player_selected.date_of_birth
             elif data == 3:
                 sex = self.view.enter_sex_data()
                 if sex is None:
-                    sex = self.players[player_id_selected].sex
+                    sex = player_selected.sex
             elif data == 4:
                 ranking = self.view.enter_ranking_data()
                 if ranking is None:
-                    ranking = self.players[player_id_selected].ranking
+                    ranking = player_selected.ranking
 
-        player = self.view.update_player_info(first_name, last_name, date_of_birth, sex, ranking)
-        self.players[player_id_selected] = player
+        player_selected.update_player(first_name, last_name, date_of_birth, sex, ranking)
+        print("player_selected : ", player_selected)
+
+        # player = self.view.update_player_info(first_name, last_name, date_of_birth, sex, ranking)
+        # self.players[player_id_selected] = player
 
     def enter_new_player_info(self):
         id_new_player = len(self.players) + 1

@@ -27,6 +27,13 @@ class Player:
     sex: Sex
     ranking: int
 
+    def update_player(self, first_name, last_name, date_of_birth, sex, ranking):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.date_of_birth = date_of_birth
+        self.sex = sex
+        self.ranking = ranking
+
     def to_json(self) -> Dict[str, Any]:
         # Serialization
         player_as_dict = dataclasses.asdict(self)
@@ -104,7 +111,7 @@ class Tournament:
         return self.rounds[-1]
 
     def init(self):
-        self.generate_scores()
+        # self.generate_scores()
         self.generate_next_round()
         self.start = date.today()
 
@@ -113,49 +120,62 @@ class Tournament:
             self.scores.update({player: 0})
 
     def generate_next_round(self):
-        # TODO
         players_sorted = self.sort_players()
-        matches = self.generate_pairs(players_sorted)
         if not self.rounds:
             # generate first round
-            next_round = Round(matches=matches, name="Round 1")
-            self.rounds.append(next_round)
-        # else:
+            matches = self.generate_pairs_only_first_round(players_sorted)
+        else:
             # generate next round
-            # next_round = Round()
+            matches = self.generate_pairs(players_sorted)
 
-        # self.rounds.append(next_round)
+        next_round = Round(matches=matches, name="ROUND " + str(len(self.rounds)+1))
+        self.rounds.append(next_round)
 
     def sort_players(self):
         players_sorted = sorted(self.scores.items(), key=lambda scores: (scores[1], scores[0].ranking), reverse=True)
         return players_sorted
 
     @staticmethod
-    def generate_pairs(players_sorted):
+    def generate_pairs_only_first_round(players_sorted):
         matches = []
         for number_of_match in range(len(players_sorted)-4):
             matches.append((list(players_sorted[number_of_match]), list(players_sorted[number_of_match+4])))
         return matches
 
+    @staticmethod
+    def generate_pairs(players_sorted):
+        matches = []
+        for number_of_match in range(len(players_sorted)-4):
+            matches.append((list(players_sorted[number_of_match*2]), list(players_sorted[number_of_match*2+1])))
+        return matches
+
     def enter_match_result(self, match_selected, result_selected):
         for match in self.rounds[-1].matches:
             if match == match_selected:
+                message = ""
                 if result_selected == 1:
+                    message = f"{match[0][0].first_name} {match[0][0].last_name} a gagné le match !"
                     self.scores[match[0][0]] += 1
                     match[0][1] = MatchResult.WIN
                     match[1][1] = MatchResult.LOSS
-                if result_selected == 2:
+                elif result_selected == 2:
+                    message = f"{match[1][0].first_name} {match[1][0].last_name} a gagné le match !"
                     self.scores[match[1][0]] += 1
                     match[0][1] = MatchResult.LOSS
                     match[1][1] = MatchResult.WIN
-                if result_selected == 3:
+                elif result_selected == 3:
+                    message = "Les joueurs ont fait match null"
                     self.scores[match[0][0]] += 0.5
                     self.scores[match[1][0]] += 0.5
                     match[0][1] = MatchResult.DRAW
                     match[1][1] = MatchResult.DRAW
+                return message
 
-        return match_selected
+    def update_tournament(self, name, place, time_control, description):
+        self.name = name
+        self.place = place
+        self.time_control = time_control
+        self.description = description
 
-        # if result_selected == 1:
-        #     match[0]
-        print("enter_match_result")
+    def end_round(self):
+        pass
