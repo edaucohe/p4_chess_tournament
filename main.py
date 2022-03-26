@@ -2,7 +2,7 @@ from datetime import date, datetime
 from typing import Dict
 
 from chess.controller import Controller
-from chess.models import Player, Tournament, Round, MAX_TURNS_COUNT
+from chess.models import Player, Tournament, Round, MAX_TURNS_COUNT, TimeControlKind
 
 
 def players_added_for_test() -> Dict[int, Player]:
@@ -91,7 +91,7 @@ def tournaments_added_for_test(players, round_for_starting):
         {
             "name": "Master chess tournament Dubai 2022",
             "place": "Dubai",
-            "time_control": "bullet",
+            "time_control": TimeControlKind.BLITZ,
             "description": "Tous les meilleurs joueurs du monde",
             "players": players,
             'scores': scores,
@@ -102,7 +102,7 @@ def tournaments_added_for_test(players, round_for_starting):
         {
             "name": "National chess tournament Paris 2022",
             "place": "Paris",
-            "time_control": "bullet",
+            "time_control": TimeControlKind.QUICK_PLAY,
             "description": "Les meilleurs joueurs de la France",
             "players": players,
             'scores': scores,
