@@ -80,18 +80,6 @@ class TerminalView:
         )
         return tournament
 
-    # @staticmethod
-    # def update_tournament_info(name, place, time_control, description, round_count, players, scores):
-    #     tournament = Tournament(
-    #         name=name, place=place,
-    #         time_control=time_control,
-    #         description=description,
-    #         round_count=round_count,
-    #         players=players,
-    #         scores=scores
-    #     )
-    #     return tournament
-
     @staticmethod
     def enter_tournament_name():
         return input("Nom : ")
@@ -120,11 +108,6 @@ class TerminalView:
         )
         return player
 
-    # @staticmethod
-    # def update_player_info(first_name, last_name, date_of_birth, sex, ranking):  # -> Player:
-    #     player = Player(
-    #         first_name=first_name, last_name=last_name, date_of_birth=date_of_birth, sex=sex, ranking=ranking)
-    #     return player
 
     @staticmethod
     def enter_first_name_data():
@@ -163,10 +146,6 @@ class TerminalView:
     def enter_round_match(match, round_name):
         return Round(matches=match, name=round_name)
 
-    # @staticmethod
-    # def round_finished():
-    #     return Round.close
-
     # def format_players_json(self, players: List[Player]) -> str:
     #     json_str = "["
     #     for player in players:
@@ -175,13 +154,6 @@ class TerminalView:
     #     json_str += "]"
     #     return json_str
 
-    def print_players_report(self, players: List[Player]):
-        # in controller.print_all_players():
-        #     self.view.print_players_report(self.players)
-
-        # in controller.print_tournament_players():
-        #     self.view.print_players_report(self.current_tournament.players)
-        pass
 
     @staticmethod
     def make_players_report(row_lists, report, file_name):

@@ -76,11 +76,8 @@ class Round:
     matches: List[Match]
     name: str
     start: datetime = field(default_factory=datetime.now)
-
-    '''Champ Date et heure de fin'''
     end: Optional[datetime] = None
 
-    '''Qui doit être automatiquement rempli lorsque l'utilisateur le marque comme terminé'''
     def close(self):
         self.end = datetime.now()
 
@@ -111,7 +108,7 @@ class Tournament:
         return self.rounds[-1]
 
     def init(self):
-        # self.generate_scores()
+        self.generate_scores()
         self.generate_next_round()
         self.start = date.today()
 
@@ -122,11 +119,9 @@ class Tournament:
     def generate_next_round(self):
         players_sorted = self.sort_players()
         if not self.rounds:
-            # generate first round
-            matches = self.generate_pairs_only_first_round(players_sorted)
+            matches = self.generate_matches_for_first_round(players_sorted)
         else:
-            # generate next round
-            matches = self.generate_pairs(players_sorted)
+            matches = self.generate_matches_for_other_rounds(players_sorted)
 
         next_round = Round(matches=matches, name="ROUND " + str(len(self.rounds)+1))
         self.rounds.append(next_round)
@@ -136,14 +131,14 @@ class Tournament:
         return players_sorted
 
     @staticmethod
-    def generate_pairs_only_first_round(players_sorted):
+    def generate_matches_for_first_round(players_sorted):
         matches = []
         for number_of_match in range(len(players_sorted)-4):
             matches.append((list(players_sorted[number_of_match]), list(players_sorted[number_of_match+4])))
         return matches
 
     @staticmethod
-    def generate_pairs(players_sorted):
+    def generate_matches_for_other_rounds(players_sorted):
         matches = []
         for number_of_match in range(len(players_sorted)-4):
             matches.append((list(players_sorted[number_of_match*2]), list(players_sorted[number_of_match*2+1])))
@@ -176,6 +171,3 @@ class Tournament:
         self.place = place
         self.time_control = time_control
         self.description = description
-
-    def end_round(self):
-        pass
