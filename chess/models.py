@@ -13,6 +13,8 @@ MENU_OPTION = ""
 DEFAULT_ROUND_VALUE = []
 NUMBER_MAX_OF_HEADS = 5
 
+JsonDict = Dict[str, Any]
+
 
 class Sex(Enum):
     MALE = 'h'
@@ -37,17 +39,18 @@ class Player:
     def to_json(self) -> Dict[str, Any]:
         # Serialization
         player_as_dict = dataclasses.asdict(self)
-        # player_as_dict['date_of_birth'] = self.date_of_birth.isoformat()
-        # player_as_dict['sex'] = self.sex.value
+        player_as_dict['date_of_birth'] = self.date_of_birth.isoformat()
+        player_as_dict['sex'] = self.sex.value
         return player_as_dict
 
     @classmethod
-    def from_json(cls, data: Dict[str, Any]) -> 'Player':
+    def from_json(cls, data: JsonDict) -> 'Player':
         # Deserialization
         data['date_of_birth'] = date.fromisoformat(data['date_of_birth'])
         data['sex'] = Sex(data['sex'])
 
         return Player(**data)
+
 
 # p1 => p1_as_dict => p1_as_dict_as_json
 # Pour la db, on veut passer de :
@@ -63,6 +66,8 @@ class MatchResult(Enum):
 
 
 Match = Tuple[List[Union[Player, Optional[MatchResult]]], List[Union[Player, Optional[MatchResult]]]]
+
+
 # OR
 # Match = Tuple[Tuple[Player, Optional[MatchResult]], Tuple[Player, Optional[MatchResult]]]
 
@@ -80,6 +85,13 @@ class Round:
 
     def close(self):
         self.end = datetime.now()
+
+    def to_json(self):
+        return {}
+
+    @classmethod
+    def from_json(cls, data: JsonDict, players: Dict[int, Player]):
+        raise NotImplementedError()
 
 
 class TimeControlKind(Enum):
@@ -123,7 +135,7 @@ class Tournament:
         else:
             matches = self.generate_matches_for_other_rounds(players_sorted)
 
-        next_round = Round(matches=matches, name="ROUND " + str(len(self.rounds)+1))
+        next_round = Round(matches=matches, name="ROUND " + str(len(self.rounds) + 1))
         self.rounds.append(next_round)
 
     def sort_players(self):
@@ -133,15 +145,15 @@ class Tournament:
     @staticmethod
     def generate_matches_for_first_round(players_sorted):
         matches = []
-        for number_of_match in range(len(players_sorted)-4):
-            matches.append((list(players_sorted[number_of_match]), list(players_sorted[number_of_match+4])))
+        for number_of_match in range(len(players_sorted) - 4):
+            matches.append((list(players_sorted[number_of_match]), list(players_sorted[number_of_match + 4])))
         return matches
 
     @staticmethod
     def generate_matches_for_other_rounds(players_sorted):
         matches = []
-        for number_of_match in range(len(players_sorted)-4):
-            matches.append((list(players_sorted[number_of_match*2]), list(players_sorted[number_of_match*2+1])))
+        for number_of_match in range(len(players_sorted) - 4):
+            matches.append((list(players_sorted[number_of_match * 2]), list(players_sorted[number_of_match * 2 + 1])))
         return matches
 
     def enter_match_result(self, match_selected, result_selected):
@@ -174,49 +186,31 @@ class Tournament:
 
     def to_json(self):
         # Serialization
-        print("self : ", self)
-        # tournament_as_dict = dataclasses.asdict(self)
-        # print("tournament_as_dict : ", tournament_as_dict)
-        # tournament_as_dict['players'] = list(self.players)
-        # tournament_as_dict['scores'] = list(self.scores)
-        print("self.players : ", self.players)
-        print("self.__dict__ : ", self.__dict__)
 
-        tournament_as_dict = self.__dict__
+        tournament_as_dict = dataclasses.asdict(self)
         tournament_as_dict['time_control'] = self.time_control.value
+        tournament_as_dict['start'] = None if self.start is None else self.start.isoformat()
 
-        players_list = []
-        for index, player in self.players.items():
-            player_dict = dataclasses.asdict(player)
-            # print("player_dict : ", player_dict)
-            players_list.append(player_dict)
+        # Serialize Players
+        tournament_as_dict['players'] = {
+            player_id: player.to_json() for player_id, player in tournament_as_dict['players'].items()
+        }
+        # OR
+        tournament_as_dict['players'] = [
+            player_id for player_id, _ in tournament_as_dict['players'].items()
+        ]
 
-        tournament_as_dict['players'] = players_list
+        # Serialize scores
+        tournament_as_dict['scores']: Dict[Player, float]
+        # doit etre:
+        tournament_as_dict['scores']: Dict[int, float]
 
-        scores_list = []
-        for index, score in self.scores.items():
-            scores_list.append(score)
-
-        tournament_as_dict['scores'] = scores_list
-
-        print("tournament_as_dict", tournament_as_dict)
-        print("tournament_as_dict['start'] : ", tournament_as_dict['start'])
-        print("type tournament_as_dict['start'] : ", type(tournament_as_dict['start']))
-        print("type self.start : ", type(self.start))
-        tournament_as_dict['start'] = self.start.isoformat()
-
-        # if self.start is None:
-        #     tournament_as_dict['start'] = "None"
-        # else:
-        #     tournament_as_dict['start'] = self.start.isoformat()
+        # Serialize rounds
+        tournament_as_dict['rounds'] = [round.to_json() for round in self.rounds]
 
         return tournament_as_dict
 
-        # return players_as_dict
-        # return tournament_as_dict
+    @classmethod
+    def from_json(cls, data: JsonDict, players: Dict[int, Player]):
 
-        # player_as_dict['date_of_birth'] = self.date_of_birth.isoformat()
-        # player_as_dict['sex'] = self.sex.value
-
-    def from_json(self):
         pass

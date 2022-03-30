@@ -1,77 +1,24 @@
 from datetime import date, datetime
-from typing import Dict
+from typing import Dict, List
 
 from chess.controller import Controller
-from chess.models import Player, Tournament, Round, MAX_TURNS_COUNT, TimeControlKind
+from chess.models import Player, Sex, Tournament, Round, MAX_TURNS_COUNT, TimeControlKind
 
 
 def players_added_for_test() -> Dict[int, Player]:
-    players_list = []
-    players = [
-        {
-            "first_name": "John",
-            "last_name": "OLLE",
-            "date_of_birth": "1980-10-10",
-            "sex": "h",
-            "ranking": 1660
-        },
-        {
-            "first_name": "Marie",
-            "last_name": "THIBAUD",
-            "date_of_birth": "1985-01-17",
-            "sex": "f",
-            "ranking": 1695
-        },
-        {
-            "first_name": "Jeanne",
-            "last_name": "BOYER",
-            "date_of_birth": "1986-07-27",
-            "sex": "h",
-            "ranking": 1700
-        },
-        {
-            "first_name": "Pierre",
-            "last_name": "LUC",
-            "date_of_birth": "1981-04-04",
-            "sex": "h",
-            "ranking": 1684
-        },
-        {
-            "first_name": "David",
-            "last_name": "MOLLY",
-            "date_of_birth": "1975-12-22",
-            "sex": "h",
-            "ranking": 1715
-        },
-        {
-            "first_name": "Marc",
-            "last_name": "MONTY",
-            "date_of_birth": "1980-08-11",
-            "sex": "f",
-            "ranking": 1707
-        },
-        {
-            "first_name": "Sophie",
-            "last_name": "LEON",
-            "date_of_birth": "1978-11-08",
-            "sex": "f",
-            "ranking": 1677
-        },
-        {
-            "first_name": "Claire",
-            "last_name": "LAMANT",
-            "date_of_birth": "1982-06-14",
-            "sex": "f",
-            "ranking": 1653
-        }
+    players: List[Player] = [
+        Player("John", "OLLE", date.fromisoformat("1980-10-10"), Sex.MALE, 1660),
+        Player("Marie", "THIBAUD", date.fromisoformat("1980-10-10"), Sex.FEMALE, 1695),
+        Player("Jeanne", "BOYER", date.fromisoformat("1986-07-27"), Sex.FEMALE, 1700),
+        Player("Pierre", "LUC", date.fromisoformat("1981-10-10"), Sex.MALE, 1684),
+        Player("David", "MOLLY", date.fromisoformat("1975-10-10"), Sex.MALE, 1715),
+        Player("Marc", "MONTY", date.fromisoformat("1975-10-10"), Sex.MALE, 1706),
+        Player("Sophie", "LEON", date.fromisoformat("1975-10-10"), Sex.FEMALE, 1677),
+        Player("Claire", "LAMANT", date.fromisoformat("1975-10-10"), Sex.FEMALE, 1653),
     ]
-    # score = MatchResult
-    for player in players:
-        player = Player(**player)
-        players_list.append(player)
 
     # players_with_index = {index+1: Player for index in range(len(Player))}
-    players_with_id = {index + 1: players_list[index] for index in range(len(players))}
+    players_with_id = {index + 1: players[index] for index in range(len(players))}
     return players_with_id
 
 
@@ -95,7 +42,7 @@ def tournaments_added_for_test(players, round_for_starting):
             "description": "Tous les meilleurs joueurs du monde",
             "players": players,
             'scores': scores,
-            "start": date.today,
+            "start": date.today(),
             "round_count": MAX_TURNS_COUNT,
             "rounds": [round_for_starting[0]]
         },
@@ -106,7 +53,7 @@ def tournaments_added_for_test(players, round_for_starting):
             "description": "Les meilleurs joueurs de la France",
             "players": players,
             'scores': scores,
-            "start": date.today,
+            "start": date.today(),
             "round_count": MAX_TURNS_COUNT,
             "rounds": [round_for_starting[1]]
         }
