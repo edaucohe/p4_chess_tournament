@@ -57,6 +57,8 @@ class Controller:
 
         # Store tournament in our list
         new_tournament_id = len(self.tournaments) + 1
+        self.tournaments[new_tournament_id] = new_tournament
+        # TODO update others
         self.tournaments.update({new_tournament_id: new_tournament})
         self.current_tournament = new_tournament
 
@@ -558,7 +560,7 @@ class Controller:
 
     def save_database(self):
         # self.db.truncate()
-        players_table = self.db.table('players_database')
+        players_table = self.db.table('players')
         print("self.players : ", self.players)
         for index, player in self.players.items():
             player_as_json = player.to_json()
@@ -569,7 +571,7 @@ class Controller:
         print("players_table.all() : \n", players_table.all())
         print("len players_table.all() : \n", len(players_table.all()))
 
-        tournaments_table = self.db.table('tournaments_database')
+        tournaments_table = self.db.table('tournaments')
         # for index, tournament in self.tournaments.items():
         #     for index_two, player in tournament.players.items():
         #         # tournament_as_json = data_of_tournament.to_json()
@@ -586,9 +588,8 @@ class Controller:
         # print("players_table.all() : \n", players_table.all())
         # print("len(players_table.all()) : ", len(players_table.all()))
         # print("self.db.all() : ", self.db.all())
-        self.db.drop_table('players_database')
-        self.db.drop_table('tournaments_database')
-        self.db.drop_table('_default')
+        self.db.drop_table('players')
+        self.db.drop_table('tournaments')
         # for index, tournament in self.tournaments.items():
         #     tournament_as_json = tournament.to_json()
         #     print("tournament_as_json : ", tournament_as_json)
