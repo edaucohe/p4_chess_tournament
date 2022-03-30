@@ -1,3 +1,4 @@
+from tinydb import TinyDB
 from typing import List, Dict, Optional
 
 from chess.views import TerminalView
@@ -28,6 +29,7 @@ class Controller:
         self.tournaments = tournaments or dict()
         self.current_tournament = current_tournament or None
         self.view = view or TerminalView()
+        self.db = TinyDB('db.json')
 
     # Gestion de tournois
     def create_new_tournament(self):
@@ -554,6 +556,43 @@ class Controller:
 
     # Gestion de la base de données
 
+    def save_database(self):
+        # self.db.truncate()
+        players_table = self.db.table('players_database')
+        print("self.players : ", self.players)
+        for index, player in self.players.items():
+            player_as_json = player.to_json()
+            print(f"player {index} as json : {player_as_json}")
+            players_table.insert(player_as_json)
+        print("players_table : \n", players_table)
+
+        print("players_table.all() : \n", players_table.all())
+        print("len players_table.all() : \n", len(players_table.all()))
+
+        tournaments_table = self.db.table('tournaments_database')
+        # for index, tournament in self.tournaments.items():
+        #     for index_two, player in tournament.players.items():
+        #         # tournament_as_json = data_of_tournament.to_json()
+        #         print("tournament_as_json : ", player)
+
+        for tournament_index, tournament in self.tournaments.items():
+            tournament_as_json = tournament.to_json()
+            print("tournament_as_json : \n", tournament_as_json)
+            tournaments_table.insert(tournament_as_json)
+
+    def load_database(self):
+        # self.db.truncate()
+        # players_table = self.db.table('players_database')
+        # print("players_table.all() : \n", players_table.all())
+        # print("len(players_table.all()) : ", len(players_table.all()))
+        # print("self.db.all() : ", self.db.all())
+        self.db.drop_table('players_database')
+        self.db.drop_table('tournaments_database')
+        self.db.drop_table('_default')
+        # for index, tournament in self.tournaments.items():
+        #     tournament_as_json = tournament.to_json()
+        #     print("tournament_as_json : ", tournament_as_json)
+
     def display_data_management_menu(self):
         choices = {
             1: "Sauvegarder les données",
@@ -567,8 +606,10 @@ class Controller:
             user_choice = self.view.input_for_menu(choices)
             if user_choice == 1:
                 print('Sauvegarder les données')
+                self.save_database()
             elif user_choice == 2:
                 print('Charger les données')
+                self.load_database()
             elif user_choice == 3:
                 run = False
 

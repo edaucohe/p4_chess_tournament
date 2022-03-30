@@ -37,8 +37,8 @@ class Player:
     def to_json(self) -> Dict[str, Any]:
         # Serialization
         player_as_dict = dataclasses.asdict(self)
-        player_as_dict['date_of_birth'] = self.date_of_birth.isoformat()
-        player_as_dict['sex'] = self.sex.value
+        # player_as_dict['date_of_birth'] = self.date_of_birth.isoformat()
+        # player_as_dict['sex'] = self.sex.value
         return player_as_dict
 
     @classmethod
@@ -171,3 +171,52 @@ class Tournament:
         self.place = place
         self.time_control = time_control
         self.description = description
+
+    def to_json(self):
+        # Serialization
+        print("self : ", self)
+        # tournament_as_dict = dataclasses.asdict(self)
+        # print("tournament_as_dict : ", tournament_as_dict)
+        # tournament_as_dict['players'] = list(self.players)
+        # tournament_as_dict['scores'] = list(self.scores)
+        print("self.players : ", self.players)
+        print("self.__dict__ : ", self.__dict__)
+
+        tournament_as_dict = self.__dict__
+        tournament_as_dict['time_control'] = self.time_control.value
+
+        players_list = []
+        for index, player in self.players.items():
+            player_dict = dataclasses.asdict(player)
+            # print("player_dict : ", player_dict)
+            players_list.append(player_dict)
+
+        tournament_as_dict['players'] = players_list
+
+        scores_list = []
+        for index, score in self.scores.items():
+            scores_list.append(score)
+
+        tournament_as_dict['scores'] = scores_list
+
+        print("tournament_as_dict", tournament_as_dict)
+        print("tournament_as_dict['start'] : ", tournament_as_dict['start'])
+        print("type tournament_as_dict['start'] : ", type(tournament_as_dict['start']))
+        print("type self.start : ", type(self.start))
+        tournament_as_dict['start'] = self.start.isoformat()
+
+        # if self.start is None:
+        #     tournament_as_dict['start'] = "None"
+        # else:
+        #     tournament_as_dict['start'] = self.start.isoformat()
+
+        return tournament_as_dict
+
+        # return players_as_dict
+        # return tournament_as_dict
+
+        # player_as_dict['date_of_birth'] = self.date_of_birth.isoformat()
+        # player_as_dict['sex'] = self.sex.value
+
+    def from_json(self):
+        pass
