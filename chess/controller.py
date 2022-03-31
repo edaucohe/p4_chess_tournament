@@ -58,22 +58,20 @@ class Controller:
         # Store tournament in our list
         new_tournament_id = len(self.tournaments) + 1
         self.tournaments[new_tournament_id] = new_tournament
-        # TODO update others
-        self.tournaments.update({new_tournament_id: new_tournament})
         self.current_tournament = new_tournament
 
         print("new_tournament : ", new_tournament)
         print("self.tournaments : ", self.tournaments)
 
     def update_tournament_info(self):
-        name = ""
         place = ""
         time_control = ""
         description = ""
 
-        choices = self.display_tournament_list()
+        name, choices = self.generate_tournaments_list_for_report(self.tournaments)
         tournament_id = self.view.input_for_menu(choices)
 
+        name = ""
         tournament_selected = self.tournaments[tournament_id]
         number_of_data = 4
         for data in range(number_of_data):
@@ -137,7 +135,7 @@ class Controller:
                 self.view.display_a_simple_message(message)
 
     def enter_match_result_menu(self, match_selection):
-        match = self.current_tournament.rounds[-1].matches[match_selection-1]
+        match = self.current_tournament.rounds[-1].matches[match_selection - 1]
         player_one = match[0]
         player_two = match[1]
         choices = {
@@ -160,9 +158,21 @@ class Controller:
     @staticmethod
     def generate_tournaments_list(tournaments):
         choices = {}
-        for tournament_number in range(len(tournaments)):
-            choices.update({tournament_number + 1: tournaments.get(tournament_number + 1).name})
-        name = " Liste de tournois "
+        if tournaments:
+            name = " Liste de tournois "
+            for tournament_number in range(len(tournaments)):
+                for round_in_progress in tournaments[tournament_number+1].rounds:
+                    if len(tournaments[tournament_number+1].rounds) < 4:
+                        choices[tournament_number + 1] = tournaments[tournament_number + 1].name
+                        name = " Liste de tournois "
+                    else:
+                        if round_in_progress.end is None:
+                            choices[tournament_number + 1] = tournaments[tournament_number + 1].name
+                            name = " Liste de tournois "
+                        else:
+                            name = None
+        else:
+            name = None
         return name, choices
 
     def display_tournament_list(self):
@@ -175,23 +185,9 @@ class Controller:
         matches = self.current_tournament.rounds[-1].matches
         print("matches : ", matches)
         for match in matches:
-            choices.update({
-                matches.index(match)+1:
-                    match[0][0].first_name + " " +
-                    match[0][0].last_name +
-                    " vs " +
-                    match[1][0].first_name + " " +
-                    match[1][0].last_name
-            })
-
-        # for match_number in range(len(matches)):
-        #     choices.update({
-        #         match_number + 1:
-        #             self.current_tournament.rounds[match_number].matches[0][0].first_name + " " +
-        #             self.current_tournament.rounds[match_number][0][0].last_name +
-        #             " vs " +
-        #             self.current_tournament.rounds[match_number][1][0].first_name + " " +
-        #             self.current_tournament.rounds[match_number][1][0].last_name})
+            choices[matches.index(match) + 1] = \
+                match[0][0].first_name + " " + match[0][0].last_name + " vs " + \
+                match[1][0].first_name + " " + match[1][0].last_name
 
         name = " Liste de matches "
         return name, choices
@@ -203,7 +199,7 @@ class Controller:
         name, choices = self.generate_matches_list()
         current_matches = self.current_tournament.rounds[-1].matches
         go_to_last_menu_option = len(current_matches) + 1
-        choices.update({go_to_last_menu_option: "Revenir au menu précédent"})
+        choices[go_to_last_menu_option] = "Revenir au menu précédent"
 
         run = True
         while run:
@@ -212,7 +208,7 @@ class Controller:
             if user_choice == go_to_last_menu_option:
                 run = False
             elif user_choice != go_to_last_menu_option \
-                    and not isinstance(current_matches[user_choice-1][0][1], MatchResult):
+                    and not isinstance(current_matches[user_choice - 1][0][1], MatchResult):
                 message = f"-- Match {user_choice} choisi --"
                 self.view.display_a_simple_message(message)
                 self.enter_match_result_menu(user_choice)
@@ -223,9 +219,14 @@ class Controller:
     def display_start_tournament_menu(self):
         name, choices = self.generate_tournaments_list(self.tournaments)
         go_to_last_menu_option = len(self.tournaments) + 1
-        choices.update({go_to_last_menu_option: "Revenir au menu précédent"})
+        choices[go_to_last_menu_option] = "Revenir au menu précédent"
 
         run = True
+        if name is None:
+            message = "** Il n'y a pas de tournois en cours **"
+            self.view.display_a_simple_message(message)
+            run = False
+
         while run:
             self.view.display_menu(name, choices)
             user_choice = self.view.input_for_menu(choices)
@@ -236,11 +237,11 @@ class Controller:
 
     def display_tournaments_management_menu(self):
         choices = {
-            1: "Liste de tournois",
+            1: "Tournoi en cours",
             2: "Créer un tournoi",
             3: "Mettre à jour les données d'un tournoi",
-            4: "Initier un tournoi",
-            5: "Revenir au menu précédent"
+            4: "Revenir au menu précédent"
+            # 5: "Revenir au menu précédent"
         }
 
         name = "** GESTION DE TOURNOIS **"
@@ -249,15 +250,17 @@ class Controller:
             self.view.display_menu(name, choices)
             user_choice = self.view.input_for_menu(choices)
             if user_choice == 1:
-                self.display_tournament_list()
+                self.display_start_tournament_menu()
+                # self.display_tournament_list()
             elif user_choice == 2:
                 self.create_new_tournament()
             elif user_choice == 3:
                 self.update_tournament_info()
             elif user_choice == 4:
-                self.display_start_tournament_menu()
-            elif user_choice == 5:
                 run = False
+                # self.display_start_tournament_menu()
+            # elif user_choice == 5:
+            #     run = False
 
     # Gestion de joueurs
     def update_player_info(self):
@@ -305,10 +308,9 @@ class Controller:
     def generate_players_list(players):
         choices = {}
         for player_number in range(len(players)):
-            choices.update({
-                player_number+1:
-                    players[player_number+1].first_name + " " + players[player_number+1].last_name
-            })
+            choices[player_number + 1] = players[player_number + 1].first_name + " " + players[
+                player_number + 1].last_name
+
         name = " Liste de joueurs "
         return name, choices
 
@@ -344,21 +346,13 @@ class Controller:
     def generate_players_report_list(players):
         choices = {}
         for player_number in range(len(players)):
-            choices.update({
-                player_number + 1:
-                    "Id : " +
-                    str(players[player_number][0]) +
-                    " | " +
-                    players[player_number][1].first_name +
-                    " " +
-                    players[player_number][1].last_name +
-                    " | " + "Date de naissance : " +
-                    str(players[player_number][1].date_of_birth) +
-                    " | " + "Sexe : " +
-                    str(players[player_number][1].sex) +
-                    " | " + "Ranking : " +
-                    str(players[player_number][1].ranking)
-            })
+            choices[player_number + 1] = \
+                "Id : " + str(players[player_number][0]) + \
+                " | " + players[player_number][1].first_name + " " + players[player_number][1].last_name + \
+                " | " + "Date de naissance : " + str(players[player_number][1].date_of_birth) + \
+                " | " + "Sexe : " + str(players[player_number][1].sex) + \
+                " | " + "Ranking : " + str(players[player_number][1].ranking)
+
         name = " Rapport de joueurs "
         return name, choices
 
@@ -396,10 +390,19 @@ class Controller:
             elif user_choice == 3:
                 run = False
 
+    @staticmethod
+    def generate_tournaments_list_for_report(tournaments):
+        choices = {}
+        for tournament_number in range(len(tournaments)):
+            choices[tournament_number + 1] = tournaments[tournament_number + 1].name
+
+        name = " Liste de tournois "
+        return name, choices
+
     def display_players_report_by_tournament_menu(self):
-        name, choices = self.generate_tournaments_list(self.tournaments)
+        name, choices = self.generate_tournaments_list_for_report(self.tournaments)
         go_to_last_menu_option = len(self.tournaments) + 1
-        choices.update({go_to_last_menu_option: "Revenir au menu précédent"})
+        choices[go_to_last_menu_option] = "Revenir au menu précédent"
 
         run = True
         while run:
@@ -415,16 +418,12 @@ class Controller:
     def generate_tournaments_report(tournaments):
         choices = {}
         for tournament_number in range(len(tournaments)):
-            choices.update({
-                tournament_number + 1:
-                    tournaments[tournament_number+1].name +
-                    " | " + "Lieu : " +
-                    tournaments[tournament_number+1].place +
-                    " | " + "Type de contrôle : " +
-                    str(tournaments[tournament_number+1].time_control.value) +
-                    " | " + "Description : " +
-                    tournaments[tournament_number+1].description
-            })
+            choices[tournament_number + 1] = \
+                tournaments[tournament_number + 1].name + " | " + "Lieu : " + \
+                tournaments[tournament_number + 1].place + " | " + "Type de contrôle : " + \
+                str(tournaments[tournament_number + 1].time_control.value) + " | " + "Description : " + \
+                tournaments[tournament_number + 1].description
+
         name = " Liste de tournois "
         return name, choices
 
@@ -436,20 +435,17 @@ class Controller:
     @staticmethod
     def generate_rounds_report(current_tournament):
         rounds_in_current_tournament = current_tournament.rounds
-        choices = {"Tournoi :": current_tournament.__getattribute__("name")}
+        choices = {"Tournoi :": current_tournament.name}
 
         for round_in_current_tournament in rounds_in_current_tournament:
-            if round_in_current_tournament.__getattribute__('end') is None:
+            if round_in_current_tournament.end is None:
                 message = "Round encore en cours"
             else:
-                message = str(round_in_current_tournament.__getattribute__('end'))
-            choices.update({
-                str(round_in_current_tournament.__getattribute__('name')):
-                    "| " + "Date de début : " +
-                    str(round_in_current_tournament.__getattribute__('start')) +
-                    " | " + "Date de fin : " +
-                    message
-            })
+                message = str(round_in_current_tournament.end)
+
+            choices[str(round_in_current_tournament.name)] = \
+                "| " + "Date de début : " + str(round_in_current_tournament.start) + \
+                " | " + "Date de fin : " + message
 
         name = " Rapports de rounds "
         return name, choices
@@ -461,9 +457,9 @@ class Controller:
         self.view.make_common_report_for_rounds_and_matches(name, choices)
 
     def display_rounds_report_menu(self):
-        name, choices = self.generate_tournaments_list(self.tournaments)
+        name, choices = self.generate_tournaments_list_for_report(self.tournaments)
         go_to_last_menu_option = len(self.tournaments) + 1
-        choices.update({go_to_last_menu_option: "Revenir au menu précédent"})
+        choices[go_to_last_menu_option] = "Revenir au menu précédent"
 
         run = True
         while run:
@@ -495,15 +491,10 @@ class Controller:
                     elif match_in_current_round[0][1].name == "DRAW":
                         message_of_result += "Résultat : 0.5 - 0.5"
 
-                    choices.update({
-                        str(round_in_current_tournament.name) + " | " + "Match " + str(number_of_match):
-                            "| " +
-                            first_name_p1 + " " + last_name_p1 +
-                            " vs " +
-                            first_name_p2 + " " + last_name_p2 +
-                            " | " +
-                            message_of_result
-                    })
+                    choices[str(round_in_current_tournament.name) + " | " + "Match " + str(number_of_match)] = \
+                        "| " + first_name_p1 + " " + last_name_p1 + " vs " + \
+                        first_name_p2 + " " + last_name_p2 + " | " + \
+                        message_of_result
 
                     number_of_match += 1
 
@@ -516,9 +507,9 @@ class Controller:
         self.view.make_common_report_for_rounds_and_matches(name, choices)
 
     def display_matches_report_menu(self):
-        name, choices = self.generate_tournaments_list(self.tournaments)
+        name, choices = self.generate_tournaments_list_for_report(self.tournaments)
         go_to_last_menu_option = len(self.tournaments) + 1
-        choices.update({go_to_last_menu_option: "Revenir au menu précédent"})
+        choices[go_to_last_menu_option] = "Revenir au menu précédent"
 
         run = True
         while run:
@@ -557,16 +548,26 @@ class Controller:
                 run = False
 
     # Gestion de la base de données
-
     def save_database(self):
         # self.db.truncate()
         players_table = self.db.table('players')
+
+        if players_table:
+            print("players_table")
+        else:
+            print("NO players_table")
+
         print("self.players : ", self.players)
         for index, player in self.players.items():
             player_as_json = player.to_json()
             print(f"player {index} as json : {player_as_json}")
             players_table.insert(player_as_json)
         print("players_table : \n", players_table)
+
+        if players_table:
+            print("YES players_table")
+        else:
+            print("NO players_table")
 
         print("players_table.all() : \n", players_table.all())
         print("len players_table.all() : \n", len(players_table.all()))
@@ -580,7 +581,7 @@ class Controller:
         for tournament_index, tournament in self.tournaments.items():
             tournament_as_json = tournament.to_json()
             print("tournament_as_json : \n", tournament_as_json)
-            tournaments_table.insert(tournament_as_json)
+            # tournaments_table.insert(tournament_as_json)
 
     def load_database(self):
         # self.db.truncate()

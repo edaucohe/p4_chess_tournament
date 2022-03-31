@@ -87,7 +87,17 @@ class Round:
         self.end = datetime.now()
 
     def to_json(self):
-        return {}
+        round_as_json = dataclasses.asdict(self)
+        round_as_json['start'] = self.start.isoformat()
+        round_as_json['end'] = None if self.end is None else self.start.isoformat()
+
+        for match in self.matches:
+            round_as_json['matches'] = (
+                [match[0][0].to_json(), match[0][1].value],
+                [match[1][0].to_json(), match[1][1].value]
+            )
+
+        return round_as_json
 
     @classmethod
     def from_json(cls, data: JsonDict, players: Dict[int, Player]):
@@ -196,17 +206,22 @@ class Tournament:
             player_id: player.to_json() for player_id, player in tournament_as_dict['players'].items()
         }
         # OR
-        tournament_as_dict['players'] = [
-            player_id for player_id, _ in tournament_as_dict['players'].items()
-        ]
+        # tournament_as_dict['players'] = [
+        #     player_id for player_id, _ in tournament_as_dict['players'].items()
+        # ]
 
         # Serialize scores
-        tournament_as_dict['scores']: Dict[Player, float]
-        # doit etre:
-        tournament_as_dict['scores']: Dict[int, float]
+        # tournament_as_dict['scores']: Dict[Player, float]
+        # # doit être :
+        # tournament_as_dict['scores']: Dict[int, float]
+
+        player_id = 1
+        for player, score in tournament_as_dict['scores'].items():
+            tournament_as_dict['scores'] = {player_id: score}
+            player_id += 1
 
         # Serialize rounds
-        tournament_as_dict['rounds'] = [round.to_json() for round in self.rounds]
+        tournament_as_dict['rounds'] = [current_round.to_json() for current_round in self.rounds]
 
         return tournament_as_dict
 

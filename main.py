@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date
 from typing import Dict, List
 
 from chess.controller import Controller
@@ -17,84 +17,48 @@ def players_added_for_test() -> Dict[int, Player]:
         Player("Claire", "LAMANT", date.fromisoformat("1975-10-10"), Sex.FEMALE, 1653),
     ]
 
-    # players_with_index = {index+1: Player for index in range(len(Player))}
     players_with_id = {index + 1: players[index] for index in range(len(players))}
     return players_with_id
 
 
-def tournaments_added_for_test(players, round_for_starting):
-    tournaments_list = []
+def tournaments_added_for_test(players, rounds):
     scores = {
-        players.get(1): 0,
-        players.get(2): 0,
-        players.get(3): 0,
-        players.get(4): 0,
-        players.get(5): 0,
-        players.get(6): 0,
-        players.get(7): 0,
-        players.get(8): 0
+        players[1]: 0,
+        players[2]: 0,
+        players[3]: 0,
+        players[4]: 0,
+        players[5]: 0,
+        players[6]: 0,
+        players[7]: 0,
+        players[8]: 0
     }
     tournaments = [
-        {
-            "name": "Master chess tournament Dubai 2022",
-            "place": "Dubai",
-            "time_control": TimeControlKind.BLITZ,
-            "description": "Tous les meilleurs joueurs du monde",
-            "players": players,
-            'scores': scores,
-            "start": date.today(),
-            "round_count": MAX_TURNS_COUNT,
-            "rounds": [round_for_starting[0]]
-        },
-        {
-            "name": "National chess tournament Paris 2022",
-            "place": "Paris",
-            "time_control": TimeControlKind.QUICK_PLAY,
-            "description": "Les meilleurs joueurs de la France",
-            "players": players,
-            'scores': scores,
-            "start": date.today(),
-            "round_count": MAX_TURNS_COUNT,
-            "rounds": [round_for_starting[1]]
-        }
+        Tournament("Master chess tournament Dubai 2022", "Dubai", TimeControlKind.QUICK_PLAY,
+                   "Les meilleurs joueurs de la France", players, scores, date.today(), MAX_TURNS_COUNT,
+                   [rounds[0]]),
+        Tournament("National chess tournament Paris 2022", "Paris", TimeControlKind.BULLET,
+                   "Les meilleurs joueurs de la France", players, scores, date.today(), MAX_TURNS_COUNT,
+                   [rounds[1]])
     ]
-    for tournament in tournaments:
-        tournament = Tournament(**tournament)
-        tournaments_list.append(tournament)
 
-    tournament_with_index = {index + 1: tournaments_list[index] for index in range(len(tournaments))}
+    tournament_with_index = {index + 1: tournaments[index] for index in range(len(tournaments))}
     return tournament_with_index
 
 
 def rounds_added_for_test():
-    rounds_list = []
     round_elements = [
-        {
-            "matches": [],
-            "name": "ROUND 1",
-            "start": datetime.now(),
-            "end": None
-        },
-        {
-            "matches": [],
-            "name": "ROUND 4",
-            "start": datetime.now(),
-            "end": datetime.now()
-        }
+        Round([], "ROUND 1"),
+        Round([], "ROUND 4")
     ]
-    for round_element in round_elements:
-        round_element = Round(**round_element)
-        rounds_list.append(round_element)
-
-    return rounds_list
+    return round_elements
 
 
 def main():
     # TODO delete me once the database is implemented
     players: Dict[int, Player] = players_added_for_test()
-    round_for_starting = rounds_added_for_test()
-    print("round_for_starting : ", round_for_starting)
-    tournaments = tournaments_added_for_test(players, round_for_starting)
+    rounds = rounds_added_for_test()
+    print("round_for_starting : ", rounds)
+    tournaments = tournaments_added_for_test(players, rounds)
     # print("joueurs du tournois : ", players)
     # print("tournois : ", tournaments)
     # list_of_numbers = [0, 1, 2, 3, 4]
@@ -109,7 +73,7 @@ def main():
 
     # players = db.load_players()
 
-    controller = Controller(players=players, tournaments=tournaments)
+    controller = Controller(players=players)
     controller.display_main_menu()
 
 
