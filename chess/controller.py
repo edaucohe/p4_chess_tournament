@@ -1,4 +1,5 @@
-from tinydb import TinyDB
+import tinydb.table
+from tinydb import TinyDB, Query, where
 from typing import List, Dict, Optional
 
 from chess.views import TerminalView
@@ -161,8 +162,8 @@ class Controller:
         if tournaments:
             name = " Liste de tournois "
             for tournament_number in range(len(tournaments)):
-                for round_in_progress in tournaments[tournament_number+1].rounds:
-                    if len(tournaments[tournament_number+1].rounds) < 4:
+                for round_in_progress in tournaments[tournament_number + 1].rounds:
+                    if len(tournaments[tournament_number + 1].rounds) < 4:
                         choices[tournament_number + 1] = tournaments[tournament_number + 1].name
                         name = " Liste de tournois "
                     else:
@@ -549,51 +550,38 @@ class Controller:
 
     # Gestion de la base de données
     def save_database(self):
-        # self.db.truncate()
+        # I need to:
+        # - Save player/tournament datas. If they exist, update data: If not, add new datas.
         players_table = self.db.table('players')
 
-        if players_table:
-            print("players_table")
-        else:
-            print("NO players_table")
+        print("players_table BEFORE update: ", players_table)
+        docs = players_table.search(where('ranking') > 0)
+        info_players = []
+        for doc in docs:
+            print("doc : ", doc)
+            print("doc.doc_id : ", doc.doc_id)
+            info_players.append(doc)
 
-        print("self.players : ", self.players)
         for index, player in self.players.items():
-            player_as_json = player.to_json()
-            print(f"player {index} as json : {player_as_json}")
-            players_table.insert(player_as_json)
-        print("players_table : \n", players_table)
+            current_player_data = players_table.contains(doc_id=index)
+            if current_player_data:
+                if info_players[index-1] != player.to_json():
+                    players_table.update(player.to_json(), where('first_name') == info_players[index - 1]["first_name"])
+            else:
+                players_table.insert(player.to_json())
 
-        if players_table:
-            print("YES players_table")
-        else:
-            print("NO players_table")
+        print("players_table AFTER update: ", players_table)
+        docs = players_table.search(where('ranking') > 0)
+        for doc in docs:
+            print("doc.doc_id : ", doc.doc_id)
+            print("doc : ", doc)
 
-        print("players_table.all() : \n", players_table.all())
-        print("len players_table.all() : \n", len(players_table.all()))
-
-        tournaments_table = self.db.table('tournaments')
-        # for index, tournament in self.tournaments.items():
-        #     for index_two, player in tournament.players.items():
-        #         # tournament_as_json = data_of_tournament.to_json()
-        #         print("tournament_as_json : ", player)
-
-        for tournament_index, tournament in self.tournaments.items():
-            tournament_as_json = tournament.to_json()
-            print("tournament_as_json : \n", tournament_as_json)
-            # tournaments_table.insert(tournament_as_json)
+        # tournaments_table = self.db.table('tournaments')
 
     def load_database(self):
-        # self.db.truncate()
-        # players_table = self.db.table('players_database')
-        # print("players_table.all() : \n", players_table.all())
-        # print("len(players_table.all()) : ", len(players_table.all()))
-        # print("self.db.all() : ", self.db.all())
         self.db.drop_table('players')
+        self.db.drop_table('players_database')
         self.db.drop_table('tournaments')
-        # for index, tournament in self.tournaments.items():
-        #     tournament_as_json = tournament.to_json()
-        #     print("tournament_as_json : ", tournament_as_json)
 
     def display_data_management_menu(self):
         choices = {

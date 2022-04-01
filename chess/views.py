@@ -103,11 +103,10 @@ class TerminalView:
             first_name=input('Prénom : '),
             last_name=input('Nom : '),
             date_of_birth=input_with_constraint('Date de naissance (aaaa-mm-dd) : ', parse_fn=date.fromisoformat),
-            sex=input_with_constraint('Genre (h/f) : ', parse_fn=Sex).value,
+            sex=input_with_constraint('Genre (h/f) : ', parse_fn=Sex),
             ranking=input_with_constraint('Classement : ', parse_fn=parse_positive_int)
         )
         return player
-
 
     @staticmethod
     def enter_first_name_data():
@@ -123,11 +122,11 @@ class TerminalView:
 
     @staticmethod
     def enter_sex_data():
-        sex = only_one_input_with_constraint('Genre (h/f) : ', parse_fn=Sex)
-        if sex is None:
-            return sex
-        else:
-            return sex.value
+        return only_one_input_with_constraint('Genre (h/f) : ', parse_fn=Sex)
+        # if sex is None:
+        #     return sex
+        # else:
+        #     return sex.value
 
     @staticmethod
     def enter_ranking_data():
