@@ -1,5 +1,4 @@
-import tinydb.table
-from tinydb import TinyDB, Query, where
+from tinydb import TinyDB, where
 from typing import List, Dict, Optional
 
 from chess.views import TerminalView
@@ -550,16 +549,15 @@ class Controller:
 
     # Gestion de la base de données
     def save_database(self):
-        # I need to:
-        # - Save player/tournament datas. If they exist, update data: If not, add new datas.
+        # players DB
         players_table = self.db.table('players')
 
-        print("players_table BEFORE update: ", players_table)
+        # print("players_table BEFORE update: ", players_table)
         docs = players_table.search(where('ranking') > 0)
         info_players = []
         for doc in docs:
-            print("doc : ", doc)
-            print("doc.doc_id : ", doc.doc_id)
+            # print("doc : ", doc)
+            # print("doc.doc_id : ", doc.doc_id)
             info_players.append(doc)
 
         for index, player in self.players.items():
@@ -570,18 +568,49 @@ class Controller:
             else:
                 players_table.insert(player.to_json())
 
-        print("players_table AFTER update: ", players_table)
-        docs = players_table.search(where('ranking') > 0)
-        for doc in docs:
-            print("doc.doc_id : ", doc.doc_id)
-            print("doc : ", doc)
+        # print("players_table AFTER update: ", players_table)
+        # docs = players_table.search(where('ranking') > 0)
+        # for doc in docs:
+        #     print("doc.doc_id : ", doc.doc_id)
+        #     print("doc : ", doc)
 
-        # tournaments_table = self.db.table('tournaments')
+        # tournaments DB
+        tournaments_table = self.db.table('tournaments')
+
+        # print("tournaments_table BEFORE update: ", tournaments_table)
+        # tournaments_docs = tournaments_table.search(where('round_count') == 4)
+        # info_tournaments = []
+        # for tournament_doc in tournaments_docs:
+        #     print("tournament_doc : ", tournament_doc)
+        #     print("doc.doc_id : ", tournament_doc.doc_id)
+        #     info_tournaments.append(tournament_doc)
+
+        for index_tournament, tournament in self.tournaments.items():
+            current_tournament_data = tournaments_table.contains(doc_id=index_tournament)
+            if current_tournament_data:
+                # updating code
+                pass
+            else:
+                # inserting code
+                tournaments_table.insert(tournament.to_json())
+
+        # print("tournaments_table AFTER update: ", tournaments_table)
+        # tournaments_docs = tournaments_table.search(where('round_count') == 4)
+        # for tournament_doc in tournaments_docs:
+        #     print("tournament_doc : ", tournament_doc)
+        #     print("doc.doc_id : ", tournament_doc.doc_id)
 
     def load_database(self):
-        self.db.drop_table('players')
-        self.db.drop_table('players_database')
-        self.db.drop_table('tournaments')
+        # players DB
+        players_table = self.db.table('players')
+        docs = players_table.search(where('ranking') > 0)
+        for doc in docs:
+            player = Player.from_json(doc)
+            self.players[doc.doc_id] = player
+
+        # self.db.drop_table('players')
+        # self.db.drop_table('players_database')
+        # self.db.drop_table('tournaments')
 
     def display_data_management_menu(self):
         choices = {

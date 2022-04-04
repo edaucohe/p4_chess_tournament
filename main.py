@@ -56,9 +56,10 @@ def rounds_added_for_test():
 def main():
     # TODO delete me once the database is implemented
     players: Dict[int, Player] = players_added_for_test()
+    print("players : ", players)
     rounds = rounds_added_for_test()
     print("round_for_starting : ", rounds)
-    tournaments = tournaments_added_for_test(players, rounds)
+    # tournaments = tournaments_added_for_test(players, rounds)
     # print("joueurs du tournois : ", players)
     # print("tournois : ", tournaments)
     # list_of_numbers = [0, 1, 2, 3, 4]

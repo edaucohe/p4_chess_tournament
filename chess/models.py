@@ -48,7 +48,6 @@ class Player:
         # Deserialization
         data['date_of_birth'] = date.fromisoformat(data['date_of_birth'])
         data['sex'] = Sex(data['sex'])
-
         return Player(**data)
 
 
@@ -215,10 +214,11 @@ class Tournament:
         # # doit être :
         # tournament_as_dict['scores']: Dict[int, float]
 
-        player_id = 1
-        for player, score in tournament_as_dict['scores'].items():
-            tournament_as_dict['scores'] = {player_id: score}
-            player_id += 1
+        # player_id = 1
+        # for player, score in tournament_as_dict['scores'].items():
+        tournament_as_dict['scores'] = \
+            {index: tournament_as_dict['scores'][index] for index in enumerate(tournament_as_dict['scores'])}
+            # player_id += 1
 
         # Serialize rounds
         tournament_as_dict['rounds'] = [current_round.to_json() for current_round in self.rounds]
@@ -227,5 +227,4 @@ class Tournament:
 
     @classmethod
     def from_json(cls, data: JsonDict, players: Dict[int, Player]):
-
         pass
