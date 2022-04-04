@@ -116,7 +116,7 @@ class Tournament:
     time_control: TimeControlKind
     description: str
     players: Dict[int, Player]  # {1: Player1}
-    scores: Dict[Player, float]  # {Player1: 3.5}
+    scores: Dict[int, float]  # {int: 3.5}
     start: Optional[date] = None
     round_count: int = DEFAULT_TURN_COUNT
 
@@ -134,8 +134,8 @@ class Tournament:
         self.start = date.today()
 
     def generate_scores(self):
-        for player in self.players.values():
-            self.scores.update({player: 0})
+        for player_id in self.players.keys():
+            self.scores[player_id] = 0
 
     def generate_next_round(self):
         players_sorted = self.sort_players()
@@ -148,8 +148,11 @@ class Tournament:
         self.rounds.append(next_round)
 
     def sort_players(self):
-        players_sorted = sorted(self.scores.items(), key=lambda scores: (scores[1], scores[0].ranking), reverse=True)
-        return players_sorted
+        players_to_sort = {}
+        for player_id, player in self.players.items():
+            players_to_sort[player] = self.scores[player_id]
+
+        return sorted(players_to_sort.items(), key=lambda scores: (scores[1], scores[0].ranking), reverse=True)
 
     @staticmethod
     def generate_matches_for_first_round(players_sorted):
@@ -171,18 +174,25 @@ class Tournament:
                 message = ""
                 if result_selected == 1:
                     message = f"{match[0][0].first_name} {match[0][0].last_name} a gagné le match !"
-                    self.scores[match[0][0]] += 1
+                    for player_id, player in self.players.items():
+                        if match[0][0] == player:
+                            self.scores[player_id] += 1
                     match[0][1] = MatchResult.WIN
                     match[1][1] = MatchResult.LOSS
                 elif result_selected == 2:
                     message = f"{match[1][0].first_name} {match[1][0].last_name} a gagné le match !"
-                    self.scores[match[1][0]] += 1
+                    for player_id, player in self.players.items():
+                        if match[1][0] == player:
+                            self.scores[player_id] += 1
                     match[0][1] = MatchResult.LOSS
                     match[1][1] = MatchResult.WIN
                 elif result_selected == 3:
                     message = "Les joueurs ont fait match null"
-                    self.scores[match[0][0]] += 0.5
-                    self.scores[match[1][0]] += 0.5
+                    for player_id, player in self.players.items():
+                        if match[0][0] == player:
+                            self.scores[player_id] += 0.5
+                        if match[1][0] == player:
+                            self.scores[player_id] += 0.5
                     match[0][1] = MatchResult.DRAW
                     match[1][1] = MatchResult.DRAW
                 return message
