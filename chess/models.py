@@ -88,13 +88,15 @@ class Round:
     def to_json(self):
         round_as_json = dataclasses.asdict(self)
         round_as_json['start'] = self.start.isoformat()
-        round_as_json['end'] = None if self.end is None else self.start.isoformat()
+        round_as_json['end'] = None if self.end is None else self.end.isoformat()
 
-        for match in self.matches:
-            round_as_json['matches'] = (
-                [match[0][0].to_json(), match[0][1].value],
-                [match[1][0].to_json(), match[1][1].value]
-            )
+        for match_number, match in enumerate(self.matches):
+            for player_number, player in enumerate(match):
+                round_as_json['matches'][match_number][player_number][0] = player[0].to_json()
+                round_as_json['matches'][match_number][player_number][1] = 0 if player[1] == 0 else player[1].value
+
+        # tournament_as_dict['players'][player_id]['date_of_birth'] = player['date_of_birth'].isoformat()
+        # tournament_as_dict['players'][player_id]['sex'] = player['sex'].value
 
         return round_as_json
 
@@ -211,24 +213,12 @@ class Tournament:
         tournament_as_dict['start'] = None if self.start is None else self.start.isoformat()
 
         # Serialize Players
-        tournament_as_dict['players'] = {
-            player_id: player.to_json() for player_id, player in tournament_as_dict['players'].items()
-        }
-        # OR
-        # tournament_as_dict['players'] = [
-        #     player_id for player_id, _ in tournament_as_dict['players'].items()
-        # ]
-
-        # Serialize scores
-        # tournament_as_dict['scores']: Dict[Player, float]
-        # # doit être :
-        # tournament_as_dict['scores']: Dict[int, float]
-
-        # player_id = 1
-        # for player, score in tournament_as_dict['scores'].items():
-        tournament_as_dict['scores'] = \
-            {index: tournament_as_dict['scores'][index] for index in enumerate(tournament_as_dict['scores'])}
-            # player_id += 1
+        # tournament_as_dict['players'] = {
+        #     player_id: player.date_of_birth.isoformat() for player_id, player in tournament_as_dict['players'].items()
+        # }
+        for player_id, player in tournament_as_dict['players'].items():
+            tournament_as_dict['players'][player_id]['date_of_birth'] = player['date_of_birth'].isoformat()
+            tournament_as_dict['players'][player_id]['sex'] = player['sex'].value
 
         # Serialize rounds
         tournament_as_dict['rounds'] = [current_round.to_json() for current_round in self.rounds]
