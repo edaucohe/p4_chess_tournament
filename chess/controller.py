@@ -556,8 +556,6 @@ class Controller:
         docs = players_table.search(where('ranking') > 0)
         info_players = []
         for doc in docs:
-            # print("doc : ", doc)
-            # print("doc.doc_id : ", doc.doc_id)
             info_players.append(doc)
 
         for index, player in self.players.items():
@@ -578,18 +576,18 @@ class Controller:
         tournaments_table = self.db.table('tournaments')
 
         # print("tournaments_table BEFORE update: ", tournaments_table)
-        # tournaments_docs = tournaments_table.search(where('round_count') == 4)
-        # info_tournaments = []
-        # for tournament_doc in tournaments_docs:
-        #     print("tournament_doc : ", tournament_doc)
-        #     print("doc.doc_id : ", tournament_doc.doc_id)
-        #     info_tournaments.append(tournament_doc)
+        tournaments_docs = tournaments_table.search(where('round_count') == 4)
+        info_tournaments = []
+        for tournament_doc in tournaments_docs:
+            info_tournaments.append(tournament_doc)
 
         for index_tournament, tournament in self.tournaments.items():
             current_tournament_data = tournaments_table.contains(doc_id=index_tournament)
             if current_tournament_data:
                 # updating code
-                pass
+                if info_tournaments[index_tournament-1] != tournament.to_json():
+                    tournaments_table.update(
+                        tournament.to_json(), where('name') == info_tournaments[index_tournament - 1]["name"])
             else:
                 # inserting code
                 tournaments_table.insert(tournament.to_json())
@@ -597,8 +595,8 @@ class Controller:
         # print("tournaments_table AFTER update: ", tournaments_table)
         # tournaments_docs = tournaments_table.search(where('round_count') == 4)
         # for tournament_doc in tournaments_docs:
-        #     print("tournament_doc : ", tournament_doc)
         #     print("doc.doc_id : ", tournament_doc.doc_id)
+        #     print("tournament_doc : ", tournament_doc)
 
     def load_database(self):
         # players DB
@@ -608,9 +606,16 @@ class Controller:
             player = Player.from_json(doc)
             self.players[doc.doc_id] = player
 
+        # tournaments DB
+        # tournaments_table = self.db.table('tournaments')
+        # tournaments_docs = tournaments_table.search(where('round_count') == 4)
+        # for tournament_doc in tournaments_docs:
+        #     tournament = Tournament.from_json(tournament_doc, self.players)
+        #     self.tournaments[tournament_doc.doc_id] = tournament
+
         # self.db.drop_table('players')
         # self.db.drop_table('players_database')
-        # self.db.drop_table('tournaments')
+        self.db.drop_table('tournaments')
 
     def display_data_management_menu(self):
         choices = {

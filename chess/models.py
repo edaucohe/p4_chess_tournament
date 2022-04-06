@@ -93,10 +93,7 @@ class Round:
         for match_number, match in enumerate(self.matches):
             for player_number, player in enumerate(match):
                 round_as_json['matches'][match_number][player_number][0] = player[0].to_json()
-                round_as_json['matches'][match_number][player_number][1] = 0 if player[1] == 0 else player[1].value
-
-        # tournament_as_dict['players'][player_id]['date_of_birth'] = player['date_of_birth'].isoformat()
-        # tournament_as_dict['players'][player_id]['sex'] = player['sex'].value
+                round_as_json['matches'][match_number][player_number][1] = None if not isinstance(player[1], MatchResult) else player[1].name
 
         return round_as_json
 
@@ -207,15 +204,11 @@ class Tournament:
 
     def to_json(self):
         # Serialization
-
         tournament_as_dict = dataclasses.asdict(self)
         tournament_as_dict['time_control'] = self.time_control.value
         tournament_as_dict['start'] = None if self.start is None else self.start.isoformat()
 
-        # Serialize Players
-        # tournament_as_dict['players'] = {
-        #     player_id: player.date_of_birth.isoformat() for player_id, player in tournament_as_dict['players'].items()
-        # }
+        # Serialize players
         for player_id, player in tournament_as_dict['players'].items():
             tournament_as_dict['players'][player_id]['date_of_birth'] = player['date_of_birth'].isoformat()
             tournament_as_dict['players'][player_id]['sex'] = player['sex'].value
