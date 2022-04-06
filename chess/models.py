@@ -93,13 +93,26 @@ class Round:
         for match_number, match in enumerate(self.matches):
             for player_number, player in enumerate(match):
                 round_as_json['matches'][match_number][player_number][0] = player[0].to_json()
-                round_as_json['matches'][match_number][player_number][1] = None if not isinstance(player[1], MatchResult) else player[1].name
+                round_as_json['matches'][match_number][player_number][1] = \
+                    None if not isinstance(player[1], MatchResult) else player[1].value
 
         return round_as_json
 
     @classmethod
-    def from_json(cls, data: JsonDict, players: Dict[int, Player]):
-        raise NotImplementedError()
+    def from_json(cls, data: JsonDict, players: Dict[str, Any]):
+        # Deserialization
+        data['start'] = datetime.fromisoformat(data['start'])
+        data['end'] = None if data['end'] is None else datetime.fromisoformat(data['end'])
+
+        # matches deserialization
+        for match_number, match in enumerate(data['matches']):
+            for player_number, player in enumerate(match):
+                data['matches'][match_number][player_number][0] = \
+                    Player.from_json(data['matches'][match_number][player_number][0])
+                data['matches'][match_number][player_number][1] = \
+                    MatchResult(player[1]) if isinstance(player[1], int) or isinstance(player[1], float) else 0
+
+        return Round(**data)
 
 
 class TimeControlKind(Enum):
@@ -219,5 +232,17 @@ class Tournament:
         return tournament_as_dict
 
     @classmethod
-    def from_json(cls, data: JsonDict, players: Dict[int, Player]):
-        pass
+    def from_json(cls, data: JsonDict):
+        data['start'] = None if data['start'] is None else date.fromisoformat(data['start'])
+        data['time_control'] = TimeControlKind(data['time_control'])
+
+        # Deserialize players
+        # for key, player in data['players'].items():
+        #     data['players'][key]['date_of_birth'] = date.fromisoformat(player['date_of_birth'])
+        #     data['players'][key]['sex'] = Sex(player['sex'])
+        data['players'] = [Player.from_json(player) for player_id, player in data['players'].items()]
+
+        # Deserialize rounds
+        data['rounds'] = [Round.from_json(current_round, data['players']) for current_round in data['rounds']]
+
+        return Tournament(**data)

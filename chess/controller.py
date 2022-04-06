@@ -60,8 +60,8 @@ class Controller:
         self.tournaments[new_tournament_id] = new_tournament
         self.current_tournament = new_tournament
 
-        print("new_tournament : ", new_tournament)
-        print("self.tournaments : ", self.tournaments)
+        # print("new_tournament : ", new_tournament)
+        # print("self.tournaments : ", self.tournaments)
 
     def update_tournament_info(self):
         place = ""
@@ -109,13 +109,13 @@ class Controller:
         if number_of_results == 4:
             current_round.close()
 
-        print("current_round : ", current_round)
-        print("self.current_tournament : ", self.current_tournament)
+        # print("current_round : ", current_round)
+        # print("self.current_tournament : ", self.current_tournament)
 
     def evaluate_current_tournament_status(self, tournament_id_selected):
         self.current_tournament = []
         self.current_tournament = self.tournaments[tournament_id_selected]
-        print("self.current_tournament : ", self.current_tournament)
+        # print("self.current_tournament : ", self.current_tournament)
         rounds_in_current_tournament: List[Round] = self.current_tournament.rounds
         current_round: Optional[Round] = \
             rounds_in_current_tournament[-1] if len(rounds_in_current_tournament) > 0 else None
@@ -152,7 +152,7 @@ class Controller:
             pass
         else:
             message = self.current_tournament.enter_match_result(match, user_choice)
-            print("self.current_tournament : ", self.current_tournament)
+            # print("self.current_tournament : ", self.current_tournament)
             self.view.display_a_simple_message(message)
 
     @staticmethod
@@ -183,7 +183,7 @@ class Controller:
     def generate_matches_list(self):
         choices = {}
         matches = self.current_tournament.rounds[-1].matches
-        print("matches : ", matches)
+        # print("matches : ", matches)
         for match in matches:
             choices[matches.index(match) + 1] = \
                 match[0][0].first_name + " " + match[0][0].last_name + " vs " + \
@@ -551,8 +551,6 @@ class Controller:
     def save_database(self):
         # players DB
         players_table = self.db.table('players')
-
-        # print("players_table BEFORE update: ", players_table)
         docs = players_table.search(where('ranking') > 0)
         info_players = []
         for doc in docs:
@@ -566,16 +564,8 @@ class Controller:
             else:
                 players_table.insert(player.to_json())
 
-        # print("players_table AFTER update: ", players_table)
-        # docs = players_table.search(where('ranking') > 0)
-        # for doc in docs:
-        #     print("doc.doc_id : ", doc.doc_id)
-        #     print("doc : ", doc)
-
         # tournaments DB
         tournaments_table = self.db.table('tournaments')
-
-        # print("tournaments_table BEFORE update: ", tournaments_table)
         tournaments_docs = tournaments_table.search(where('round_count') == 4)
         info_tournaments = []
         for tournament_doc in tournaments_docs:
@@ -592,12 +582,6 @@ class Controller:
                 # inserting code
                 tournaments_table.insert(tournament.to_json())
 
-        # print("tournaments_table AFTER update: ", tournaments_table)
-        # tournaments_docs = tournaments_table.search(where('round_count') == 4)
-        # for tournament_doc in tournaments_docs:
-        #     print("doc.doc_id : ", tournament_doc.doc_id)
-        #     print("tournament_doc : ", tournament_doc)
-
     def load_database(self):
         # players DB
         players_table = self.db.table('players')
@@ -607,15 +591,15 @@ class Controller:
             self.players[doc.doc_id] = player
 
         # tournaments DB
-        # tournaments_table = self.db.table('tournaments')
-        # tournaments_docs = tournaments_table.search(where('round_count') == 4)
-        # for tournament_doc in tournaments_docs:
-        #     tournament = Tournament.from_json(tournament_doc, self.players)
-        #     self.tournaments[tournament_doc.doc_id] = tournament
+        tournaments_table = self.db.table('tournaments')
+        tournaments_docs = tournaments_table.search(where('round_count') == 4)
+        for tournament_doc in tournaments_docs:
+            tournament = Tournament.from_json(tournament_doc)
+            self.tournaments[tournament_doc.doc_id] = tournament
 
         # self.db.drop_table('players')
         # self.db.drop_table('players_database')
-        self.db.drop_table('tournaments')
+        # self.db.drop_table('tournaments')
 
     def display_data_management_menu(self):
         choices = {
@@ -629,11 +613,13 @@ class Controller:
             self.view.display_menu(name, choices)
             user_choice = self.view.input_for_menu(choices)
             if user_choice == 1:
-                print('Sauvegarder les données')
                 self.save_database()
+                message = "** Données sauvegardées **"
+                self.view.display_a_simple_message(message)
             elif user_choice == 2:
-                print('Charger les données')
                 self.load_database()
+                message = "** Données chargées **"
+                self.view.display_a_simple_message(message)
             elif user_choice == 3:
                 run = False
 
