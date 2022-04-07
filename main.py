@@ -55,10 +55,10 @@ def rounds_added_for_test():
 
 def main():
     # TODO delete me once the database is implemented
-    players: Dict[int, Player] = players_added_for_test()
-    print("players : ", players)
-    rounds = rounds_added_for_test()
-    print("round_for_starting : ", rounds)
+    # players: Dict[int, Player] = players_added_for_test()
+    # print("players : ", players)
+    # rounds = rounds_added_for_test()
+    # print("round_for_starting : ", rounds)
     # tournaments = tournaments_added_for_test(players, rounds)
     # print("joueurs du tournois : ", players)
     # print("tournois : ", tournaments)
@@ -74,7 +74,8 @@ def main():
 
     # players = db.load_players()
 
-    controller = Controller(players=players)
+    # controller = Controller(players=players)
+    controller = Controller()
     controller.display_main_menu()
 
 
