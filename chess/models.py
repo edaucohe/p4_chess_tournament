@@ -240,7 +240,10 @@ class Tournament:
         # for key, player in data['players'].items():
         #     data['players'][key]['date_of_birth'] = date.fromisoformat(player['date_of_birth'])
         #     data['players'][key]['sex'] = Sex(player['sex'])
-        data['players'] = [Player.from_json(player) for player_id, player in data['players'].items()]
+        data['players'] = {
+            player_id: Player.from_json(player)
+            for player_id, player in data['players'].items()
+        }
 
         # Deserialize rounds
         data['rounds'] = [Round.from_json(current_round, data['players']) for current_round in data['rounds']]

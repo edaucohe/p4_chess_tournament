@@ -42,6 +42,17 @@ Lancer le script :
 python main.py
 ```
 
+## Code Quality
+
+Flake8 is used to keep the code clean.
+The configuration can be found in the `.flake8` file
+To run, execute:
+```
+flake8
+```
+
+https://flake8.pycqa.org/en/latest/
+
 ## Helpful links
 
 https://www.invivoo.com/dataclasses-python/
