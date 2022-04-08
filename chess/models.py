@@ -51,13 +51,6 @@ class Player:
         return Player(**data)
 
 
-# p1 => p1_as_dict => p1_as_dict_as_json
-# Pour la db, on veut passer de :
-# player = Player('name', 'lastname', date.today(), Sex.FEMALE, 1)
-# à
-# player = {'first_name': 'name', 'last_name': 'lastname', 'date_of_birth': '2022-03-16', 'sex': 'f', 'ranking': 1}
-
-
 class MatchResult(Enum):
     WIN = 1
     LOSS = 0
@@ -67,16 +60,8 @@ class MatchResult(Enum):
 Match = Tuple[List[Union[Player, Optional[MatchResult]]], List[Union[Player, Optional[MatchResult]]]]
 
 
-# OR
-# Match = Tuple[Tuple[Player, Optional[MatchResult]], Tuple[Player, Optional[MatchResult]]]
-
-
 @dataclass
 class Round:
-    # un match = ((player1, win), (player2, loss))  OU si le match n'est pas joué (player1, None), (player2, None)
-    # 1er round, matches = [match(p1, p5), match(p2, p6), match(p3, p7), match(p4, p8)]
-    # players -> reorder with their score
-    # 2e round, matches = [match(p1, p2), match(p3, p4), match(p5, p6), match(p7, p8)]
     matches: List[Match]
     name: str
     start: datetime = field(default_factory=datetime.now)
@@ -86,10 +71,12 @@ class Round:
         self.end = datetime.now()
 
     def to_json(self):
+        # Serialization
         round_as_json = dataclasses.asdict(self)
         round_as_json['start'] = self.start.isoformat()
         round_as_json['end'] = None if self.end is None else self.end.isoformat()
 
+        # Serialize matches
         for match_number, match in enumerate(self.matches):
             for player_number, player in enumerate(match):
                 round_as_json['matches'][match_number][player_number][0] = player[0].to_json()
@@ -99,12 +86,12 @@ class Round:
         return round_as_json
 
     @classmethod
-    def from_json(cls, data: JsonDict, players: Dict[str, Any]):
+    def from_json(cls, data: JsonDict):
         # Deserialization
         data['start'] = datetime.fromisoformat(data['start'])
         data['end'] = None if data['end'] is None else datetime.fromisoformat(data['end'])
 
-        # matches deserialization
+        # Deserialize matches
         for match_number, match in enumerate(data['matches']):
             for player_number, player in enumerate(match):
                 data['matches'][match_number][player_number][0] = \
@@ -127,14 +114,10 @@ class Tournament:
     place: str
     time_control: TimeControlKind
     description: str
-    players: Dict[int, Player]  # {1: Player1}
-    scores: Dict[int, float]  # {int: 3.5}
+    players: Dict[int, Player]
+    scores: Dict[int, float]
     start: Optional[date] = None
     round_count: int = DEFAULT_TURN_COUNT
-
-    # rounds = [round1, round2, ...]
-    # current round = rounds[-1]
-    # max(len(rounds)) = turn_count
     rounds: List[Round] = field(default_factory=lambda: [])
 
     def current_round(self):
@@ -237,15 +220,9 @@ class Tournament:
         data['time_control'] = TimeControlKind(data['time_control'])
 
         # Deserialize players
-        # for key, player in data['players'].items():
-        #     data['players'][key]['date_of_birth'] = date.fromisoformat(player['date_of_birth'])
-        #     data['players'][key]['sex'] = Sex(player['sex'])
-        data['players'] = {
-            player_id: Player.from_json(player)
-            for player_id, player in data['players'].items()
-        }
+        data['players'] = {player_id: Player.from_json(player) for player_id, player in data['players'].items()}
 
         # Deserialize rounds
-        data['rounds'] = [Round.from_json(current_round, data['players']) for current_round in data['rounds']]
+        data['rounds'] = [Round.from_json(current_round) for current_round in data['rounds']]
 
         return Tournament(**data)
